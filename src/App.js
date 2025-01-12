@@ -152,12 +152,12 @@ function App() {
         </div>
       </header>
       {/* Sobre la Sala de Juegos */}
-      <section id="about" className="bg-custom py-5">
+      <section id="about" className="bg-custom py-5" >
         <div className="container">
           {/* Sobre la Sala de Juegos */}
           <div className="row mb-5">
             <div className="col-12 shadow rounded text-center">
-              <h2 className="text-primary">
+              <h2 className="text-primary mt-4">
                 Descubre la Diversión en la Sala de Juegos
               </h2>
               <p className="mt-4 text-muted">
@@ -244,11 +244,22 @@ function App() {
                 <div className="gallery-item">
                   <img
                     src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2015.51.25_2855bfb0.jpg?raw=true"
-                    alt="Sala de Juegos - Imagen 1"
+                    alt="Sala de Juegos - Imagen 4"
                     className="img-fluid rounded shadow"
                   />
                 </div>
               </div>
+
+              <div className="col-md-4 mb-4">
+                <div className="gallery-item">
+                  <img
+                    src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-12%20a%20las%2013.45.03_d0eb2b26.jpg?raw=true"
+                    alt="Sala de Juegos - Imagen 5"
+                    className="img-fluid rounded shadow"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -374,7 +385,7 @@ function App() {
                   }}
                 />
                 <h4 className="mb-2 text-white">Deisler Flores</h4>
-                <p class="text-white">Campeón del Torneo Fifa 2023</p>
+                <p class="text-white">Bicampeón del Torneo EAFC24 2023 Y 2022</p>
               </div>
             </div>
             <div className="col-md-6 mb-4">
@@ -410,7 +421,9 @@ function App() {
                   El torneo más esperado de la temporada. ¡Demuestra tus
                   habilidades!
                 </p>
-                <p>Fecha: 30 Marzo 2025</p>
+                <p>Fecha: 01 Marzo 2025</p>
+                <p>Valor: $2000</p>
+                <p>Simpe Movil: 86825481 jefernee Ruiz</p>
                 <button
                   className="btn btn-primary"
                   onClick={() => handleShowForm("Torneo EAFC25")} // Actualiza el torneo y muestra el formulario
@@ -426,6 +439,8 @@ function App() {
                   Participa en el torneo donde solo uno puede ser el campeón.
                 </p>
                 <p>Fecha: 30 Marzo 2025</p>
+                <p>Valor: $1000</p>
+                <p>Simpe Movil: 86825481 jefernee Ruiz</p>
                 <button
                   className="btn btn-primary"
                   onClick={() => handleShowForm("Torneo Call Of Duty")} // Actualiza el torneo y muestra el formulario
@@ -564,6 +579,8 @@ function App() {
       <footer className="bg-dark text-white text-center py-3">
         <p className="mb-0">
           &copy; 2025 Sala de Juegos. Todos los derechos reservados.
+          <p>Proyecto realizado por <strong>Jefernee Ruiz</strong></p>
+          <p>Contacto: <a href="mailto:jefernee50@gmail.com">jefernee50@gmail.com</a></p>
         </p>
       </footer>
     </div>
