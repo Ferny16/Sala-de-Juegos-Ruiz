@@ -1,4 +1,3 @@
-
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -80,7 +79,6 @@ function App() {
       );
   };
 
-
   return (
     <div>
       {/* Navegación */}
@@ -137,22 +135,42 @@ function App() {
         </div>
       </nav>
       {/* Anuncios */}
-      
       {/* Encabezado */}
       <header className="App-header text-white text-center py-5">
-        <div className="container">
-          {/*<h1>Bienvenido a la Sala de Juegos Ruiz</h1>*/}
-          <h1 class="display-4 typing-text">
-            Bienvenido a la Sala de Juegos Ruiz
-          </h1>
-          <p className="lead">
-            Disfruta de una experiencia única con los mejores juegos y la mejor
-            compañía.
-          </p>
+        <div className="container d-flex align-items-center justify-content-between">
+          {/* Contenedor del texto */}
+          <div className="text-container">
+            <h1 className="display-4 typing-text">
+              Bienvenido a la Sala de Juegos Ruiz
+            </h1>
+            <p className="lead">
+              Disfruta de una experiencia única con los mejores juegos y la
+              mejor compañía.
+            </p>
+          </div>
+
+          {/* Imagen del Logo */}
+          {/*style={{ width: "200px", height: "200px" }}*/}
+          <div className="logo-container d-flex justify-content-center align-items-center">
+            <img
+              src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2021.53.16_f15972d6.jpg?raw=true" // Reemplaza esta URL con la del logo
+              alt="Logo de la Sala de Juegos Ruiz"
+              className="img-fluid rounded-circle"
+              style={{
+                width: "20vw", // Usa un porcentaje relativo al tamaño de la ventana (viewport)
+                height: "20vw", // Mantiene la misma proporción para el círculo
+                maxWidth: "200px", // Limita el tamaño máximo en pantallas grandes
+                maxHeight: "200px", // Limita el tamaño máximo en pantallas grandes
+                borderRadius: "50%", // Mantén la forma circular
+                overflow: "hidden", // Evita que la imagen sobresalga
+              }}
+            />
+          </div>
         </div>
       </header>
+
       {/* Sobre la Sala de Juegos */}
-      <section id="about" className="bg-custom py-5" >
+      <section id="about" className="bg-custom py-5">
         <div className="container">
           {/* Sobre la Sala de Juegos */}
           <div className="row mb-5">
@@ -259,7 +277,6 @@ function App() {
                   />
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -281,8 +298,8 @@ function App() {
                   alt="Juego 1"
                   className="img-fluid rounded mb-3"
                   style={{
-                    width: "100px",
-                    height: "100px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "cover",
                   }}
                 />
@@ -302,8 +319,8 @@ function App() {
                   alt="Juego 2"
                   className="img-fluid rounded mb-3"
                   style={{
-                    width: "100px",
-                    height: "100px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "cover",
                   }}
                 />
@@ -323,8 +340,8 @@ function App() {
                   alt="Juego 3"
                   className="img-fluid rounded mb-3"
                   style={{
-                    width: "100px",
-                    height: "100px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "cover",
                   }}
                 />
@@ -344,13 +361,36 @@ function App() {
                   alt="Juego 4"
                   className="img-fluid rounded mb-3"
                   style={{
-                    width: "100px",
-                    height: "100px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "cover",
                   }}
                 />
                 <p>Mortal Kombat 1</p>
               </a>
+            </div>
+            {/*Segunda parte*/}
+            <div className="row text-center mb-4">
+              {/* Juego 1 */}
+              <div className="col-md-3 mb-3">
+                <a
+                  href="https://www.playstation.com/es-es/ps-plus/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Dragon-Ball-Sparking-Zero.png?raw=true"
+                    alt="Juego 5"
+                    className="img-fluid rounded mb-3"
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <p>Dragon Ball Sparking Zero</p>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -379,13 +419,15 @@ function App() {
                   alt="Ganador Torneo Fifa 2025"
                   className="img-fluid rounded-circle mb-3"
                   style={{
-                    width: "150px",
-                    height: "150px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "cover",
                   }}
                 />
                 <h4 className="mb-2 text-white">Deisler Flores</h4>
-                <p class="text-white">Bicampeón del Torneo EAFC24 2023 Y 2022</p>
+                <p class="text-white">
+                  Bicampeón del Torneo EAFC24 2023 Y 2022
+                </p>
               </div>
             </div>
             <div className="col-md-6 mb-4">
@@ -395,8 +437,8 @@ function App() {
                   alt="Ganador Battle Royale Challenge"
                   className="img-fluid rounded-circle mb-3"
                   style={{
-                    width: "150px",
-                    height: "150px",
+                    width: "200px",
+                    height: "200px",
                     objectFit: "contain",
                   }}
                 />
@@ -416,12 +458,12 @@ function App() {
           <div className="row">
             <div className="col-md-6 mb-4">
               <div className="p-3 shadow rounded">
-                <h4 className="mb-3">Torneo Fifa 2025</h4>
+                <h4 className="mb-3">Torneo EAFC 2025</h4>
                 <p>
                   El torneo más esperado de la temporada. ¡Demuestra tus
                   habilidades!
                 </p>
-                <p>Fecha: 01 Marzo 2025</p>
+                <p>Fecha: 01 Marzo 2025 Hora: 6pm</p>
                 <p>Valor: $2000</p>
                 <p>Simpe Movil: 86825481 jefernee Ruiz</p>
                 <button
@@ -438,7 +480,7 @@ function App() {
                 <p>
                   Participa en el torneo donde solo uno puede ser el campeón.
                 </p>
-                <p>Fecha: 30 Marzo 2025</p>
+                <p>Fecha: 30 Marzo 2025 Hora: 6pm</p>
                 <p>Valor: $1000</p>
                 <p>Simpe Movil: 86825481 jefernee Ruiz</p>
                 <button
@@ -579,8 +621,13 @@ function App() {
       <footer className="bg-dark text-white text-center py-3">
         <p className="mb-0">
           &copy; 2025 Sala de Juegos. Todos los derechos reservados.
-          <p>Proyecto realizado por <strong>Jefernee Ruiz</strong></p>
-          <p>Contacto: <a href="mailto:jefernee50@gmail.com">jefernee50@gmail.com</a></p>
+          <p>
+            Proyecto realizado por <strong>Jefernee Ruiz</strong>
+          </p>
+          <p>
+            Contacto:{" "}
+            <a href="mailto:jefernee50@gmail.com">jefernee50@gmail.com</a>
+          </p>
         </p>
       </footer>
     </div>

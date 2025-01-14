@@ -99,6 +99,15 @@
   color: #dfd3d2;
 }
 
+
+ @media (max-width: 768px) {
+    .logo-container {
+      width: 150px;  /* Ajusta el tamaño en pantallas pequeñas */
+      height: 150px; /* Ajusta el tamaño en pantallas pequeñas */
+    }
+  }
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
