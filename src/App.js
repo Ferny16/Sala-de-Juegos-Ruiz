@@ -84,6 +84,7 @@ function App() {
       {/* Navegación */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
+          
           <span className="navbar-brand">Sala de Juegos Ruiz</span>
           <button
             className="navbar-toggler"
@@ -137,7 +138,7 @@ function App() {
       {/* Anuncios */}
       {/* Encabezado */}
       <header className="App-header text-white text-center py-5">
-        <div className="container d-flex align-items-center justify-content-between">
+        <div className="container ">
           {/* Contenedor del texto */}
           <div className="text-container">
             <h1 className="display-4 typing-text">
@@ -151,7 +152,7 @@ function App() {
 
           {/* Imagen del Logo */}
           {/*style={{ width: "200px", height: "200px" }}*/}
-          <div className="logo-container d-flex justify-content-center align-items-center">
+          {/*    <div className="logo-container d-flex justify-content-center align-items-center">
             <img
               src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2021.53.16_f15972d6.jpg?raw=true" // Reemplaza esta URL con la del logo
               alt="Logo de la Sala de Juegos Ruiz"
@@ -165,7 +166,7 @@ function App() {
                 overflow: "hidden", // Evita que la imagen sobresalga
               }}
             />
-          </div>
+          </div> */}
         </div>
       </header>
 
