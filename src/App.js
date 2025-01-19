@@ -84,7 +84,6 @@ function App() {
       {/* Navegación */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
-          
           <span className="navbar-brand">Sala de Juegos Ruiz</span>
           <button
             className="navbar-toggler"
@@ -139,7 +138,6 @@ function App() {
       {/* Encabezado */}
       <header className="App-header text-white text-center py-5">
         <div className="container ">
-          {/* Contenedor del texto */}
           <div className="text-container">
             <h1 className="display-4 typing-text">
               Bienvenido a la Sala de Juegos Ruiz
@@ -149,24 +147,6 @@ function App() {
               mejor compañía.
             </p>
           </div>
-
-          {/* Imagen del Logo */}
-          {/*style={{ width: "200px", height: "200px" }}*/}
-          {/*    <div className="logo-container d-flex justify-content-center align-items-center">
-            <img
-              src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2021.53.16_f15972d6.jpg?raw=true" // Reemplaza esta URL con la del logo
-              alt="Logo de la Sala de Juegos Ruiz"
-              className="img-fluid rounded-circle"
-              style={{
-                width: "20vw", // Usa un porcentaje relativo al tamaño de la ventana (viewport)
-                height: "20vw", // Mantiene la misma proporción para el círculo
-                maxWidth: "200px", // Limita el tamaño máximo en pantallas grandes
-                maxHeight: "200px", // Limita el tamaño máximo en pantallas grandes
-                borderRadius: "50%", // Mantén la forma circular
-                overflow: "hidden", // Evita que la imagen sobresalga
-              }}
-            />
-          </div> */}
         </div>
       </header>
 
@@ -231,9 +211,10 @@ function App() {
             <div className="col-md-4 mb-4">
               <div className="gallery-item">
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2013.22.39_99fdc2cc.jpg?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_99fdc2cc_t6qlpv.jpg"
                   alt="Sala de Juegos - Imagen 1"
                   className="img-fluid rounded shadow"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -241,9 +222,10 @@ function App() {
             <div className="col-md-4 mb-4">
               <div className="gallery-item">
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2013.22.39_87a85618.jpg?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_87a85618_k91ytj.jpg"
                   alt="Sala de Juegos - Imagen 2"
                   className="img-fluid rounded shadow"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -251,9 +233,10 @@ function App() {
             <div className="col-md-4 mb-4">
               <div className="gallery-item">
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2015.52.13_c45a1601.jpg?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318752/Imagen_de_WhatsApp_2025-01-11_a_las_15.52.13_c45a1601_xdrq2d.jpg"
                   alt="Sala de Juegos - Imagen 3"
                   className="img-fluid rounded shadow"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -262,9 +245,10 @@ function App() {
               <div className="col-md-4 mb-4">
                 <div className="gallery-item">
                   <img
-                    src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2015.51.25_2855bfb0.jpg?raw=true"
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318752/Imagen_de_WhatsApp_2025-01-11_a_las_15.51.25_2855bfb0_np5fr6.jpg"
                     alt="Sala de Juegos - Imagen 4"
                     className="img-fluid rounded shadow"
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -272,9 +256,10 @@ function App() {
               <div className="col-md-4 mb-4">
                 <div className="gallery-item">
                   <img
-                    src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-12%20a%20las%2013.45.03_d0eb2b26.jpg?raw=true"
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318753/Imagen_de_WhatsApp_2025-01-12_a_las_13.45.03_d0eb2b26_pqtwyh.jpg"
                     alt="Sala de Juegos - Imagen 5"
                     className="img-fluid rounded shadow"
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -295,9 +280,10 @@ function App() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Captura%20de%20pantalla%202025-01-11%20145419.png?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318750/Captura_de_pantalla_2025-01-11_145419_hgy4zv.png"
                   alt="Juego 1"
                   className="img-fluid rounded mb-3"
+                  loading="lazy"
                   style={{
                     width: "200px",
                     height: "200px",
@@ -316,8 +302,9 @@ function App() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Captura%20de%20pantalla%202025-01-11%20145112.png?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318430/Captura_de_pantalla_2025-01-11_145112_vwsdp4.png"
                   alt="Juego 2"
+                  loading="lazy"
                   className="img-fluid rounded mb-3"
                   style={{
                     width: "200px",
@@ -337,8 +324,9 @@ function App() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Captura%20de%20pantalla%202025-01-11%20145836.png?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318750/Captura_de_pantalla_2025-01-11_145836_em97b5.png"
                   alt="Juego 3"
+                  loading="lazy"
                   className="img-fluid rounded mb-3"
                   style={{
                     width: "200px",
@@ -358,8 +346,9 @@ function App() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Captura%20de%20pantalla%202025-01-11%20150001.png?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318750/Captura_de_pantalla_2025-01-11_150001_nj4eyj.png"
                   alt="Juego 4"
+                  loading="lazy"
                   className="img-fluid rounded mb-3"
                   style={{
                     width: "200px",
@@ -380,8 +369,9 @@ function App() {
                   rel="noopener noreferrer"
                 >
                   <img
-                    src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Dragon-Ball-Sparking-Zero.png?raw=true"
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Dragon-Ball-Sparking-Zero_pk60kl.png"
                     alt="Juego 5"
+                    loading="lazy"
                     className="img-fluid rounded mb-3"
                     style={{
                       width: "200px",
@@ -416,8 +406,9 @@ function App() {
             <div className="col-md-6 mb-4">
               <div className="p-3 shadow rounded text-center">
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2013.22.39_079f8747.jpg?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_079f8747_whbol2.jpg"
                   alt="Ganador Torneo Fifa 2025"
+                  loading="lazy"
                   className="img-fluid rounded-circle mb-3"
                   style={{
                     width: "200px",
@@ -434,8 +425,9 @@ function App() {
             <div className="col-md-6 mb-4">
               <div className="p-3 shadow rounded text-center">
                 <img
-                  src="https://github.com/Ferny16/Sala-de-Juegos-Ruiz/blob/main/Imagenes%20de%20Sala%20de%20juegos%20Ruiz%20para%20web/Imagen%20de%20WhatsApp%202025-01-11%20a%20las%2013.22.39_a023594b.jpg?raw=true"
+                  src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_a023594b_uflphn.jpg"
                   alt="Ganador Battle Royale Challenge"
+                  loading="lazy"
                   className="img-fluid rounded-circle mb-3"
                   style={{
                     width: "200px",
