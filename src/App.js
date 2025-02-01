@@ -550,7 +550,7 @@ function App() {
                 style={{
                   position: "relative",
                   width: "100%",
-                  height: "500px", // Aseguramos una altura específica para el mapa
+                  height: "100%", //500px Aseguramos una altura específica para el mapa
                   maxWidth: "800px",
                   margin: "0 auto", // Centra el mapa si no se llena toda la pantalla
                 }}
@@ -559,7 +559,7 @@ function App() {
                 <div
                   id="map"
                   style={{
-                    height: "50vh", // Ocupa toda la altura disponible del contenedor
+                    height: "50vh", //50vh Ocupa toda la altura disponible del contenedor
                     width: "100%", // Ocupa toda la anchura disponible
                   }}
                 ></div>
