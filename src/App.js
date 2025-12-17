@@ -1,4 +1,5 @@
 import React from "react";
+import home from "./content/home.json";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { useEffect } from "react";
@@ -140,11 +141,10 @@ function App() {
         <div className="container ">
           <div className="text-container">
             <h1 className="display-4 typing-text">
-              Bienvenido a la Sala de Juegos Ruiz
+                {home.title}
             </h1>
             <p className="lead">
-              Disfruta de una experiencia única con los mejores juegos y la
-              mejor compañía.
+                {home.description}
             </p>
           </div>
         </div>
