@@ -1,5 +1,4 @@
-import React from "react";
-import home from "./content/home.json";
+/*import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { useEffect } from "react";
@@ -82,7 +81,7 @@ function App() {
 
   return (
     <div>
-      {/* Navegación */}
+      {/* Navegación */  /*}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
           <span className="navbar-brand">Sala de Juegos Ruiz</span>
@@ -131,29 +130,30 @@ function App() {
                   Contacto
                 </a>
               </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#contact">
+                  Login
+                </a>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
-      {/* Anuncios */}
-      {/* Encabezado */}
+      {/* Anuncios */ /*}
+      {/* Encabezado */   /*}
       <header className="App-header text-white text-center py-5">
         <div className="container ">
           <div className="text-container">
-            <h1 className="display-4 typing-text">
-                {home.title}
-            </h1>
-            <p className="lead">
-                {home.description}
-            </p>
+            <h1>Sala de Juegos Ruiz</h1>
+            <p>Centro de entretenimiento y recreación</p>
           </div>
         </div>
       </header>
 
-      {/* Sobre la Sala de Juegos */}
+      {/* Sobre la Sala de Juegos */   /*}
       <section id="about" className="bg-custom py-5">
         <div className="container">
-          {/* Sobre la Sala de Juegos */}
+          {/* Sobre la Sala de Juegos */  /*}
           <div className="row mb-5">
             <div className="col-12 shadow rounded text-center">
               <h2 className="text-primary mt-4">
@@ -173,9 +173,9 @@ function App() {
             </div>
           </div>
 
-          {/* Visión y Misión */}
+          {/* Visión y Misión */  /*}
           <div className="row">
-            {/* Visión */}
+            {/* Visión */  /*}
             <div className="col-md-6 mb-4">
               <div className="p-4 shadow rounded text-center">
                 <h2 className="text-primary">Visión</h2>
@@ -188,7 +188,7 @@ function App() {
               </div>
             </div>
 
-            {/* Misión */}
+            {/* Misión */  /*}
             <div className="col-md-6 mb-4">
               <div className="p-4 shadow rounded text-center">
                 <h2 className="text-primary">Misión</h2>
@@ -203,7 +203,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Galería */}
+      {/* Galería */  /*}
       <section id="gallery" className="bg-custom py-5">
         <div className="container">
           <h2 className="text-center mb-3">Galería de la Sala</h2>
@@ -267,12 +267,12 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Juegos Disponibles */}
+      {/* Juegos Disponibles */  /*}
       <section id="games" className="bg-custom py-5">
         <div className="container">
           <h2 className="text-center mb-4">Los Mejores Juegos Disponibles</h2>
           <div className="row text-center mb-4">
-            {/* Juego 1 */}
+            {/* Juego 1 */  /*}
             <div className="col-md-3 mb-3">
               <a
                 href="https://www.playstation.com/es-es/ps-plus/"
@@ -294,7 +294,7 @@ function App() {
               </a>
             </div>
 
-            {/* Juego 2 */}
+            {/* Juego 2 */  /*}
             <div className="col-md-3 mb-3">
               <a
                 href="https://www.playstation.com/es-es/ps-plus/"
@@ -316,7 +316,7 @@ function App() {
               </a>
             </div>
 
-            {/* Juego 3 */}
+            {/* Juego 3 */  /*}
             <div className="col-md-3 mb-3">
               <a
                 href="https://www.playstation.com/es-es/ps-plus/"
@@ -338,7 +338,7 @@ function App() {
               </a>
             </div>
 
-            {/* Juego 4 */}
+            {/* Juego 4 */  /*}
             <div className="col-md-3 mb-3">
               <a
                 href="https://www.playstation.com/es-es/ps-plus/"
@@ -359,9 +359,9 @@ function App() {
                 <p>Mortal Kombat 1</p>
               </a>
             </div>
-            {/*Segunda parte*/}
+            {/*Segunda parte*/  /*}
             <div className="row text-center mb-4">
-              {/* Juego 1 */}
+              {/* Juego 1 */  /*}
               <div className="col-md-3 mb-3">
                 <a
                   href="https://www.playstation.com/es-es/ps-plus/"
@@ -385,7 +385,7 @@ function App() {
             </div>
           </div>
 
-          {/* Enlace a PS Plus */}
+          {/* Enlace a PS Plus */  /*}
           <div className="text-center">
             <a
               href="https://www.playstation.com/es-es/ps-plus/games/?category=GAME_CATALOG#plus-container"
@@ -398,7 +398,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Ganadores de Torneos */}
+      {/* Ganadores de Torneos */  /*}
       <section id="ganadores" className="bg-custom py-5">
         <div className="container">
           <h2 className="text-center mb-4">Ganadores de Torneos</h2>
@@ -442,7 +442,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Inscripción torneos */}
+      {/* Inscripción torneos */  /*}
       <section id="tournaments" className="bg-custom py-5">
         <div className="container">
           <h2 className="text-center mb-4">
@@ -487,7 +487,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Solo renderiza el formulario cuando `showForm` sea verdadero */}
+      {/* Solo renderiza el formulario cuando `showForm` sea verdadero */  /*}
 
       {showForm && (
         <form id="formulario-inscripcion" onSubmit={handleFormSubmit}>
@@ -533,7 +533,7 @@ function App() {
           </button>
         </form>
       )}
-      {/* Mapa */}
+      {/* Mapa */  /*}
       <section id="mapa" className="bg-custom py-5">
         <div className="container">
           <h2 className="text-center mb-4">Ubicación de la Sala de Juegos</h2>
@@ -542,7 +542,7 @@ function App() {
             disfrutar de los mejores momentos de juego.
           </p>
 
-          {/* Contenedor del mapa con clase de Bootstrap para responsividad */}
+          {/* Contenedor del mapa con clase de Bootstrap para responsividad */  /*}
           <div className="row justify-content-center">
             <div className="col-md-8">
               <div
@@ -555,7 +555,7 @@ function App() {
                   margin: "0 auto", // Centra el mapa si no se llena toda la pantalla
                 }}
               >
-                {/* Este es el único MapContainer que se renderiza */}
+                {/* Este es el único MapContainer que se renderiza */  /*}
                 <div
                   id="map"
                   style={{
@@ -568,7 +568,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Contacto */}
+      {/* Contacto */  /*}
       <section id="contact" className="bg-primary py-5">
         <div className="container text-white">
           <h2 className="text-center mb-4">Contáctanos</h2>
@@ -610,7 +610,7 @@ function App() {
           </div>
         </div>
       </section>
-      {/* Pie de página */}
+      {/* Pie de página */  /*}
       <footer className="bg-dark text-white text-center py-3">
         <p className="mb-0">
           &copy; 2025 Sala de Juegos. Todos los derechos reservados.
@@ -625,6 +625,23 @@ function App() {
       </footer>
     </div>
   );
+};
+
+export default App;*/
+// App.js
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  );
 }
 
 export default App;
+
+
