@@ -4,7 +4,6 @@ import "../App.css";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import emailjs from "@emailjs/browser";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 function Home() {
