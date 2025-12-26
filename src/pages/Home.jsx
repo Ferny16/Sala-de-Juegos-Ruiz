@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../App.css";
+import "../styles/Ganadores.css";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import emailjs from "@emailjs/browser";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const map = L.map("map").setView([10.0821389, -83.3479722], 13);
 
@@ -25,39 +27,10 @@ function Home() {
     };
   }, []);
 
-  const [showForm, setShowForm] = useState(false);
-  const [torneo, setTorneo] = useState("");
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const handleShowForm = (torneoNombre) => {
-    setTorneo(torneoNombre);
-    setShowForm(true);
-  };
-
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-
-    if (formSubmitted) {
-      alert("¡Ya estás inscrito en este torneo!");
-      return;
-    }
-
-    emailjs
-      .sendForm(
-        "service_836qmbb",
-        "template_jzeg7u4",
-        event.target,
-        "kmFrqkvGQkrmmtRvU"
-      )
-      .then(
-        () => {
-          alert("¡Inscripción realizada con éxito!");
-          setFormSubmitted(true);
-        },
-        () => {
-          alert("Error al enviar el formulario");
-        }
-      );
+  const handleInscribir = (torneoNombre) => {
+    navigate("/inscripcion", {
+      state: { torneo: torneoNombre },
+    });
   };
 
   return (
@@ -305,7 +278,7 @@ function Home() {
                   rel="noopener noreferrer"
                 >
                   <img
-                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318750/Captura_de_pantalla_2025-01-11_145836_em97b5.png"
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1766698701/EA-Sports-FC-26-Release-Date-and-Gameplay-Reveal_pqy8fq.jpg"
                     alt="Juego 3"
                     loading="lazy"
                     className="img-fluid rounded mb-3"
@@ -315,7 +288,7 @@ function Home() {
                       objectFit: "cover",
                     }}
                   />
-                  <p>EAFC25</p>
+                  <p>EAFC26</p>
                 </a>
               </div>
 
@@ -385,7 +358,7 @@ function Home() {
             <h2 className="text-center mb-4">Ganadores de Torneos</h2>
             <div className="row">
               <div className="col-md-6 mb-4">
-                <div className="p-3 shadow rounded text-center">
+                <div className="p-3 shadow rounded text-center card-verde">
                   <img
                     src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_079f8747_whbol2.jpg"
                     alt="Ganador Torneo Fifa 2025"
@@ -394,17 +367,17 @@ function Home() {
                     style={{
                       width: "200px",
                       height: "200px",
-                      objectFit: "cover",
+                      objectFit: "contain",
                     }}
                   />
                   <h4 className="mb-2 text-white">Deisler Flores</h4>
                   <p class="text-white">
-                    Bicampeón del Torneo EAFC24 2023 Y 2022
+                    Tricampeón del Torneo EAFC 2022, 2023 y 2025
                   </p>
                 </div>
               </div>
               <div className="col-md-6 mb-4">
-                <div className="p-3 shadow rounded text-center">
+                <div className="p-3 shadow rounded text-center card-azul">
                   <img
                     src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318751/Imagen_de_WhatsApp_2025-01-11_a_las_13.22.39_a023594b_uflphn.jpg"
                     alt="Ganador Battle Royale Challenge"
@@ -421,6 +394,42 @@ function Home() {
                 </div>
               </div>
             </div>
+            <div className="row">
+              <div className="col-md-6 mb-4">
+                <div className="p-3 shadow rounded text-center card-roja">
+                  <img
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1766697890/Vargas_hdccso.jpg"
+                    alt="Ganador Torneo Fifa 2025"
+                    loading="lazy"
+                    className="img-fluid rounded-circle mb-3"
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <h4 className="mb-2 text-white">Vargas</h4>
+                  <p class="text-white">Campeón de Mortal Kombat 1 2025</p>
+                </div>
+              </div>
+              <div className="col-md-6 mb-4">
+                <div className="p-3 shadow rounded text-center card-amarillo">
+                  <img
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1766697970/isacar_hfuauy.jpg"
+                    alt="Ganador Torneo Fifa 2025"
+                    loading="lazy"
+                    className="img-fluid rounded-circle mb-3"
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <h4 className="mb-2 text-white">Isacar</h4>
+                  <p class="text-white">Campeón de Call of Duty 2025</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         {/* Insercion de torneos */}
@@ -432,17 +441,15 @@ function Home() {
             <div className="row">
               <div className="col-md-6 mb-4">
                 <div className="p-3 shadow rounded">
-                  <h4 className="mb-3">Torneo EAFC 2025</h4>
+                  <h4 className="mb-3">🎮Torneo EAFC 2026</h4>
                   <p>
-                    El torneo más esperado de la temporada. ¡Demuestra tus
-                    habilidades!
+                    Torneo competitivo de fútbol virtual enfocado en rendimiento, estrategia y precisión en cada partido.
                   </p>
-                  <p>Fecha: 01 Marzo 2025 Hora: 6pm</p>
-                  <p>Valor: $2000</p>
-                  <p>Simpe Movil: 86825481 jefernee Ruiz</p>
+                  <p>Fecha: Por definir</p>
+                  <p>Valor: ₡2000</p>
                   <button
-                    className="btn btn-primary"
-                    onClick={() => handleShowForm("Torneo EAFC25")} // Actualiza el torneo y muestra el formulario
+                    className="btn btn-success"
+                    onClick={() => handleInscribir("Torneo de EAFC")}
                   >
                     Inscribirse
                   </button>
@@ -450,16 +457,47 @@ function Home() {
               </div>
               <div className="col-md-6 mb-4">
                 <div className="p-3 shadow rounded">
-                  <h4 className="mb-3">Battle Royale Challenge</h4>
+                  <h4 className="mb-3">⚔️Call Of Duty</h4>
                   <p>
-                    Participa en el torneo donde solo uno puede ser el campeón.
+                    Únete al Torneo Call of Duty y demuestra tu destreza en combates intensos. Estrategia y reacción rápida marcan la diferencia.
                   </p>
-                  <p>Fecha: 30 Marzo 2025 Hora: 6pm</p>
-                  <p>Valor: $1000</p>
-                  <p>Simpe Movil: 86825481 jefernee Ruiz</p>
+                  <p>Fecha: Por definir</p>
+                  <p>Valor: ₡1000</p>
                   <button
-                    className="btn btn-primary"
-                    onClick={() => handleShowForm("Torneo Call Of Duty")} // Actualiza el torneo y muestra el formulario
+                    className="btn btn-success"
+                    onClick={() => handleInscribir("Torneo Call of Dutty")}
+                  >
+                    Inscribirse
+                  </button>
+                </div>
+              </div>
+              <div className="col-md-6 mb-4">
+                <div className="p-3 shadow rounded">
+                  <h4 className="mb-3">🌀Naruto</h4>
+                  <p>
+                    Competencia de combates uno contra uno basada en habilidades, táctica y dominio de personajes.
+                  </p>
+                  <p>Fecha: Por definir</p>
+                  <p>Valor: ₡1000</p>
+                  <button
+                    className="btn btn-success"
+                    onClick={() => handleInscribir("Torneo de Naruto Shippuden")}
+                  >
+                    Inscribirse
+                  </button>
+                </div>
+              </div>
+              <div className="col-md-6 mb-4">
+                <div className="p-3 shadow rounded">
+                  <h4 className="mb-3">🥋Mortal Kombat 1</h4>
+                  <p>
+                    Torneo de lucha directa donde la técnica, el control y la toma de decisiones son determinantes.
+                  </p>
+                  <p>Fecha: Por definir</p>
+                  <p>Valor: ₡1000</p>
+                  <button
+                    className="btn btn-success"
+                    onClick={() => handleInscribir("Torneo Mortal Kombat 1")}
                   >
                     Inscribirse
                   </button>
@@ -468,52 +506,7 @@ function Home() {
             </div>
           </div>
         </section>
-        {/* solo renderiza el formulario cuando showform sea verdadero */}
-
-        {showForm && (
-          <form id="formulario-inscripcion" onSubmit={handleFormSubmit}>
-            <div className="mb-3">
-              <label htmlFor="name" className="form-label">
-                Nombre
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                name="name"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                name="email"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="torneo" className="form-label">
-                Torneo
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="torneo"
-                name="tournament"
-                value={torneo} // Mostrar el nombre del torneo aquí
-                readOnly
-              />
-            </div>
-            <button type="submit" className="btn btn-primary">
-              Enviar Inscripción
-            </button>
-          </form>
-        )}
+       
         {/* Mapa */}
         <section id="mapa" className="bg-custom py-5">
           <div className="container">

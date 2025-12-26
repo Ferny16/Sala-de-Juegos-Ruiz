@@ -65,10 +65,7 @@
 .bg-custom {
   background-color: #F5F5F5 ; /* Cambia este valor por el color que desees */
 }
-/* Ganadores */
-.p-3.shadow.rounded.text-center {
-  background-color: hsl(131, 84%, 10%); /* Cambia este valor si deseas otro color */
-}
+
 /* Inscripción a torneos */
 .p-3.shadow.rounded{
   background-color: hsl(180, 14%, 97%); /* Cambia este valor si deseas otro color */
