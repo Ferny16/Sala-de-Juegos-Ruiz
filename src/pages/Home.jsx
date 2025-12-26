@@ -2,12 +2,26 @@ import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../App.css";
 import "../styles/Ganadores.css";
+import "../styles/Encabezado.css";
+import "../styles/Global.css";
+import "../styles/NavVar.css";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link, useNavigate } from "react-router-dom";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 function Home() {
   const navigate = useNavigate();
+
+  delete L.Icon.Default.prototype._getIconUrl;
+
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+  });
 
   useEffect(() => {
     const map = L.map("map").setView([10.0821389, -83.3479722], 13);
@@ -37,19 +51,25 @@ function Home() {
     <>
       <div>
         {/* Navegación */}
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+
+        <nav className="navbar navbar-expand-lg navbar-dar">
           <div className="container">
             <span className="navbar-brand">Sala de Juegos Ruiz</span>
+
             <button
               className="navbar-toggler"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
             >
               <span className="navbar-toggler-icon"></span>
             </button>
+
             <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav ms-auto">
+              <ul className="navbar-nav ms-auto mb-0">
                 <li className="nav-item">
                   <a className="nav-link" href="#about">
                     Sobre la Sala
@@ -94,16 +114,34 @@ function Home() {
             </div>
           </div>
         </nav>
-        {/* Anuncios */}
+        {/* Encabezado */}
+        <header className="hero-accent">
+          <div className="hero-image"></div>
+
+          <div className="hero-content">
+            <div className="hero-logo">
+              <img
+                src="https://res.cloudinary.com/drjsg8j92/image/upload/v1737318752/Imagen_de_WhatsApp_2025-01-11_a_las_21.53.16_f15972d6_h3rx20.jpg"
+                alt="Sala de Juegos Ruiz"
+              />
+            </div>
+
+            <h1 className="fade-up">Sala de Juegos Ruiz</h1>
+            <p className="fade-up delay-1">
+              Centro de entretenimiento y recreación
+            </p>
+          </div>
+        </header>
+
         {/* Encabezados */}
-        <header className="App-header text-white text-center py-5">
+        {/*<header className="App-header text-white text-center py-5">
           <div className="container ">
             <div className="text-container">
               <h1>Sala de Juegos Ruiz</h1>
               <p>Centro de entretenimiento y recreación</p>
             </div>
           </div>
-        </header>
+        </header>*/}
 
         {/* sobre sala de juegos */}
         <section id="about" className="bg-custom py-5">
@@ -443,7 +481,8 @@ function Home() {
                 <div className="p-3 shadow rounded">
                   <h4 className="mb-3">🎮Torneo EAFC 2026</h4>
                   <p>
-                    Torneo competitivo de fútbol virtual enfocado en rendimiento, estrategia y precisión en cada partido.
+                    Torneo competitivo de fútbol virtual enfocado en
+                    rendimiento, estrategia y precisión en cada partido.
                   </p>
                   <p>Fecha: Por definir</p>
                   <p>Valor: ₡2000</p>
@@ -459,7 +498,9 @@ function Home() {
                 <div className="p-3 shadow rounded">
                   <h4 className="mb-3">⚔️Call Of Duty</h4>
                   <p>
-                    Únete al Torneo Call of Duty y demuestra tu destreza en combates intensos. Estrategia y reacción rápida marcan la diferencia.
+                    Únete al Torneo Call of Duty y demuestra tu destreza en
+                    combates intensos. Estrategia y reacción rápida marcan la
+                    diferencia.
                   </p>
                   <p>Fecha: Por definir</p>
                   <p>Valor: ₡1000</p>
@@ -475,13 +516,16 @@ function Home() {
                 <div className="p-3 shadow rounded">
                   <h4 className="mb-3">🌀Naruto</h4>
                   <p>
-                    Competencia de combates uno contra uno basada en habilidades, táctica y dominio de personajes.
+                    Competencia de combates uno contra uno basada en
+                    habilidades, táctica y dominio de personajes.
                   </p>
                   <p>Fecha: Por definir</p>
                   <p>Valor: ₡1000</p>
                   <button
                     className="btn btn-success"
-                    onClick={() => handleInscribir("Torneo de Naruto Shippuden")}
+                    onClick={() =>
+                      handleInscribir("Torneo de Naruto Shippuden")
+                    }
                   >
                     Inscribirse
                   </button>
@@ -491,7 +535,8 @@ function Home() {
                 <div className="p-3 shadow rounded">
                   <h4 className="mb-3">🥋Mortal Kombat 1</h4>
                   <p>
-                    Torneo de lucha directa donde la técnica, el control y la toma de decisiones son determinantes.
+                    Torneo de lucha directa donde la técnica, el control y la
+                    toma de decisiones son determinantes.
                   </p>
                   <p>Fecha: Por definir</p>
                   <p>Valor: ₡1000</p>
@@ -506,7 +551,7 @@ function Home() {
             </div>
           </div>
         </section>
-       
+
         {/* Mapa */}
         <section id="mapa" className="bg-custom py-5">
           <div className="container">
