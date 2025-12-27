@@ -130,6 +130,9 @@ function Home() {
             <p className="fade-up delay-1">
               Centro de entretenimiento y recreación
             </p>
+            <p className="fade-up delay-1">
+              Un lugar seguro y confiable para divertirse sanamente
+            </p>
           </div>
         </header>
 
