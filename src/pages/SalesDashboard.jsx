@@ -15,25 +15,14 @@ const SalesDashboard = () => {
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
 
   // ✅ CONFIGURAR AXIOS CON TOKEN
-  const getAuthHeaders = () => {
+  const getAuthHeaders = useCallback(() => {
     const token = localStorage.getItem("token");
-    console.log("🔑 Token encontrado:", token ? "Sí" : "No");
-
-    if (token) {
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
-    }
-
     return {
       headers: {
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     };
-  };
+  }, []);
 
   const fetchProductos = useCallback(
     async (searchTerm = "") => {
