@@ -31,12 +31,12 @@ const SalesDashboard = () => {
     async (searchTerm = "") => {
       setLoading(true);
       try {
-        const url = searchTerm 
-          ? `${API_URL}/api/products?search=${encodeURIComponent(searchTerm)}`
-          : `${API_URL}/api/products`;
-        
+        const url = searchTerm
+          ? `${API_URL}/api/products/para-venta?search=${encodeURIComponent(searchTerm)}`
+          : `${API_URL}/api/products/para-venta`;
+
         const response = await axios.get(url, getAuthHeaders());
-        
+
         setProductos(response.data.productos || response.data);
       } catch (error) {
         console.error("❌ Error al cargar productos:", error);
