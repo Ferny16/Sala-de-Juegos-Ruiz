@@ -11,7 +11,7 @@ const ProductsList = () => {
     totalPages: 0,
     currentPage: 1,
     hasNextPage: false,
-    hasPrevPage: false
+    hasPrevPage: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -20,20 +20,21 @@ const ProductsList = () => {
   const fetchProductos = async (page = 1, searchTerm = "") => {
     setLoading(true);
     try {
-      // ✅ CORRECCIÓN: Cambiar la URL del endpoint
       const response = await axios.get(
-        `http://localhost:5000/api/products/list?page=${page}&limit=12&search=${searchTerm}`
+        `${process.env.REACT_APP_API_URL}/api/products/list?page=${page}&limit=12&search=${searchTerm}`
       );
-      
+
       console.log("Respuesta del servidor:", response.data); // Para debugging
-      
+
       setProductos(response.data.productos);
       setPagination(response.data.pagination);
       setCurrentPage(page);
     } catch (error) {
       console.error("Error al cargar productos:", error);
       // Mostrar mensaje de error al usuario
-      alert("Error al cargar productos. Verifica que el servidor esté corriendo.");
+      alert(
+        "Error al cargar productos. Verifica que el servidor esté corriendo."
+      );
     } finally {
       setLoading(false);
     }
@@ -54,7 +55,7 @@ const ProductsList = () => {
   // Cambiar página
   const handlePageChange = (newPage) => {
     fetchProductos(newPage, search);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
@@ -91,7 +92,10 @@ const ProductsList = () => {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link text-danger" to="/dashboard/delete-product">
+                  <Link
+                    className="nav-link text-danger"
+                    to="/dashboard/delete-product"
+                  >
                     Eliminar Productos
                   </Link>
                 </li>
@@ -99,7 +103,7 @@ const ProductsList = () => {
             </div>
           </div>
         </nav>
-        
+
         <div className="loading-container">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Cargando...</span>
@@ -188,7 +192,8 @@ const ProductsList = () => {
           {/* Contador de resultados */}
           {pagination?.totalProducts > 0 && (
             <p className="text-muted mb-3">
-              Mostrando {productos?.length || 0} de {pagination.totalProducts} productos
+              Mostrando {productos?.length || 0} de {pagination.totalProducts}{" "}
+              productos
               {search && ` para "${search}"`}
             </p>
           )}
@@ -196,30 +201,46 @@ const ProductsList = () => {
           {/* Grid de productos */}
           {!productos || productos.length === 0 ? (
             <div className="alert alert-info">
-              📦 No se encontraron productos {search && `con el término "${search}"`}
+              📦 No se encontraron productos{" "}
+              {search && `con el término "${search}"`}
             </div>
           ) : (
             <div className="row g-4">
               {productos.map((producto) => (
-                <div key={producto._id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div
+                  key={producto._id}
+                  className="col-12 col-sm-6 col-md-4 col-lg-3"
+                >
                   <div className="card product-card h-100 shadow-sm">
                     {/* Imagen */}
                     <div className="product-image-container">
                       <img
-                        src={producto.imagenOptimizada || producto.imagen || "https://via.placeholder.com/300"}
+                        src={
+                          producto.imagenOptimizada ||
+                          producto.imagen ||
+                          "https://via.placeholder.com/300"
+                        }
                         alt={producto.nombre}
                         className="card-img-top product-image"
                         loading="lazy"
-                        onClick={() => window.open(producto.imagenOriginal || producto.imagen, '_blank')}
+                        onClick={() =>
+                          window.open(
+                            producto.imagenOriginal || producto.imagen,
+                            "_blank"
+                          )
+                        }
                         title="Click para ver imagen completa"
                       />
                     </div>
-                    
+
                     <div className="card-body">
-                      <h5 className="card-title text-truncate" title={producto.nombre}>
+                      <h5
+                        className="card-title text-truncate"
+                        title={producto.nombre}
+                      >
                         {producto.nombre}
                       </h5>
-                      
+
                       <div className="product-info">
                         <div className="info-row">
                           <span className="info-label">Cantidad:</span>
@@ -227,23 +248,27 @@ const ProductsList = () => {
                             {producto.cantidad}
                           </span>
                         </div>
-                        
+
                         <div className="info-row">
                           <span className="info-label">P. Compra:</span>
-                          <span className="info-value">₡{producto.precioCompra}</span>
+                          <span className="info-value">
+                            ₡{producto.precioCompra}
+                          </span>
                         </div>
-                        
+
                         <div className="info-row">
                           <span className="info-label">P. Venta:</span>
                           <span className="info-value text-success fw-bold">
                             ₡{producto.precioVenta}
                           </span>
                         </div>
-                        
+
                         <div className="info-row">
                           <span className="info-label">Fecha:</span>
                           <span className="info-value">
-                            {new Date(producto.fechaCompra).toLocaleDateString('es-ES')}
+                            {new Date(producto.fechaCompra).toLocaleDateString(
+                              "es-ES"
+                            )}
                           </span>
                         </div>
                       </div>
@@ -259,7 +284,9 @@ const ProductsList = () => {
             <nav className="mt-5">
               <ul className="pagination justify-content-center">
                 {/* Botón Anterior */}
-                <li className={`page-item ${!pagination?.hasPrevPage ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${!pagination?.hasPrevPage ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -270,42 +297,45 @@ const ProductsList = () => {
                 </li>
 
                 {/* Números de página */}
-                {pagination?.totalPages && [...Array(pagination.totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  // Solo mostrar algunas páginas alrededor de la actual
-                  if (
-                    pageNum === 1 ||
-                    pageNum === pagination.totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <li
-                        key={pageNum}
-                        className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => handlePageChange(pageNum)}
+                {pagination?.totalPages &&
+                  [...Array(pagination.totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    // Solo mostrar algunas páginas alrededor de la actual
+                    if (
+                      pageNum === 1 ||
+                      pageNum === pagination.totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <li
+                          key={pageNum}
+                          className={`page-item ${currentPage === pageNum ? "active" : ""}`}
                         >
-                          {pageNum}
-                        </button>
-                      </li>
-                    );
-                  } else if (
-                    pageNum === currentPage - 2 ||
-                    pageNum === currentPage + 2
-                  ) {
-                    return (
-                      <li key={pageNum} className="page-item disabled">
-                        <span className="page-link">...</span>
-                      </li>
-                    );
-                  }
-                  return null;
-                })}
+                          <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        </li>
+                      );
+                    } else if (
+                      pageNum === currentPage - 2 ||
+                      pageNum === currentPage + 2
+                    ) {
+                      return (
+                        <li key={pageNum} className="page-item disabled">
+                          <span className="page-link">...</span>
+                        </li>
+                      );
+                    }
+                    return null;
+                  })}
 
                 {/* Botón Siguiente */}
-                <li className={`page-item ${!pagination?.hasNextPage ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${!pagination?.hasNextPage ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage + 1)}
