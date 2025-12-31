@@ -3,6 +3,8 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "../styles/SalesDashboard.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const SalesDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
@@ -29,7 +31,7 @@ const SalesDashboard = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/products/para-venta?search=${searchTerm}`,
+          `${API_URL}/api/products/para-venta?search=${searchTerm}`,
           getAuthHeaders()
         );
         setProductos(response.data.productos);
@@ -226,7 +228,7 @@ const SalesDashboard = () => {
         );
 
         await axios.put(
-          `http://localhost:5000/api/products/${item._id}`,
+          `${process.env.REACT_APP_API_URL}/api/products/${item._id}`,
           { cantidad: nuevaCantidad },
           getAuthHeaders()
         );
