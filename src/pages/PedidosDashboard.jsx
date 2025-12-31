@@ -14,8 +14,8 @@ const PedidosDashboard = () => {
     setLoading(true);
     try {
       const url = filtroEstado
-      ? `${process.env.REACT_APP_API_URL}/api/pedidos?estado=${filtroEstado}`
-      : `${process.env.REACT_APP_API_URL}/api/pedidos`;
+        ? `${process.env.REACT_APP_API_URL}/api/pedidos?estado=${filtroEstado}`
+        : `${process.env.REACT_APP_API_URL}/api/pedidos`;
 
       const response = await axios.get(url);
       setPedidos(response.data.pedidos);
@@ -39,9 +39,12 @@ const PedidosDashboard = () => {
 
   const handleCambiarEstado = async (pedidoId, nuevoEstado) => {
     try {
-      await axios.patch(`http://localhost:5000/api/pedidos/${pedidoId}`, {
-        estado: nuevoEstado,
-      });
+      await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/pedidos/${pedidoId}`,
+        {
+          estado: nuevoEstado,
+        }
+      );
 
       alert("Estado actualizado correctamente");
       fetchPedidos();
