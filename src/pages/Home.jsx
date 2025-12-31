@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import "../styles/ProductosSection.css"; // Agrega esta línea al inicio
 
 function Home() {
   const navigate = useNavigate();
@@ -51,7 +52,6 @@ function Home() {
     <>
       <div>
         {/* Navegación */}
-
         <nav className="navbar navbar-expand-lg navbar-dar">
           <div className="container">
             <span className="navbar-brand">Sala de Juegos Ruiz</span>
@@ -71,39 +71,9 @@ function Home() {
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav ms-auto mb-0">
                 <li className="nav-item">
-                  <a className="nav-link" href="#about">
-                    Sobre la Sala
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#games">
-                    Juegos
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#ganadores">
-                    Campeones de Torneos
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#tournaments">
-                    Torneos
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#gallery">
-                    Galería
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#mapa">
-                    Mapa
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#contact">
-                    Contacto
-                  </a>
+                  <Link className="nav-link" to="/productos">
+                    Productos en Venta
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login">
@@ -135,17 +105,6 @@ function Home() {
             </p>
           </div>
         </header>
-
-        {/* Encabezados */}
-        {/*<header className="App-header text-white text-center py-5">
-          <div className="container ">
-            <div className="text-container">
-              <h1>Sala de Juegos Ruiz</h1>
-              <p>Centro de entretenimiento y recreación</p>
-            </div>
-          </div>
-        </header>*/}
-
         {/* sobre sala de juegos */}
         <section id="about" className="bg-custom py-5">
           <div className="container">
@@ -262,6 +221,197 @@ function Home() {
             </div>
           </div>
         </section>
+       {/* Productos en Venta - Sección Genérica y Versátil */}
+        <section id="productos-venta" className="bg-custom py-5">
+          <div className="container">
+            <h2 className="text-center mb-4">🛍️ Productos en Venta</h2>
+            <p className="text-center text-muted mb-5">
+              Descubre nuestra variedad de productos disponibles en la sala
+            </p>
+
+            <div className="row align-items-center">
+              {/* Imagen destacada */}
+              <div className="col-md-6 mb-4">
+                <div className="position-relative">
+                  <img
+                    src="https://res.cloudinary.com/drjsg8j92/image/upload/v1767141336/carrito_lpapvi.png"
+                    alt="Productos disponibles"
+                    className="img-fluid rounded shadow-lg"
+                    style={{
+                      width: "100%",
+                      height: "400px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                    style={{
+                      background: "rgba(0, 0, 0, 0.3)",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div className="text-center text-white">
+                      <i
+                        className="bi bi-shop"
+                        style={{ fontSize: "4rem" }}
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información y CTA */}
+              <div className="col-md-6 mb-4">
+                <div className="p-4">
+                  <h3 className="mb-4">
+                    <i className="bi bi-cart-check text-primary"></i> Nuestra
+                    Tienda
+                  </h3>
+
+                  <div className="mb-4">
+                    <div className="d-flex align-items-start mb-3">
+                      <i
+                        className="bi bi-check-circle-fill text-success me-3 mt-1"
+                        style={{ fontSize: "1.5rem" }}
+                      ></i>
+                      <div>
+                        <h5 className="mb-1">Gran Variedad de Productos</h5>
+                        <p className="text-muted mb-0">
+                          Snacks, bebidas, entretenimiento y más
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-start mb-3">
+                      <i
+                        className="bi bi-check-circle-fill text-success me-3 mt-1"
+                        style={{ fontSize: "1.5rem" }}
+                      ></i>
+                      <div>
+                        <h5 className="mb-1">Siempre Disponible</h5>
+                        <p className="text-muted mb-0">
+                          Stock actualizado regularmente
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-start mb-3">
+                      <i
+                        className="bi bi-check-circle-fill text-success me-3 mt-1"
+                        style={{ fontSize: "1.5rem" }}
+                      ></i>
+                      <div>
+                        <h5 className="mb-1">Precios Justos</h5>
+                        <p className="text-muted mb-0">
+                          Las mejores ofertas de la zona
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-start mb-3">
+                      <i
+                        className="bi bi-check-circle-fill text-success me-3 mt-1"
+                        style={{ fontSize: "1.5rem" }}
+                      ></i>
+                      <div>
+                        <h5 className="mb-1">Fácil Acceso</h5>
+                        <p className="text-muted mb-0">
+                          Compra directamente en la sala
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="d-grid gap-3">
+                    <Link
+                      to="/productos"
+                      className="btn btn-primary btn-lg"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        border: "none",
+                        padding: "15px 30px",
+                        fontSize: "1.1rem",
+                        fontWeight: "600",
+                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
+                      }}
+                    >
+                      <i className="bi bi-shop me-2"></i>
+                      Ver Catálogo Completo
+                    </Link>
+
+                    <p className="text-center text-muted mb-0">
+                      <i className="bi bi-geo-alt me-2"></i>
+                      Visítanos en la sala para ver más productos
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Categorías destacadas - MÁS GENÉRICAS */}
+            <div className="row mt-5">
+              <div className="col-md-3 col-6 mb-3">
+                <Link to="/productos" className="text-decoration-none">
+                  <div className="text-center p-3 bg-white rounded shadow-sm h-100 hover-card">
+                    <i
+                      className="bi bi-controller text-primary"
+                      style={{ fontSize: "3rem" }}
+                    ></i>
+                    <h6 className="mt-3 mb-0">Consolas & Juegos</h6>
+                  </div>
+                </Link>
+              </div>
+
+              <div className="col-md-3 col-6 mb-3">
+                <Link to="/productos" className="text-decoration-none">
+                  <div className="text-center p-3 bg-white rounded shadow-sm h-100 hover-card">
+                    <i
+                      className="bi bi-headphones text-primary"
+                      style={{ fontSize: "3rem" }}
+                    ></i>
+                    <h6 className="mt-3 mb-0">Accesorios</h6>
+                  </div>
+                </Link>
+              </div>
+
+              <div className="col-md-3 col-6 mb-3">
+                <Link to="/productos" className="text-decoration-none">
+                  <div className="text-center p-3 bg-white rounded shadow-sm h-100 hover-card">
+                    <i
+                      className="bi bi-box-seam text-primary"
+                      style={{ fontSize: "3rem" }}
+                    ></i>
+                    <h6 className="mt-3 mb-0">Productos Varios</h6>
+                  </div>
+                </Link>
+              </div>
+
+              <div className="col-md-3 col-6 mb-3">
+                <Link to="/productos" className="text-decoration-none">
+                  <div className="text-center p-3 bg-white rounded shadow-sm h-100 hover-card">
+                    <i
+                      className="bi bi-stars text-primary"
+                      style={{ fontSize: "3rem" }}
+                    ></i>
+                    <h6 className="mt-3 mb-0">Destacados</h6>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+        <style jsx>{`
+          .hover-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+          }
+        `}</style>
         {/* Juegos disponibles*/}
         <section id="games" className="bg-custom py-5">
           <div className="container">
@@ -412,7 +562,7 @@ function Home() {
                     }}
                   />
                   <h4 className="mb-2 text-white">Deisler Flores</h4>
-                  <p class="text-white">
+                  <p className="text-white">
                     Tricampeón del Torneo EAFC 2022, 2023 y 2025
                   </p>
                 </div>
@@ -431,7 +581,7 @@ function Home() {
                     }}
                   />
                   <h4 className="mb-2 text-white">Deikel</h4>
-                  <p class="text-white">Campeón del Call Of Duty 2023</p>
+                  <p className="text-white">Campeón del Call Of Duty 2023</p>
                 </div>
               </div>
             </div>
@@ -450,7 +600,7 @@ function Home() {
                     }}
                   />
                   <h4 className="mb-2 text-white">Vargas</h4>
-                  <p class="text-white">Campeón de Mortal Kombat 1 2025</p>
+                  <p className="text-white">Campeón de Mortal Kombat 1 2025</p>
                 </div>
               </div>
               <div className="col-md-6 mb-4">
@@ -467,7 +617,7 @@ function Home() {
                     }}
                   />
                   <h4 className="mb-2 text-white">Isacar</h4>
-                  <p class="text-white">Campeón de Call of Duty 2025</p>
+                  <p className="text-white">Campeón de Call of Duty 2025</p>
                 </div>
               </div>
             </div>
@@ -554,7 +704,6 @@ function Home() {
             </div>
           </div>
         </section>
-
         {/* Mapa */}
         <section id="mapa" className="bg-custom py-5">
           <div className="container">
@@ -636,13 +785,15 @@ function Home() {
         <footer className="bg-dark text-white text-center py-3">
           <p className="mb-0">
             &copy; 2025 Sala de Juegos. Todos los derechos reservados.
-            <p>
-              Proyecto realizado por <strong>Jefernee Ruiz</strong>
-            </p>
-            <p>
-              Contacto:{" "}
-              <a href="mailto:jefernee50@gmail.com">jefernee50@gmail.com</a>
-            </p>
+          </p>
+          <p className="mb-0">
+            Proyecto realizado por <strong>Jefernee Ruiz</strong>
+          </p>
+          <p className="mb-0">
+            Contacto:{" "}
+            <a href="mailto:jefernee50@gmail.com" className="text-white">
+              jefernee50@gmail.com
+            </a>
           </p>
         </footer>
       </div>

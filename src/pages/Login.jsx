@@ -1,5 +1,6 @@
 import { useState } from "react";
-import "../styles/Login.css"; // puedes crear carpeta styles/Login.css
+import axios from "axios";
+import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -7,28 +8,31 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Usuarios autorizados
-  const privateUsers = [
-    { email: "usuario1@ejemplo.com", password: "1234" },
-    { email: "usuario2@ejemplo.com", password: "1234" },
-    { email: "usuario3@ejemplo.com", password: "1234" },
-    { email: "usuario4@ejemplo.com", password: "1234" },
-    { email: "usuario5@ejemplo.com", password: "1234" },
-    { email: "usuario6@ejemplo.com", password: "1234" },
-    { email: "usuario7@ejemplo.com", password: "1234" },
-  ];
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const user = privateUsers.find(
-      (u) => u.email === email && u.password === password
-    );
+    setError("");
+    setLoading(true);
 
-    if (user) {
-      navigate("/dashboard"); // va a la zona privada
-    } else {
-      setError("Usuario no autorizado");
+    try {
+      // Llamada al backend
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password
+      });
+
+      // Guardar token en localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Redirigir al dashboard
+      navigate("/dashboard/sales");
+    } catch (err) {
+      console.error("Error de login:", err);
+      setError(err.response?.data?.message || "Error al iniciar sesión");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,6 +46,7 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={loading}
         />
         <input
           type="password"
@@ -49,8 +54,11 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={loading}
         />
-        <button type="submit">Ingresar</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Cargando..." : "Ingresar"}
+        </button>
         {error && <p className="error">{error}</p>}
       </form>
     </div>
