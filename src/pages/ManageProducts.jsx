@@ -50,14 +50,14 @@ const ManageProducts = () => {
     setLoading(true);
     try {
       // ✅ OBTENER TOKEN
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       const response = await axios.get(
         `http://localhost:5000/api/products/list?page=1&limit=100&search=${searchTerm}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -131,18 +131,14 @@ const ManageProducts = () => {
 
     try {
       // ✅ OBTENER TOKEN
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       // ✅ ENVIAR DATOS CON TOKEN
-      await axios.put(
-        `http://localhost:5000/api/products/${id}`, 
-        editForm,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
+      await axios.put(`http://localhost:5000/api/products/${id}`, editForm, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Actualiza el producto en el estado local
       setProductos(
@@ -182,19 +178,22 @@ const ManageProducts = () => {
 
     try {
       // ✅ OBTENER TOKEN
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
-      // ✅ ENVIAR PETICIÓN CON TOKEN
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/products/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-
+      );
       // Filtra el producto eliminado del estado local
       setProductos(productos.filter((p) => p._id !== id));
 
-      alert(`"${nombre}" y todos sus datos relacionados fueron eliminados correctamente.`);
+      alert(
+        `"${nombre}" y todos sus datos relacionados fueron eliminados correctamente.`
+      );
     } catch (error) {
       console.error("Error al eliminar:", error);
       if (error.response?.status === 401) {
@@ -523,11 +522,17 @@ const ManageProducts = () => {
                           {producto.nombre}
                           {/* ✅ NUEVO: Badge de disponibilidad */}
                           {producto.seVende ? (
-                            <span className="badge bg-success ms-2" style={{ fontSize: '0.7rem' }}>
+                            <span
+                              className="badge bg-success ms-2"
+                              style={{ fontSize: "0.7rem" }}
+                            >
                               ✓ Disponible
                             </span>
                           ) : (
-                            <span className="badge bg-secondary ms-2" style={{ fontSize: '0.7rem' }}>
+                            <span
+                              className="badge bg-secondary ms-2"
+                              style={{ fontSize: "0.7rem" }}
+                            >
                               ✕ No disponible
                             </span>
                           )}
@@ -551,14 +556,27 @@ const ManageProducts = () => {
                           </span>
                           {/* ✅ NUEVO: Mostrar información de auditoría */}
                           {producto.createdBy && (
-                            <span className="meta-item text-muted" style={{ fontSize: '0.85em' }}>
-                              <strong>Creado por:</strong> {producto.createdBy.nombre || producto.createdBy.email}
+                            <span
+                              className="meta-item text-muted"
+                              style={{ fontSize: "0.85em" }}
+                            >
+                              <strong>Creado por:</strong>{" "}
+                              {producto.createdBy.nombre ||
+                                producto.createdBy.email}
                             </span>
                           )}
                           {producto.updatedAt && (
-                            <span className="meta-item text-muted" style={{ fontSize: '0.85em' }}>
+                            <span
+                              className="meta-item text-muted"
+                              style={{ fontSize: "0.85em" }}
+                            >
                               <strong>Última edición:</strong>{" "}
-                              {new Date(producto.updatedAt).toLocaleDateString("es-ES")} {new Date(producto.updatedAt).toLocaleTimeString("es-ES")}
+                              {new Date(producto.updatedAt).toLocaleDateString(
+                                "es-ES"
+                              )}{" "}
+                              {new Date(producto.updatedAt).toLocaleTimeString(
+                                "es-ES"
+                              )}
                             </span>
                           )}
                         </div>
