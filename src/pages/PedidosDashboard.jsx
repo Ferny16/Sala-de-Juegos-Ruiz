@@ -10,14 +10,12 @@ const PedidosDashboard = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  
-
   const fetchPedidos = useCallback(async () => {
     setLoading(true);
     try {
       const url = filtroEstado
-        ? `https://sala-de-juegos-backend.onrender.com/api/pedidos?estado=${filtroEstado}`
-        : "https://sala-de-juegos-backend.onrender.com/api/pedidos";
+      ? `${process.env.REACT_APP_API_URL}/api/pedidos?estado=${filtroEstado}`
+      : `${process.env.REACT_APP_API_URL}/api/pedidos`;
 
       const response = await axios.get(url);
       setPedidos(response.data.pedidos);
@@ -29,6 +27,7 @@ const PedidosDashboard = () => {
     }
   }, [filtroEstado]);
 
+  // useEffect al nivel superior
   useEffect(() => {
     fetchPedidos();
   }, [fetchPedidos]);

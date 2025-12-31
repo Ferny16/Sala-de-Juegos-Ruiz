@@ -11,11 +11,11 @@ const PublicProductsList = () => {
     totalPages: 0,
     currentPage: 1,
     hasNextPage: false,
-    hasPrevPage: false
+    hasPrevPage: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  
+
   // Estado para el modal de pedido
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -24,18 +24,20 @@ const PublicProductsList = () => {
     telefono: "",
     email: "",
     cantidad: 1,
-    notas: ""
+    notas: "",
   });
   const [enviandoPedido, setEnviandoPedido] = useState(false);
 
-  // Cargar productos
   const fetchProductos = async (page = 1, searchTerm = "") => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/products/public?page=${page}&limit=12&search=${searchTerm}`
+        `${process.env.REACT_APP_API_URL}/api/products/public`,
+        {
+          params: { page, limit: 12, search: searchTerm },
+        }
       );
-      
+
       setProductos(response.data.productos);
       setPagination(response.data.pagination);
       setCurrentPage(page);
@@ -47,6 +49,7 @@ const PublicProductsList = () => {
     }
   };
 
+  // Hook al nivel superior del componente
   useEffect(() => {
     fetchProductos(1, "");
   }, []);
@@ -58,7 +61,7 @@ const PublicProductsList = () => {
 
   const handlePageChange = (newPage) => {
     fetchProductos(newPage, search);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Abrir modal de pedido
@@ -69,7 +72,7 @@ const PublicProductsList = () => {
       telefono: "",
       email: "",
       cantidad: 1,
-      notas: ""
+      notas: "",
     });
     setShowModal(true);
   };
@@ -83,39 +86,39 @@ const PublicProductsList = () => {
   // Cambios en el formulario
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setPedidoForm(prev => ({
+    setPedidoForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   // Enviar pedido
   const handleEnviarPedido = async (e) => {
     e.preventDefault();
-    
+
     // Validaciones básicas
     if (!pedidoForm.nombreCliente.trim()) {
       alert("Por favor ingresa tu nombre");
       return;
     }
-    
+
     if (!pedidoForm.telefono.trim()) {
       alert("Por favor ingresa tu teléfono");
       return;
     }
-    
+
     if (pedidoForm.cantidad < 1) {
       alert("La cantidad debe ser al menos 1");
       return;
     }
-    
+
     if (pedidoForm.cantidad > selectedProduct.cantidad) {
       alert(`Solo hay ${selectedProduct.cantidad} unidades disponibles`);
       return;
     }
 
     setEnviandoPedido(true);
-    
+
     try {
       const pedidoData = {
         productoId: selectedProduct._id,
@@ -126,14 +129,15 @@ const PublicProductsList = () => {
         email: pedidoForm.email,
         cantidad: parseInt(pedidoForm.cantidad),
         notas: pedidoForm.notas,
-        total: selectedProduct.precioVenta * parseInt(pedidoForm.cantidad)
+        total: selectedProduct.precioVenta * parseInt(pedidoForm.cantidad),
       };
 
-      await axios.post('http://localhost:5000/api/pedidos', pedidoData);
-      
-      alert("¡Pedido enviado exitosamente! Nos pondremos en contacto contigo pronto.");
+      await axios.post("http://localhost:5000/api/pedidos", pedidoData);
+
+      alert(
+        "¡Pedido enviado exitosamente! Nos pondremos en contacto contigo pronto."
+      );
       handleCerrarModal();
-      
     } catch (error) {
       console.error("Error al enviar pedido:", error);
       alert("Error al enviar el pedido. Por favor, intenta de nuevo.");
@@ -169,7 +173,7 @@ const PublicProductsList = () => {
             </div>
           </div>
         </nav>
-        
+
         <div className="loading-container">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Cargando...</span>
@@ -243,7 +247,8 @@ const PublicProductsList = () => {
           {/* Contador de resultados */}
           {pagination?.totalProducts > 0 && (
             <p className="text-muted mb-3">
-              Mostrando {productos?.length || 0} de {pagination.totalProducts} productos
+              Mostrando {productos?.length || 0} de {pagination.totalProducts}{" "}
+              productos
               {search && ` para "${search}"`}
             </p>
           )}
@@ -251,21 +256,34 @@ const PublicProductsList = () => {
           {/* Grid de productos */}
           {!productos || productos.length === 0 ? (
             <div className="alert alert-info">
-              📦 No se encontraron productos {search && `con el término "${search}"`}
+              📦 No se encontraron productos{" "}
+              {search && `con el término "${search}"`}
             </div>
           ) : (
             <div className="row g-4">
               {productos.map((producto) => (
-                <div key={producto._id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div
+                  key={producto._id}
+                  className="col-12 col-sm-6 col-md-4 col-lg-3"
+                >
                   <div className="card public-product-card h-100 shadow-sm">
                     {/* Imagen */}
                     <div className="public-product-image-container">
                       <img
-                        src={producto.imagenOptimizada || producto.imagen || "https://via.placeholder.com/300"}
+                        src={
+                          producto.imagenOptimizada ||
+                          producto.imagen ||
+                          "https://via.placeholder.com/300"
+                        }
                         alt={producto.nombre}
                         className="card-img-top public-product-image"
                         loading="lazy"
-                        onClick={() => window.open(producto.imagenOriginal || producto.imagen, '_blank')}
+                        onClick={() =>
+                          window.open(
+                            producto.imagenOriginal || producto.imagen,
+                            "_blank"
+                          )
+                        }
                         title="Click para ver imagen completa"
                       />
                       {/* Badge de disponibilidad */}
@@ -277,35 +295,42 @@ const PublicProductsList = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="card-body">
-                      <h5 className="card-title text-truncate" title={producto.nombre}>
+                      <h5
+                        className="card-title text-truncate"
+                        title={producto.nombre}
+                      >
                         {producto.nombre}
                       </h5>
-                      
+
                       <div className="public-product-info">
                         <div className="info-row">
                           <span className="info-label">Stock:</span>
                           <span className="badge bg-secondary">
-                            {producto.cantidad > 0 ? `${producto.cantidad} unidades` : 'Agotado'}
+                            {producto.cantidad > 0
+                              ? `${producto.cantidad} unidades`
+                              : "Agotado"}
                           </span>
                         </div>
-                        
+
                         <div className="info-row price-row">
                           <span className="info-label">Precio:</span>
                           <span className="info-value text-success fw-bold">
-                            ₡{producto.precioVenta.toLocaleString('es-CR')}
+                            ₡{producto.precioVenta.toLocaleString("es-CR")}
                           </span>
                         </div>
                       </div>
 
                       {/* Botón de pedido */}
                       <button
-                        className={`btn ${producto.cantidad > 0 ? 'btn-primary' : 'btn-secondary'} w-100 mt-3`}
+                        className={`btn ${producto.cantidad > 0 ? "btn-primary" : "btn-secondary"} w-100 mt-3`}
                         onClick={() => handleAbrirPedido(producto)}
                         disabled={producto.cantidad === 0}
                       >
-                        {producto.cantidad > 0 ? '🛒 Hacer Pedido' : 'No disponible'}
+                        {producto.cantidad > 0
+                          ? "🛒 Hacer Pedido"
+                          : "No disponible"}
                       </button>
                     </div>
                   </div>
@@ -318,7 +343,9 @@ const PublicProductsList = () => {
           {pagination?.totalPages > 1 && (
             <nav className="mt-5">
               <ul className="pagination justify-content-center">
-                <li className={`page-item ${!pagination?.hasPrevPage ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${!pagination?.hasPrevPage ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -328,40 +355,43 @@ const PublicProductsList = () => {
                   </button>
                 </li>
 
-                {pagination?.totalPages && [...Array(pagination.totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === pagination.totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <li
-                        key={pageNum}
-                        className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => handlePageChange(pageNum)}
+                {pagination?.totalPages &&
+                  [...Array(pagination.totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    if (
+                      pageNum === 1 ||
+                      pageNum === pagination.totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <li
+                          key={pageNum}
+                          className={`page-item ${currentPage === pageNum ? "active" : ""}`}
                         >
-                          {pageNum}
-                        </button>
-                      </li>
-                    );
-                  } else if (
-                    pageNum === currentPage - 2 ||
-                    pageNum === currentPage + 2
-                  ) {
-                    return (
-                      <li key={pageNum} className="page-item disabled">
-                        <span className="page-link">...</span>
-                      </li>
-                    );
-                  }
-                  return null;
-                })}
+                          <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        </li>
+                      );
+                    } else if (
+                      pageNum === currentPage - 2 ||
+                      pageNum === currentPage + 2
+                    ) {
+                      return (
+                        <li key={pageNum} className="page-item disabled">
+                          <span className="page-link">...</span>
+                        </li>
+                      );
+                    }
+                    return null;
+                  })}
 
-                <li className={`page-item ${!pagination?.hasNextPage ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${!pagination?.hasNextPage ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage + 1)}
@@ -382,20 +412,28 @@ const PublicProductsList = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>🛒 Hacer Pedido</h3>
-              <button className="btn-close" onClick={handleCerrarModal}>×</button>
+              <button className="btn-close" onClick={handleCerrarModal}>
+                ×
+              </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="producto-info-modal">
-                <img 
-                  src={selectedProduct.imagenOptimizada || selectedProduct.imagen} 
+                <img
+                  src={
+                    selectedProduct.imagenOptimizada || selectedProduct.imagen
+                  }
                   alt={selectedProduct.nombre}
                   className="producto-imagen-modal"
                 />
                 <div>
                   <h5>{selectedProduct.nombre}</h5>
-                  <p className="precio-modal">₡{selectedProduct.precioVenta.toLocaleString('es-CR')}</p>
-                  <p className="stock-modal">Stock disponible: {selectedProduct.cantidad} unidades</p>
+                  <p className="precio-modal">
+                    ₡{selectedProduct.precioVenta.toLocaleString("es-CR")}
+                  </p>
+                  <p className="stock-modal">
+                    Stock disponible: {selectedProduct.cantidad} unidades
+                  </p>
                 </div>
               </div>
 
@@ -450,7 +488,9 @@ const PublicProductsList = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Notas adicionales (opcional)</label>
+                  <label className="form-label">
+                    Notas adicionales (opcional)
+                  </label>
                   <textarea
                     className="form-control"
                     name="notas"
@@ -462,24 +502,29 @@ const PublicProductsList = () => {
                 </div>
 
                 <div className="total-pedido">
-                  <strong>Total: ₡{(selectedProduct.precioVenta * pedidoForm.cantidad).toLocaleString('es-CR')}</strong>
+                  <strong>
+                    Total: ₡
+                    {(
+                      selectedProduct.precioVenta * pedidoForm.cantidad
+                    ).toLocaleString("es-CR")}
+                  </strong>
                 </div>
 
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={handleCerrarModal}
                     disabled={enviandoPedido}
                   >
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary"
                     disabled={enviandoPedido}
                   >
-                    {enviandoPedido ? 'Enviando...' : '✓ Confirmar Pedido'}
+                    {enviandoPedido ? "Enviando..." : "✓ Confirmar Pedido"}
                   </button>
                 </div>
               </form>
@@ -490,5 +535,4 @@ const PublicProductsList = () => {
     </div>
   );
 };
-
 export default PublicProductsList;

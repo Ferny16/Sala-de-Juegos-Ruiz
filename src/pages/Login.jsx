@@ -14,6 +14,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    console.log(process.env.REACT_APP_API_URL);
 
     try {
       // Llamada al backend
