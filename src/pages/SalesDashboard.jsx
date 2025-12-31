@@ -29,7 +29,7 @@ const SalesDashboard = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://sala-de-juegos-backend.onrender.com/api/products/para-venta?search=${searchTerm}`,
+          `${process.env.REACT_APP_API_URL}/api/products/para-venta?search=${searchTerm}`,
           getAuthHeaders()
         );
         setProductos(response.data.productos);
