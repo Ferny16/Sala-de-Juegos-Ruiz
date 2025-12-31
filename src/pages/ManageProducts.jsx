@@ -53,7 +53,7 @@ const ManageProducts = () => {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:5000/api/products/list?page=1&limit=100&search=${searchTerm}`,
+        `${process.env.REACT_APP_API_URL}/api/products/list?page=1&limit=100&search=${searchTerm}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -134,11 +134,15 @@ const ManageProducts = () => {
       const token = localStorage.getItem("token");
 
       // ✅ ENVIAR DATOS CON TOKEN
-      await axios.put(`http://localhost:5000/api/products/${id}`, editForm, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/products/${id}`,
+        editForm,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       // Actualiza el producto en el estado local
       setProductos(
