@@ -10,9 +10,7 @@ const PedidosDashboard = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    fetchPedidos();
-  }, [filtroEstado]);
+  
 
   const fetchPedidos = useCallback(async () => {
     setLoading(true);
