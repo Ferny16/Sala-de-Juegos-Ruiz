@@ -26,15 +26,18 @@ const SalesDashboard = () => {
     };
   }, []);
 
+  // ✅ CORREGIDO: Removido el código de actualización erróneo
   const fetchProductos = useCallback(
     async (searchTerm = "") => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${API_URL}/api/products/para-venta?search=${searchTerm}`,
-          getAuthHeaders()
-        );
-        setProductos(response.data.productos);
+        const url = searchTerm 
+          ? `${API_URL}/api/products?search=${encodeURIComponent(searchTerm)}`
+          : `${API_URL}/api/products`;
+        
+        const response = await axios.get(url, getAuthHeaders());
+        
+        setProductos(response.data.productos || response.data);
       } catch (error) {
         console.error("❌ Error al cargar productos:", error);
 
@@ -156,7 +159,7 @@ const SalesDashboard = () => {
     }
   };
 
-  // Procesar venta
+  // ✅ PROCESAR VENTA - ACTUALIZADO CON RUTAS CORRECTAS
   const procesarVenta = async () => {
     const total = calcularTotal();
     const pago = parseFloat(montoPagado) || 0;
@@ -207,18 +210,18 @@ const SalesDashboard = () => {
       };
 
       console.log("📦 Enviando datos al backend:", ventaData);
-      console.log("🔑 Headers de autorización:", getAuthHeaders());
+      console.log("🔗 URL completa:", `${API_URL}/api/sales`);
 
-      // ✅ REGISTRAR VENTA CON TOKEN
+      // ✅ REGISTRAR VENTA - RUTA CORRECTA
       const ventaResponse = await axios.post(
-        `${API_URL}/sales`,
+        `${API_URL}/api/sales`,
         ventaData,
         getAuthHeaders()
       );
 
       console.log("✅ Respuesta del backend:", ventaResponse.data);
 
-      // Actualizar inventario para cada producto
+      // ✅ ACTUALIZAR INVENTARIO - RUTA CORRECTA
       console.log("🔄 Actualizando inventario...");
       for (const item of carrito) {
         const nuevaCantidad = item.cantidad - item.cantidadVenta;
@@ -228,7 +231,7 @@ const SalesDashboard = () => {
         );
 
         await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/products/${item._id}`,
+          `${API_URL}/api/products/${item._id}`,
           { cantidad: nuevaCantidad },
           getAuthHeaders()
         );
@@ -242,7 +245,7 @@ const SalesDashboard = () => {
         pagado: pago,
         vuelto: vuelto,
         productos: carrito,
-        numeroVenta: ventaResponse.data.venta._id,
+        numeroVenta: ventaResponse.data.venta?._id || ventaResponse.data._id,
       });
       setMostrarResultado(true);
 
@@ -321,7 +324,7 @@ const SalesDashboard = () => {
       } else if (error.request) {
         console.error("❌ No se recibió respuesta del servidor");
         alert(
-          "❌ No se pudo conectar con el servidor.\n\nVerifica que el backend esté corriendo en http://localhost:5000"
+          "❌ No se pudo conectar con el servidor.\n\nVerifica que el backend esté corriendo en la URL configurada"
         );
       } else {
         console.error("❌ Error al configurar la petición:", error.message);
