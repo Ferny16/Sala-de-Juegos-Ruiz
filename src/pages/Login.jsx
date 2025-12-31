@@ -14,14 +14,17 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    console.log(process.env.REACT_APP_API_URL);
+    console.log(process.env.REACT_APP_API_URL); // para verificar que la variable está cargada
 
     try {
-      // Llamada al backend
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password
-      });
+      // Llamada al backend usando la URL de la variable de entorno
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/login`,
+        {
+          email,
+          password,
+        }
+      );
 
       // Guardar token en localStorage
       localStorage.setItem("token", response.data.token);
@@ -65,4 +68,3 @@ export default function Login() {
     </div>
   );
 }
-
