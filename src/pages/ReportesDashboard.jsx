@@ -4,7 +4,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { TrendingUp, AlertTriangle, DollarSign, ShoppingCart } from 'lucide-react';
 import '../styles/ReportesDashboard.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL + '/api';
+
 
 export default function ReportesDashboard() {
   const [resumen, setResumen] = useState(null);
