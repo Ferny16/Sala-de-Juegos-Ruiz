@@ -209,7 +209,7 @@ const SalesDashboard = () => {
 
       // ✅ REGISTRAR VENTA CON TOKEN
       const ventaResponse = await axios.post(
-        "http://localhost:5000/api/sales",
+        `${API_URL}/sales`,
         ventaData,
         getAuthHeaders()
       );
