@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../styles/PedidosDashboard.css";
@@ -14,12 +14,12 @@ const PedidosDashboard = () => {
     fetchPedidos();
   }, [filtroEstado]);
 
-  const fetchPedidos = async () => {
+  const fetchPedidos = useCallback(async () => {
     setLoading(true);
     try {
       const url = filtroEstado
-        ? `http://localhost:5000/api/pedidos?estado=${filtroEstado}`
-        : "http://localhost:5000/api/pedidos";
+        ? `https://sala-de-juegos-backend.onrender.com/api/pedidos?estado=${filtroEstado}`
+        : "https://sala-de-juegos-backend.onrender.com/api/pedidos";
 
       const response = await axios.get(url);
       setPedidos(response.data.pedidos);
@@ -29,7 +29,11 @@ const PedidosDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filtroEstado]);
+
+  useEffect(() => {
+    fetchPedidos();
+  }, [fetchPedidos]);
 
   const handleVerDetalle = (pedido) => {
     setSelectedPedido(pedido);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../styles/SalesDashboard.css";
@@ -16,52 +16,54 @@ const SalesDashboard = () => {
 
   // ✅ CONFIGURAR AXIOS CON TOKEN
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     console.log("🔑 Token encontrado:", token ? "Sí" : "No");
-    
+
     if (token) {
       return {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       };
     }
-    
+
     return {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
   };
 
-  const fetchProductos = async (searchTerm = "") => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/products/para-venta?search=${searchTerm}`,
-        getAuthHeaders()
-      );
-      setProductos(response.data.productos);
-    } catch (error) {
-      console.error("❌ Error al cargar productos:", error);
-      
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        alert("⚠️ Sesión expirada. Por favor inicia sesión nuevamente.");
-        // Redirigir al login si existe
-        // window.location.href = '/login';
-      } else {
-        alert("Error al cargar productos.");
+  const fetchProductos = useCallback(
+    async (searchTerm = "") => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `https://sala-de-juegos-backend.onrender.com/api/products/para-venta?search=${searchTerm}`,
+          getAuthHeaders()
+        );
+        setProductos(response.data.productos);
+      } catch (error) {
+        console.error("❌ Error al cargar productos:", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          alert("⚠️ Sesión expirada. Por favor inicia sesión nuevamente.");
+          // window.location.href = '/login';
+        } else {
+          alert("Error al cargar productos.");
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [getAuthHeaders]
+  );
 
   useEffect(() => {
     fetchProductos("");
     document.title = "Ventas - Sala de Juegos Ruiz";
-  }, []);
+  }, [fetchProductos]);
 
   // Buscar productos
   const handleSearch = (e) => {
@@ -174,7 +176,7 @@ const SalesDashboard = () => {
       totalProductos: carrito.length,
       total,
       montoPagado: pago,
-      vuelto
+      vuelto,
     });
 
     // Validaciones del frontend
@@ -229,8 +231,10 @@ const SalesDashboard = () => {
       console.log("🔄 Actualizando inventario...");
       for (const item of carrito) {
         const nuevaCantidad = item.cantidad - item.cantidadVenta;
-        
-        console.log(`📦 Actualizando ${item.nombre}: ${item.cantidad} -> ${nuevaCantidad}`);
+
+        console.log(
+          `📦 Actualizando ${item.nombre}: ${item.cantidad} -> ${nuevaCantidad}`
+        );
 
         await axios.put(
           `http://localhost:5000/api/products/${item._id}`,
@@ -257,7 +261,6 @@ const SalesDashboard = () => {
 
       // Recargar productos actualizados
       fetchProductos(search);
-      
     } catch (error) {
       console.error("❌ ERROR COMPLETO:", error);
       console.error("❌ Error response:", error.response);
@@ -265,7 +268,9 @@ const SalesDashboard = () => {
 
       // ✅ MANEJO ESPECIAL PARA ERRORES DE AUTENTICACIÓN
       if (error.response?.status === 401) {
-        alert("⚠️ Sesión expirada o no autorizada.\n\nPor favor inicia sesión nuevamente.");
+        alert(
+          "⚠️ Sesión expirada o no autorizada.\n\nPor favor inicia sesión nuevamente."
+        );
         // Opcional: redirigir al login
         // window.location.href = '/login';
         return;
@@ -279,23 +284,25 @@ const SalesDashboard = () => {
       // Manejar errores específicos del backend
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        
+
         console.log("📦 Datos del error recibido:", errorData);
 
         if (errorData.detalles) {
-          if (typeof errorData.detalles === 'string') {
+          if (typeof errorData.detalles === "string") {
             alert(`❌ ${errorData.error}\n\n${errorData.detalles}`);
           } else if (errorData.detalles.total !== undefined) {
             alert(
               `❌ ${errorData.error}\n\nTotal: ₡${errorData.detalles.total}\nPagado: ₡${errorData.detalles.montoPagado}\nFaltante: ₡${errorData.detalles.faltante}`
             );
           } else {
-            alert(`❌ ${errorData.error}\n\n${JSON.stringify(errorData.detalles)}`);
+            alert(
+              `❌ ${errorData.error}\n\n${JSON.stringify(errorData.detalles)}`
+            );
           }
         } else if (errorData.producto) {
           const prod = errorData.producto;
           let mensaje = `❌ ${errorData.error}\n\nProducto: ${prod.nombre || "Desconocido"}`;
-          
+
           if (prod.mensaje) {
             mensaje += `\n${prod.mensaje}`;
           }
@@ -307,16 +314,18 @@ const SalesDashboard = () => {
             mensaje += `\nPrecio actual: ₡${prod.precioActual}`;
             mensaje += `\nPrecio en carrito: ₡${prod.precioEnCarrito}`;
           }
-          
+
           alert(mensaje);
         } else if (errorData.error) {
-          const mensaje = errorData.mensaje 
+          const mensaje = errorData.mensaje
             ? `❌ ${errorData.error}\n\n${errorData.mensaje}`
             : `❌ ${errorData.error}`;
           alert(mensaje);
         } else {
           console.error("⚠️ Estructura de error desconocida:", errorData);
-          alert(`❌ Error al procesar la venta\n\n${JSON.stringify(errorData)}`);
+          alert(
+            `❌ Error al procesar la venta\n\n${JSON.stringify(errorData)}`
+          );
         }
       } else if (error.request) {
         console.error("❌ No se recibió respuesta del servidor");
