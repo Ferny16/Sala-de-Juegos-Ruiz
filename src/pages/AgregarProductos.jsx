@@ -39,7 +39,8 @@ const Dashboard = () => {
 
       setForm({ ...form, imagen: files[0] });
       setPreview(imageURL);
-    } else if (type === "checkbox") { // ✅ NUEVO: Manejo de checkbox
+    } else if (type === "checkbox") {
+      // ✅ NUEVO: Manejo de checkbox
       setForm({ ...form, [name]: checked });
     } else {
       setForm({ ...form, [name]: value });
@@ -47,78 +48,85 @@ const Dashboard = () => {
   };
 
   const handleAddProduct = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Evita doble submit
-  if (uploading) return;
+    // Evita doble submit
+    if (uploading) return;
 
-  setUploading(true);
+    setUploading(true);
 
-  try {
-    const formData = new FormData();
-    Object.keys(form).forEach((key) => {
-      if (form[key] !== null) {
-        formData.append(key, form[key]);
+    try {
+      const formData = new FormData();
+      Object.keys(form).forEach((key) => {
+        if (form[key] !== null) {
+          formData.append(key, form[key]);
+        }
+      });
+
+      // ✅ OBTENER TOKEN
+      const token = localStorage.getItem("token"); // O sessionStorage.getItem('token')
+
+      if (!token) {
+        showToast("Debes iniciar sesión para agregar productos", "error");
+        // Opcional: redirigir al login
+        // navigate('/login');
+        return;
       }
-    });
 
-    // ✅ OBTENER TOKEN
-    const token = localStorage.getItem('token'); // O sessionStorage.getItem('token')
-    
-    if (!token) {
-      showToast("Debes iniciar sesión para agregar productos", "error");
-      // Opcional: redirigir al login
-      // navigate('/login');
-      return;
-    }
+      // ✅ ENVIAR CON TOKEN EN HEADERS
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/products`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    // ✅ ENVIAR CON TOKEN EN HEADERS
-    await axios.post("http://localhost:5000/api/products", formData, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
+      showToast("Producto agregado correctamente");
+
+      // Liberar preview ANTES de limpiar
+      if (preview) {
+        URL.revokeObjectURL(preview);
       }
-    });
 
-    showToast("Producto agregado correctamente");
+      setForm({
+        nombre: "",
+        cantidad: "",
+        precioCompra: "",
+        precioVenta: "",
+        fechaCompra: "",
+        imagen: null,
+        seVende: true, // ✅ Reset del campo
+      });
 
-    // Liberar preview ANTES de limpiar
-    if (preview) {
-      URL.revokeObjectURL(preview);
+      setPreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error(error);
+
+      // ✅ MANEJO MEJORADO DE ERRORES
+      if (error.response?.status === 401) {
+        showToast(
+          "Sesión expirada. Por favor inicia sesión nuevamente.",
+          "error"
+        );
+        // Opcional: limpiar token y redirigir
+        // localStorage.removeItem('token');
+        // navigate('/login');
+      } else if (error.response?.data?.error) {
+        showToast(error.response.data.error, "error");
+      } else {
+        showToast("Error al agregar producto", "error");
+      }
+    } finally {
+      setUploading(false);
     }
-
-    setForm({
-      nombre: "",
-      cantidad: "",
-      precioCompra: "",
-      precioVenta: "",
-      fechaCompra: "",
-      imagen: null,
-      seVende: true, // ✅ Reset del campo
-    });
-
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  } catch (error) {
-    console.error(error);
-    
-    // ✅ MANEJO MEJORADO DE ERRORES
-    if (error.response?.status === 401) {
-      showToast("Sesión expirada. Por favor inicia sesión nuevamente.", "error");
-      // Opcional: limpiar token y redirigir
-      // localStorage.removeItem('token');
-      // navigate('/login');
-    } else if (error.response?.data?.error) {
-      showToast(error.response.data.error, "error");
-    } else {
-      showToast("Error al agregar producto", "error");
-    }
-  } finally {
-    setUploading(false);
-  }
-};
+  };
 
   const handleClose = () => {
     // Liberar preview si existe
