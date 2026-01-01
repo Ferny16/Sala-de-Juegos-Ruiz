@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 import "../App.css";
 import "../styles/Ganadores.css";
 import "../styles/Encabezado.css";
@@ -23,6 +24,26 @@ function Home() {
     iconUrl: markerIcon,
     shadowUrl: markerShadow,
   });
+
+  // ========== WARMING REQUEST - Despertar el backend ==========
+  useEffect(() => {
+    const wakeUpBackend = async () => {
+      try {
+        // Hacer un request silencioso al backend para despertarlo
+        await axios.get(`${process.env.REACT_APP_API_URL}/api/health`, {
+          timeout: 30000, // 30 segundos de timeout
+        });
+        console.log("Backend despertado exitosamente");
+      } catch (error) {
+        // Silenciosamente ignorar errores - el objetivo es solo despertar el servidor
+        console.log("Warming request completado");
+      }
+    };
+
+    // Ejecutar inmediatamente al montar el componente
+    wakeUpBackend();
+  }, []); // Array vacío = solo se ejecuta una vez al montar
+  // ============================================================
 
   useEffect(() => {
     const map = L.map("map").setView([10.0821389, -83.3479722], 13);
@@ -221,7 +242,7 @@ function Home() {
             </div>
           </div>
         </section>
-       {/* Productos en Venta - Sección Genérica y Versátil */}
+        {/* Productos en Venta - Sección Genérica y Versátil */}
         <section id="productos-venta" className="bg-custom py-5">
           <div className="container">
             <h2 className="text-center mb-4">🛍️ Productos en Venta</h2>
