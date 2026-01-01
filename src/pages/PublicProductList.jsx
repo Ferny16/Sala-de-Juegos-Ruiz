@@ -175,8 +175,13 @@ const PublicProductsList = () => {
         </nav>
 
         <div className="loading-container">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando...</span>
+          <div className="loading-content">
+            <div className="loading-icon">🎮</div>
+            <h2 className="loading-title">Cargando productos...</h2>
+            <p className="loading-subtitle">
+              Preparando el mejor catálogo para ti
+            </p>
+            <div className="loading-spinner-custom"></div>
           </div>
         </div>
       </div>
