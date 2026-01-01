@@ -61,7 +61,14 @@ export default function Login() {
           disabled={loading}
         />
         <button type="submit" disabled={loading}>
-          {loading ? "Cargando..." : "Ingresar"}
+          {loading ? (
+            <div className="loading-button-content">
+              <div className="button-spinner"></div>
+              <span>Iniciando sesión...</span>
+            </div>
+          ) : (
+            "🔐 Ingresar"
+          )}
         </button>
         {error && <p className="error">{error}</p>}
       </form>

@@ -10,7 +10,7 @@
     #0f172a 60%,
     #020617 100%
   );
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Formulario */
@@ -23,7 +23,9 @@
   width: 100%;
   max-width: 420px;
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Efecto al pasar el mouse sobre el formulario */
@@ -54,7 +56,9 @@
   border-radius: 8px;
   border: 1px solid #dee2e6;
   font-size: 1rem;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Resaltar input al enfocar */
@@ -86,6 +90,70 @@
   box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
 }
 
+/* Contenedor del spinner de carga en el botón */
+.loading-button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Spinner pequeño para el botón */
+.button-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efecto de pulso en el botón mientras carga */
+.login-form button:disabled {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Animación shake para errores */
+.error {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* Efecto de deshabilitado en inputs */
+.login-form input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 /* Mensaje de error */
 .error {
   color: #e53e3e;
@@ -109,13 +177,3 @@
     font-size: 1rem;
   }
 }
-
-
-
-
-
-
-
-
-
-
