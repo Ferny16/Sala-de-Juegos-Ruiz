@@ -41,6 +41,14 @@ const AppRouter = ({ children }) => {
     };
 
     // Debug: ver qué está detectando
+    const debugInfo = {
+      ruta: location.pathname,
+      navStandalone: window.navigator.standalone,
+      displayStandalone: window.matchMedia('(display-mode: standalone)').matches,
+      referrer: document.referrer,
+      esApp: isActuallyRunningAsApp()
+    };
+    
     console.log('--- DEBUG AppRouter ---');
     console.log('Ruta actual:', location.pathname);
     console.log('Navigator standalone:', window.navigator.standalone);
@@ -48,6 +56,12 @@ const AppRouter = ({ children }) => {
     console.log('Referrer:', document.referrer);
     console.log('¿Es app?:', isActuallyRunningAsApp());
     console.log('----------------------');
+    
+    // Alert temporal para debug en móvil (QUITAR DESPUÉS)
+    if (location.pathname === '/' && !sessionStorage.getItem('debugShown')) {
+      sessionStorage.setItem('debugShown', 'true');
+      alert(`DEBUG MÓVIL:\nDisplay standalone: ${debugInfo.displayStandalone}\nReferrer: ${debugInfo.referrer || 'vacío'}\n¿Es app?: ${debugInfo.esApp}`);
+    }
 
     // Solo redirigir si es app Y está en raíz
     if (isActuallyRunningAsApp() && location.pathname === '/') {
