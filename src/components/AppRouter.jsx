@@ -7,66 +7,27 @@ const AppRouter = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Verificar si venimos directamente de la app instalada
-    const isActuallyRunningAsApp = () => {
-      // Si hay un parámetro en la URL que indica que viene de la app
+    // Método DEFINITIVO: Solo confiar en el parámetro ?source=pwa
+    const isOpenedFromInstalledApp = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('source') === 'pwa') {
-        return true;
-      }
-
-      // Verificación más estricta: solo si realmente está en modo standalone
-      const isStandalone = 
-        window.navigator.standalone === true || 
-        window.matchMedia('(display-mode: standalone)').matches;
-
-      // Y además, verificar que NO hay un referrer normal de navegador
-      const hasNormalReferrer = document.referrer && 
-        !document.referrer.includes('android-app://') &&
-        document.referrer.length > 0;
-
-      // Si está en standalone PERO tiene referrer normal, es navegador
-      if (isStandalone && hasNormalReferrer) {
-        console.log('🌐 Detectado: Navegador web (tiene referrer normal)');
-        return false;
-      }
-
-      // Si está en standalone y NO tiene referrer, es la app
-      if (isStandalone && !hasNormalReferrer) {
-        console.log('📱 Detectado: App instalada (sin referrer)');
-        return true;
-      }
-
-      return false;
+      return urlParams.get('source') === 'pwa';
     };
 
-    // Debug: ver qué está detectando
-    const debugInfo = {
-      ruta: location.pathname,
-      navStandalone: window.navigator.standalone,
-      displayStandalone: window.matchMedia('(display-mode: standalone)').matches,
-      referrer: document.referrer,
-      esApp: isActuallyRunningAsApp()
-    };
+    const fromPWA = isOpenedFromInstalledApp();
     
     console.log('--- DEBUG AppRouter ---');
     console.log('Ruta actual:', location.pathname);
-    console.log('Navigator standalone:', window.navigator.standalone);
-    console.log('Display mode standalone:', window.matchMedia('(display-mode: standalone)').matches);
-    console.log('Referrer:', document.referrer);
-    console.log('¿Es app?:', isActuallyRunningAsApp());
+    console.log('URL completa:', window.location.href);
+    console.log('Parámetro source:', new URLSearchParams(window.location.search).get('source'));
+    console.log('¿Abierto desde app instalada?:', fromPWA);
     console.log('----------------------');
-    
-    // Alert temporal para debug en móvil (QUITAR DESPUÉS)
-    if (location.pathname === '/' && !sessionStorage.getItem('debugShown')) {
-      sessionStorage.setItem('debugShown', 'true');
-      alert(`DEBUG MÓVIL:\nDisplay standalone: ${debugInfo.displayStandalone}\nReferrer: ${debugInfo.referrer || 'vacío'}\n¿Es app?: ${debugInfo.esApp}`);
-    }
 
-    // Solo redirigir si es app Y está en raíz
-    if (isActuallyRunningAsApp() && location.pathname === '/') {
-      console.log('✅ Redirigiendo al login desde app');
+    // REGLA SIMPLE: Solo redirigir si tiene ?source=pwa Y está en /
+    if (fromPWA && location.pathname === '/') {
+      console.log('✅ App instalada detectada - Redirigiendo al login');
       navigate('/login', { replace: true });
+    } else if (!fromPWA) {
+      console.log('🌐 Navegador web - Mantener en página actual');
     }
   }, [navigate, location]);
 
