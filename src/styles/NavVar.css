@@ -6,7 +6,7 @@
 .navbar {
   background-color: #000000 !important;
   margin: 0;
-  padding: 0.5rem 0 !important; /* Menos espacio */
+  padding: 0.5rem 0 !important;
   border: none;
 }
 
@@ -21,7 +21,7 @@
 
 .navbar .nav-link {
   color: #ffffff !important;
-  padding: 0.5rem 1rem !important; /* Espacio reducido */
+  padding: 0.5rem 1rem !important;
   transition: color 0.3s ease, background-color 0.3s ease;
   border-radius: 6px;
 }
@@ -31,8 +31,10 @@
   background-color: rgba(56, 189, 248, 0.1);
 }
 
+/* FIX: Asegurar que los items del navbar estén en fila en desktop */
 .navbar-nav {
   gap: 0.5rem;
+  flex-direction: row; /* Forzar dirección horizontal en desktop */
 }
 
 /* =========================================================
@@ -59,18 +61,22 @@
 }
 
 /* =========================================================
-   RESPONSIVE MÓVIL - SIN INTERMITENCIA
+   RESPONSIVE MÓVIL
    ========================================================= */
 @media (max-width: 991px) {
+  /* FIX: En móvil SÍ queremos columna */
+  .navbar-nav {
+    flex-direction: column !important;
+  }
+
   .navbar-collapse {
-    padding: 1rem 0; /* Mantener el espacio entre textos como lo pediste */
+    padding: 1rem 0;
     margin-top: 0.5rem;
   }
 
   .navbar-nav .nav-link {
-    padding: 0.75rem 1rem !important; /* Mantener espacio vertical entre items */
+    padding: 0.75rem 1rem !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    /* Remover transiciones que causan intermitencia */
     transition: color 0.3s ease, background-color 0.3s ease;
   }
 
@@ -90,22 +96,32 @@
 @media (min-width: 992px) {
   .navbar-nav {
     gap: 0.5rem;
+    flex-direction: row !important; /* Asegurar horizontal en desktop */
   }
 
   .navbar-nav .nav-link {
     padding: 0.5rem 1rem !important;
   }
+
+  /* Asegurar que ml-auto funcione correctamente */
+  .navbar-nav.ms-auto {
+    margin-left: auto !important;
+  }
 }
 
 /* =========================================================
-   ANIMACIONES - SOLO AL ABRIR/CERRAR
+   ANIMACIONES - MÁS RÁPIDAS Y SUAVES
    ========================================================= */
 .navbar-collapse.collapsing {
-  transition: height 0.35s ease;
+  transition: height 0.2s ease; /* Reducido de 0.35s a 0.2s */
   overflow: hidden;
 }
 
 .navbar-collapse.show {
-  /* Remover animación que causa intermitencia */
   animation: none;
+}
+
+/* FIX: Eliminar cualquier delay o animación extra */
+.navbar-collapse {
+  transition-delay: 0s !important;
 }
