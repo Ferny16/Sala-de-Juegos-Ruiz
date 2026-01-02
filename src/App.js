@@ -11,7 +11,7 @@ import SalesDashboard from "./pages/SalesDashboard";
 import PublicProductsList from "./pages/PublicProductList";
 import PedidosDashboard from "./pages/PedidosDashboard";
 import ReportesDashboard from "./pages/ReportesDashboard";
-import { useBackendWarmup } from "./hooks/useBackendWarmup";
+import { useBackendWarmup } from "./hocks/useBackendWarmup";
 
 function App() {
   useBackendWarmup();
