@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import "../styles/PublicProductList.css";
+import NavBar from "../components/NavBar";
 
 const PublicProductsList = () => {
   const [productos, setProductos] = useState([]);
@@ -149,36 +149,7 @@ const PublicProductsList = () => {
   if (loading) {
     return (
       <div className="public-products-container">
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
-          <div className="container-fluid">
-            <Link className="navbar-brand fw-bold" to="/">
-              🎮 Sala de Juegos Ruiz
-            </Link>
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarNav"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav ms-auto gap-2">
-                <li className="nav-item">
-                  <Link className="nav-link" to="/">
-                    Home
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    Login
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-
+        <NavBar /> {/* 🎯 USA EL COMPONENTE en lugar de todo el <nav> */}
         <div className="loading-container">
           <div className="loading-content">
             <div className="loading-icon">🎮</div>
@@ -195,36 +166,7 @@ const PublicProductsList = () => {
 
   return (
     <div className="public-products-container">
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
-        <div className="container-fluid">
-          <Link className="navbar-brand fw-bold" to="/">
-            🎮 Sala de Juegos Ruiz
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto gap-2">
-              <li className="nav-item">
-                <Link className="nav-link" to="/">
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">
-                  Login
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+      <NavBar /> {/* 🎯 USA EL COMPONENTE en lugar de todo el <nav> */}
 
       {/* Contenido principal */}
       <div className="public-products-content">
