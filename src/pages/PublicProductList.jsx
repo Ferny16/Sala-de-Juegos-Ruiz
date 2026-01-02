@@ -165,9 +165,7 @@ const PublicProductsList = () => {
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav ms-auto gap-2">
                 <li className="nav-item">
-                  <Link className="nav-link active" to="/productos">
-                    Catálogo
-                  </Link>
+                  
                 </li>
               </ul>
             </div>
@@ -207,9 +205,6 @@ const PublicProductsList = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto gap-2">
               <li className="nav-item">
-                <Link className="nav-link active" to="/productos">
-                  Catálogo
-                </Link>
               </li>
             </ul>
           </div>
