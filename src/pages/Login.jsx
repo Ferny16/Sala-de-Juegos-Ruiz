@@ -2,9 +2,12 @@ import { useState } from "react";
 import axios from "axios";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
+import { useBackendWarmup } from '../hocks/useBackendWarmup';
 
 export default function Login() {
   const navigate = useNavigate();
+  // Activar el backend cuando carga el Home
+    useBackendWarmup();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
