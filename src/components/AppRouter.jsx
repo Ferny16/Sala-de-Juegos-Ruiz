@@ -7,7 +7,7 @@ const AppRouter = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Método DEFINITIVO: Solo confiar en el parámetro ?source=pwa
+    // Detectar si la app fue abierta desde el icono instalado
     const isOpenedFromInstalledApp = () => {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get('source') === 'pwa';
@@ -15,19 +15,17 @@ const AppRouter = ({ children }) => {
 
     const fromPWA = isOpenedFromInstalledApp();
     
-    console.log('--- DEBUG AppRouter ---');
-    console.log('Ruta actual:', location.pathname);
-    console.log('URL completa:', window.location.href);
+    // Logs para debugging (solo visibles en consola de desarrollador)
+    console.log('--- AppRouter ---');
+    console.log('Ruta:', location.pathname);
     console.log('Parámetro source:', new URLSearchParams(window.location.search).get('source'));
-    console.log('¿Abierto desde app instalada?:', fromPWA);
-    console.log('----------------------');
+    console.log('Desde app instalada:', fromPWA);
+    console.log('-----------------');
 
-    // REGLA SIMPLE: Solo redirigir si tiene ?source=pwa Y está en /
+    // Solo redirigir al login si viene de la app instalada Y está en la raíz
     if (fromPWA && location.pathname === '/') {
-      console.log('✅ App instalada detectada - Redirigiendo al login');
+      console.log('📱 Redirigiendo al login desde app instalada');
       navigate('/login', { replace: true });
-    } else if (!fromPWA) {
-      console.log('🌐 Navegador web - Mantener en página actual');
     }
   }, [navigate, location]);
 
