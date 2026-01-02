@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import AppRouter from './components/AppRouter';
+import AppRouter from "./components/AppRouter";
 //import Home from "./pages/Home";
 import Home2 from "./pages/Home2";
 import Login from "./pages/Login";
@@ -11,8 +11,10 @@ import SalesDashboard from "./pages/SalesDashboard";
 import PublicProductsList from "./pages/PublicProductList";
 import PedidosDashboard from "./pages/PedidosDashboard";
 import ReportesDashboard from "./pages/ReportesDashboard";
+import { useBackendWarmup } from "./hooks/useBackendWarmup";
 
 function App() {
+  useBackendWarmup();
   return (
     <AppRouter>
       <Routes>
