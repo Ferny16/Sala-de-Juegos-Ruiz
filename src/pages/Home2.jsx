@@ -8,6 +8,7 @@ import "../styles/Global.css";
 import "../styles/NavVar.css";
 import "../styles/ProductosSection.css";
 import "../styles/Home.css";
+import { useBackendWarmup } from '../hocks/useBackendWarmup';
 
 // Importar componentes personalizados
 import OptimizedImage from '../components/OptimizedImage';
@@ -26,6 +27,9 @@ const MapComponent = lazy(() => import('../components/MapComponent'));
 
 function Home2() {
   const navigate = useNavigate();
+
+  // Activar el backend cuando carga el Home
+  useBackendWarmup();
 
   // Precargar SOLO imágenes críticas (above-the-fold)
   useEffect(() => {
