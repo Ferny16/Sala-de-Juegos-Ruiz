@@ -163,19 +163,25 @@
   border-color: #38bdf8;
 }
 
-/* Contenedor de imagen */
+/* ✅ SOLUCIÓN: Contenedor de imagen - Muestra imagen completa sin recortar */
 .public-product-image-container {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 320px; /* Altura aumentada para productos verticales altos como botellas */
   overflow: hidden;
-  background: #f3f4f6;
+  background: #f8f9fa; /* Fondo claro para que se vea bien */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* ✅ SOLUCIÓN: object-fit: contain para que NO se recorte la imagen */
 .public-product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: calc(100% - 16px); /* Resta el padding */
+  max-height: calc(100% - 16px); /* Resta el padding */
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Muestra la imagen COMPLETA sin recortar */
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -357,10 +363,13 @@
   border: 2px solid #e5e7eb;
 }
 
+/* ✅ Imagen del modal también con contain */
 .producto-imagen-modal {
   width: 100px;
   height: 100px;
-  object-fit: cover;
+  object-fit: contain; /* Muestra imagen completa en el modal */
+  background: white;
+  padding: 4px;
   border-radius: 8px;
   border: 2px solid #e5e7eb;
 }
@@ -487,7 +496,7 @@
   }
   
   .public-product-image-container {
-    height: 180px;
+    height: 280px; /* Más altura en tablets para productos altos */
   }
   
   .search-bar {
@@ -505,7 +514,7 @@
   }
   
   .public-product-image-container {
-    height: 160px;
+    height: 260px; /* Altura adecuada para móviles - productos altos */
   }
   
   .search-bar {
@@ -584,7 +593,7 @@
   }
   
   .public-product-image-container {
-    height: 180px;
+    height: 240px; /* Mantiene buena altura en móviles pequeños */
   }
   
   .public-products-content .row {

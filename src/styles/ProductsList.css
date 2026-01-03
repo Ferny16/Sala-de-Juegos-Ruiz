@@ -83,21 +83,26 @@
   border-color: #38bdf8;
 }
 
-/* Contenedor de imagen - DESKTOP */
+/* ✅ SOLUCIÓN: Contenedor de imagen - Muestra imagen completa sin recortar */
 .product-image-container {
   position: relative;
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: #f3f4f6;
+  background: #f8f9fa; /* Fondo claro para que se vea bien */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* ✅ SOLUCIÓN: object-fit: contain para que NO se recorte la imagen */
 .product-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Muestra la imagen COMPLETA sin recortar */
   cursor: pointer;
   transition: transform 0.3s ease;
+  padding: 8px; /* Pequeño padding para que no toque los bordes */
 }
 
 .product-image:hover {
@@ -230,7 +235,6 @@
     padding: 0 1rem;
   }
   
-  /* ✅ Imagen vertical (más alta que ancha) para que se vea bien */
   .product-image-container {
     height: 160px;
   }
@@ -301,7 +305,6 @@
     text-align: center;
   }
   
-  /* ✅ Imagen más pequeña y cuadrada */
   .product-image-container {
     height: 180px;
   }
@@ -314,8 +317,8 @@
   
   /* ✅ Cards más estrechas (solo 65% del ancho) */
   .products-content .col-12 {
-    flex: 0 0 65%; /* Solo ocupa 65% del ancho */
-    max-width: 240px; /* Máximo 240px de ancho (más estrecho) */
+    flex: 0 0 65%;
+    max-width: 240px;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
@@ -325,7 +328,6 @@
     margin: 0 auto;
   }
   
-  /* ✅ Card body más compacto */
   .product-card .card-body {
     padding: 0.6rem;
   }
@@ -336,7 +338,6 @@
     margin-bottom: 0.3rem;
   }
   
-  /* ✅ Info más junta */
   .product-info {
     gap: 3px;
     margin-top: 6px;
@@ -398,17 +399,15 @@
 
 /* ========================================
    RESPONSIVE - MÓVILES MUY PEQUEÑOS (menos de 400px)
-   ✅ 1 COLUMNA aún más estrecha
    ======================================== */
 @media (max-width: 400px) {
   .products-title {
     font-size: 1.2rem;
   }
   
-  /* ✅ Cards más estrechas en pantallas muy pequeñas */
   .products-content .col-12 {
     flex: 0 0 70%;
-    max-width: 220px; /* Aún más estrecho */
+    max-width: 220px;
   }
   
   .product-image-container {

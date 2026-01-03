@@ -16,7 +16,6 @@ const SalesDashboard = () => {
   const [ventaExitosa, setVentaExitosa] = useState(null);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
 
-  // ✅ CONFIGURAR AXIOS CON TOKEN
   const getAuthHeaders = useCallback(() => {
     const token = localStorage.getItem("token");
     return {
@@ -26,7 +25,6 @@ const SalesDashboard = () => {
     };
   }, []);
 
-  // ✅ CORREGIDO: Removido el código de actualización erróneo
   const fetchProductos = useCallback(
     async (searchTerm = "") => {
       setLoading(true);
@@ -36,14 +34,11 @@ const SalesDashboard = () => {
           : `${API_URL}/api/products/para-venta`;
 
         const response = await axios.get(url, getAuthHeaders());
-
         setProductos(response.data.productos || response.data);
       } catch (error) {
         console.error("❌ Error al cargar productos:", error);
-
         if (error.response?.status === 401 || error.response?.status === 403) {
           alert("⚠️ Sesión expirada. Por favor inicia sesión nuevamente.");
-          // window.location.href = '/login';
         } else {
           alert("Error al cargar productos.");
         }
@@ -59,13 +54,11 @@ const SalesDashboard = () => {
     document.title = "Ventas - Sala de Juegos Ruiz";
   }, [fetchProductos]);
 
-  // Buscar productos
   const handleSearch = (e) => {
     e.preventDefault();
     fetchProductos(search);
   };
 
-  // Agregar producto al carrito
   const agregarAlCarrito = (producto) => {
     const existe = carrito.find((item) => item._id === producto._id);
 
@@ -101,7 +94,6 @@ const SalesDashboard = () => {
     }
   };
 
-  // Cambiar cantidad en carrito
   const cambiarCantidad = (id, nuevaCantidad) => {
     const producto = productos.find((p) => p._id === id);
 
@@ -129,12 +121,10 @@ const SalesDashboard = () => {
     );
   };
 
-  // Eliminar del carrito
   const eliminarDelCarrito = (id) => {
     setCarrito(carrito.filter((item) => item._id !== id));
   };
 
-  // Calcular total
   const calcularTotal = () => {
     return carrito.reduce(
       (total, item) => total + item.precioVenta * item.cantidadVenta,
@@ -142,7 +132,6 @@ const SalesDashboard = () => {
     );
   };
 
-  // Calcular vuelto
   const calcularVuelto = () => {
     const total = calcularTotal();
     const pago = parseFloat(montoPagado) || 0;
@@ -150,7 +139,6 @@ const SalesDashboard = () => {
     return vuelto;
   };
 
-  // Vaciar carrito
   const vaciarCarrito = () => {
     if (window.confirm("¿Estás seguro de vaciar el carrito?")) {
       setCarrito([]);
@@ -159,21 +147,11 @@ const SalesDashboard = () => {
     }
   };
 
-  // ✅ PROCESAR VENTA - ACTUALIZADO CON RUTAS CORRECTAS
   const procesarVenta = async () => {
     const total = calcularTotal();
     const pago = parseFloat(montoPagado) || 0;
     const vuelto = pago - total;
 
-    console.log("🛒 Iniciando proceso de venta...");
-    console.log("📊 Datos del carrito:", {
-      totalProductos: carrito.length,
-      total,
-      montoPagado: pago,
-      vuelto,
-    });
-
-    // Validaciones del frontend
     if (carrito.length === 0) {
       alert("El carrito está vacío");
       return;
@@ -194,7 +172,6 @@ const SalesDashboard = () => {
     setProcessingVenta(true);
 
     try {
-      // Preparar datos de venta
       const ventaData = {
         productos: carrito.map((item) => ({
           productoId: item._id,
@@ -209,27 +186,14 @@ const SalesDashboard = () => {
         fecha: new Date().toISOString(),
       };
 
-      console.log("📦 Enviando datos al backend:", ventaData);
-      console.log("🔗 URL completa:", `${API_URL}/api/sales`);
-
-      // ✅ REGISTRAR VENTA - RUTA CORRECTA
       const ventaResponse = await axios.post(
         `${API_URL}/api/sales`,
         ventaData,
         getAuthHeaders()
       );
 
-      console.log("✅ Respuesta del backend:", ventaResponse.data);
-
-      // ✅ ACTUALIZAR INVENTARIO - RUTA CORRECTA
-      console.log("🔄 Actualizando inventario...");
       for (const item of carrito) {
         const nuevaCantidad = item.cantidad - item.cantidadVenta;
-
-        console.log(
-          `📦 Actualizando ${item.nombre}: ${item.cantidad} -> ${nuevaCantidad}`
-        );
-
         await axios.put(
           `${API_URL}/api/products/${item._id}`,
           { cantidad: nuevaCantidad },
@@ -237,9 +201,6 @@ const SalesDashboard = () => {
         );
       }
 
-      console.log("✅ Inventario actualizado correctamente");
-
-      // Mostrar resultado exitoso
       setVentaExitosa({
         total: total,
         pagado: pago,
@@ -249,90 +210,22 @@ const SalesDashboard = () => {
       });
       setMostrarResultado(true);
 
-      // Limpiar carrito y formulario
       setCarrito([]);
       setMontoPagado("");
-
-      // Recargar productos actualizados
       fetchProductos(search);
     } catch (error) {
-      console.error("❌ ERROR COMPLETO:", error);
-      console.error("❌ Error response:", error.response);
-      console.error("❌ Error response data:", error.response?.data);
-
-      // ✅ MANEJO ESPECIAL PARA ERRORES DE AUTENTICACIÓN
+      console.error("❌ ERROR:", error);
       if (error.response?.status === 401) {
-        alert(
-          "⚠️ Sesión expirada o no autorizada.\n\nPor favor inicia sesión nuevamente."
-        );
-        // Opcional: redirigir al login
-        // window.location.href = '/login';
+        alert("⚠️ Sesión expirada. Por favor inicia sesión nuevamente.");
         return;
       }
-
       if (error.response?.status === 403) {
         alert("⚠️ No tienes permisos para realizar esta acción.");
         return;
       }
-
-      // Manejar errores específicos del backend
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
-
-        console.log("📦 Datos del error recibido:", errorData);
-
-        if (errorData.detalles) {
-          if (typeof errorData.detalles === "string") {
-            alert(`❌ ${errorData.error}\n\n${errorData.detalles}`);
-          } else if (errorData.detalles.total !== undefined) {
-            alert(
-              `❌ ${errorData.error}\n\nTotal: ₡${errorData.detalles.total}\nPagado: ₡${errorData.detalles.montoPagado}\nFaltante: ₡${errorData.detalles.faltante}`
-            );
-          } else {
-            alert(
-              `❌ ${errorData.error}\n\n${JSON.stringify(errorData.detalles)}`
-            );
-          }
-        } else if (errorData.producto) {
-          const prod = errorData.producto;
-          let mensaje = `❌ ${errorData.error}\n\nProducto: ${prod.nombre || "Desconocido"}`;
-
-          if (prod.mensaje) {
-            mensaje += `\n${prod.mensaje}`;
-          }
-          if (prod.disponible !== undefined) {
-            mensaje += `\nDisponible: ${prod.disponible}`;
-            mensaje += `\nSolicitado: ${prod.solicitado}`;
-          }
-          if (prod.precioActual !== undefined) {
-            mensaje += `\nPrecio actual: ₡${prod.precioActual}`;
-            mensaje += `\nPrecio en carrito: ₡${prod.precioEnCarrito}`;
-          }
-
-          alert(mensaje);
-        } else if (errorData.error) {
-          const mensaje = errorData.mensaje
-            ? `❌ ${errorData.error}\n\n${errorData.mensaje}`
-            : `❌ ${errorData.error}`;
-          alert(mensaje);
-        } else {
-          console.error("⚠️ Estructura de error desconocida:", errorData);
-          alert(
-            `❌ Error al procesar la venta\n\n${JSON.stringify(errorData)}`
-          );
-        }
-      } else if (error.request) {
-        console.error("❌ No se recibió respuesta del servidor");
-        alert(
-          "❌ No se pudo conectar con el servidor.\n\nVerifica que el backend esté corriendo en la URL configurada"
-        );
-      } else {
-        console.error("❌ Error al configurar la petición:", error.message);
-        alert(`❌ Error al procesar la venta.\n\n${error.message}`);
-      }
+      alert("Error al procesar la venta");
     } finally {
       setProcessingVenta(false);
-      console.log("🏁 Proceso de venta finalizado");
     }
   };
 
@@ -357,7 +250,6 @@ const SalesDashboard = () => {
 
   return (
     <div className="sales-container">
-      {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
         <div className="container-fluid">
           <Link className="navbar-brand fw-bold" to="/">
@@ -403,20 +295,18 @@ const SalesDashboard = () => {
         </div>
       </nav>
 
-      {/* Contenido principal */}
       <div className="sales-content">
         <div className="container-fluid py-4">
           <h2 className="sales-title text-center mb-4">💰 Sistema de Ventas</h2>
 
           <div className="row g-4">
-            {/* Panel izquierdo - Productos */}
-            <div className="col-lg-7">
-              <div className="card productos-panel">
+            {/* Panel derecho - Carrito PRIMERO (en móvil aparece arriba) */}
+            <div className="col-lg-5 order-lg-2">
+              <div className="card carrito-panel">
                 <div className="card-header">
                   <h5 className="mb-0">📦 Productos Disponibles</h5>
                 </div>
                 <div className="card-body">
-                  {/* Buscador */}
                   <form onSubmit={handleSearch} className="mb-3">
                     <div className="input-group">
                       <input
@@ -444,7 +334,6 @@ const SalesDashboard = () => {
                     </div>
                   </form>
 
-                  {/* Lista de productos */}
                   <div className="productos-lista">
                     {productos.length === 0 ? (
                       <div className="alert alert-info">
@@ -489,9 +378,9 @@ const SalesDashboard = () => {
               </div>
             </div>
 
-            {/* Panel derecho - Carrito y Pago */}
-            <div className="col-lg-5">
-              <div className="card carrito-panel sticky-top">
+            {/* Panel izquierdo - Productos DESPUÉS (en móvil aparece abajo) */}
+            <div className="col-lg-7 order-lg-1">
+              <div className="card productos-panel">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h5 className="mb-0">🛒 Carrito de Venta</h5>
                   {carrito.length > 0 && (
@@ -504,7 +393,6 @@ const SalesDashboard = () => {
                   )}
                 </div>
                 <div className="card-body">
-                  {/* Items del carrito */}
                   {carrito.length === 0 ? (
                     <div className="carrito-vacio">
                       <p>🛒 Carrito vacío</p>
@@ -576,7 +464,6 @@ const SalesDashboard = () => {
                         ))}
                       </div>
 
-                      {/* Total */}
                       <div className="total-section">
                         <div className="total-row">
                           <span>Total a Pagar:</span>
@@ -586,7 +473,6 @@ const SalesDashboard = () => {
                         </div>
                       </div>
 
-                      {/* Pago */}
                       <div className="pago-section">
                         <label className="form-label fw-bold">
                           💵 Monto Pagado:
@@ -617,7 +503,6 @@ const SalesDashboard = () => {
                         )}
                       </div>
 
-                      {/* Botón procesar */}
                       <button
                         className="btn btn-success btn-lg w-100 mt-3"
                         onClick={procesarVenta}
@@ -645,7 +530,6 @@ const SalesDashboard = () => {
         </div>
       </div>
 
-      {/* Modal de resultado */}
       {mostrarResultado && ventaExitosa && (
         <div
           className="modal-overlay"
@@ -701,7 +585,6 @@ const SalesDashboard = () => {
         </div>
       )}
 
-      {/* Notificación */}
       {mostrarNotificacion && ventaExitosa && (
         <div className={`notificacion-exito ${ventaExitosa.tipo || "success"}`}>
           <div className="notificacion-contenido">
