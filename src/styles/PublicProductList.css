@@ -163,25 +163,25 @@
   border-color: #38bdf8;
 }
 
-/* ✅ SOLUCIÓN: Contenedor de imagen - Muestra imagen completa sin recortar */
+/* Contenedor de imagen - Muestra imagen completa sin recortar */
 .public-product-image-container {
   position: relative;
   width: 100%;
-  height: 320px; /* Altura aumentada para productos verticales altos como botellas */
+  height: 320px;
   overflow: hidden;
-  background: #f8f9fa; /* Fondo claro para que se vea bien */
+  background: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ✅ SOLUCIÓN: object-fit: contain para que NO se recorte la imagen */
+/* object-fit: contain para que NO se recorte la imagen */
 .public-product-image {
-  max-width: calc(100% - 16px); /* Resta el padding */
-  max-height: calc(100% - 16px); /* Resta el padding */
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 16px);
   width: auto;
   height: auto;
-  object-fit: contain; /* Muestra la imagen COMPLETA sin recortar */
+  object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -363,11 +363,11 @@
   border: 2px solid #e5e7eb;
 }
 
-/* ✅ Imagen del modal también con contain */
+/* Imagen del modal también con contain */
 .producto-imagen-modal {
   width: 100px;
   height: 100px;
-  object-fit: contain; /* Muestra imagen completa en el modal */
+  object-fit: contain;
   background: white;
   padding: 4px;
   border-radius: 8px;
@@ -496,7 +496,7 @@
   }
   
   .public-product-image-container {
-    height: 280px; /* Más altura en tablets para productos altos */
+    height: 280px;
   }
   
   .search-bar {
@@ -514,7 +514,7 @@
   }
   
   .public-product-image-container {
-    height: 260px; /* Altura adecuada para móviles - productos altos */
+    height: 260px;
   }
   
   .search-bar {
@@ -585,7 +585,7 @@
 }
 
 /* ========================================
-   RESPONSIVE - MÓVILES PEQUEÑOS (menos de 576px)
+   🎯 SOLUCIÓN: MÓVILES PEQUEÑOS CENTRADOS
    ======================================== */
 @media (max-width: 576px) {
   .public-products-title {
@@ -593,28 +593,32 @@
   }
   
   .public-product-image-container {
-    height: 240px; /* Mantiene buena altura en móviles pequeños */
+    height: 240px;
   }
   
+  /* ✅ CLAVE: Centra el contenedor del row */
   .public-products-content .row {
-    justify-content: center;
-    row-gap: 0.75rem !important;
+    justify-content: center !important;
+    row-gap: 1rem !important;
+    margin: 0 auto !important;
   }
   
+  /* ✅ CLAVE: Columnas centradas con margen automático */
   .public-products-content .col-12 {
-    flex: 0 0 65%;
-    max-width: 240px;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    flex: 0 0 auto !important;
+    max-width: 280px !important;
+    width: 100% !important;
+    padding: 0 0.5rem !important;
+    margin: 0 auto !important;
   }
   
   .public-product-card {
     border-radius: 10px;
-    margin: 0 auto;
+    width: 100%;
   }
   
   .public-product-card .card-body {
-    padding: 0.6rem;
+    padding: 0.7rem;
   }
   
   .public-product-card .card-title {
@@ -666,7 +670,7 @@
   }
   
   .public-products-content .container {
-    padding: 1rem 1rem;
+    padding: 1rem;
   }
   
   /* Modal más compacto */
@@ -701,24 +705,24 @@
 }
 
 /* ========================================
-   RESPONSIVE - MÓVILES MUY PEQUEÑOS (menos de 400px)
+   🎯 SOLUCIÓN: MÓVILES MUY PEQUEÑOS CENTRADOS
    ======================================== */
 @media (max-width: 400px) {
   .public-products-title {
     font-size: 1.2rem;
   }
   
+  /* ✅ CLAVE: Mantiene centrado en pantallas muy pequeñas */
   .public-products-content .col-12 {
-    flex: 0 0 70%;
-    max-width: 220px;
+    max-width: 260px !important;
   }
   
   .public-product-image-container {
-    height: 160px;
+    height: 220px;
   }
   
   .public-product-card .card-body {
-    padding: 0.5rem;
+    padding: 0.6rem;
   }
   
   .public-product-card .card-title {
