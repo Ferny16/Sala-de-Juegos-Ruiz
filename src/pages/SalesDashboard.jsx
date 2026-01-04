@@ -9,7 +9,6 @@ const SalesDashboard = () => {
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [search, setSearch] = useState("");
-  const [montoPagado, setMontoPagado] = useState("");
   const [loading, setLoading] = useState(true);
   const [processingVenta, setProcessingVenta] = useState(false);
   const [mostrarResultado, setMostrarResultado] = useState(false);
@@ -132,40 +131,18 @@ const SalesDashboard = () => {
     );
   };
 
-  const calcularVuelto = () => {
-    const total = calcularTotal();
-    const pago = parseFloat(montoPagado) || 0;
-    const vuelto = pago - total;
-    return vuelto;
-  };
-
   const vaciarCarrito = () => {
     if (window.confirm("¿Estás seguro de vaciar el carrito?")) {
       setCarrito([]);
-      setMontoPagado("");
       setMostrarResultado(false);
     }
   };
 
   const procesarVenta = async () => {
     const total = calcularTotal();
-    const pago = parseFloat(montoPagado) || 0;
-    const vuelto = pago - total;
 
     if (carrito.length === 0) {
       alert("El carrito está vacío");
-      return;
-    }
-
-    if (!montoPagado || pago <= 0) {
-      alert("Por favor ingresa el monto pagado por el cliente");
-      return;
-    }
-
-    if (pago < total) {
-      alert(
-        `❌ El monto pagado (₡${pago.toFixed(2)}) es insuficiente.\n\nTotal a pagar: ₡${total.toFixed(2)}\nFalta: ₡${(total - pago).toFixed(2)}`
-      );
       return;
     }
 
@@ -181,8 +158,8 @@ const SalesDashboard = () => {
           subtotal: item.precioVenta * item.cantidadVenta,
         })),
         total: total,
-        montoPagado: pago,
-        vuelto: vuelto,
+        montoPagado: total,
+        vuelto: 0,
         fecha: new Date().toISOString(),
       };
 
@@ -203,15 +180,12 @@ const SalesDashboard = () => {
 
       setVentaExitosa({
         total: total,
-        pagado: pago,
-        vuelto: vuelto,
         productos: carrito,
         numeroVenta: ventaResponse.data.venta?._id || ventaResponse.data._id,
       });
       setMostrarResultado(true);
 
       setCarrito([]);
-      setMontoPagado("");
       fetchProductos(search);
     } catch (error) {
       console.error("❌ ERROR:", error);
@@ -300,7 +274,7 @@ const SalesDashboard = () => {
           <h2 className="sales-title text-center mb-4">💰 Sistema de Ventas</h2>
 
           <div className="row g-4">
-            {/* Panel derecho - Carrito PRIMERO (en móvil aparece arriba) */}
+            {/* Panel derecho - Productos */}
             <div className="col-lg-5 order-lg-2">
               <div className="card carrito-panel">
                 <div className="card-header">
@@ -378,7 +352,7 @@ const SalesDashboard = () => {
               </div>
             </div>
 
-            {/* Panel izquierdo - Productos DESPUÉS (en móvil aparece abajo) */}
+            {/* Panel izquierdo - Carrito */}
             <div className="col-lg-7 order-lg-1">
               <div className="card productos-panel">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -473,44 +447,10 @@ const SalesDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="pago-section">
-                        <label className="form-label fw-bold">
-                          💵 Monto Pagado:
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control form-control-lg"
-                          placeholder="Ingrese el monto que paga el cliente"
-                          value={montoPagado}
-                          onChange={(e) => setMontoPagado(e.target.value)}
-                          step="0.01"
-                          min="0"
-                        />
-
-                        {montoPagado && parseFloat(montoPagado) > 0 && (
-                          <div
-                            className={`vuelto-display ${calcularVuelto() >= 0 ? "positivo" : "negativo"}`}
-                          >
-                            <span>Vuelto:</span>
-                            <strong>₡{calcularVuelto().toFixed(2)}</strong>
-                            {calcularVuelto() < 0 && (
-                              <small className="d-block text-center mt-1">
-                                ⚠️ Falta: ₡
-                                {Math.abs(calcularVuelto()).toFixed(2)}
-                              </small>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
                       <button
                         className="btn btn-success btn-lg w-100 mt-3"
                         onClick={procesarVenta}
-                        disabled={
-                          processingVenta ||
-                          !montoPagado ||
-                          calcularVuelto() < 0
-                        }
+                        disabled={processingVenta}
                       >
                         {processingVenta ? (
                           <>
@@ -540,17 +480,9 @@ const SalesDashboard = () => {
               <h3>✅ Venta Exitosa</h3>
             </div>
             <div className="modal-body-resultado">
-              <div className="resultado-row">
+              <div className="resultado-row total-final">
                 <span>Total:</span>
                 <strong>₡{ventaExitosa.total.toFixed(2)}</strong>
-              </div>
-              <div className="resultado-row">
-                <span>Pagado:</span>
-                <strong>₡{ventaExitosa.pagado.toFixed(2)}</strong>
-              </div>
-              <div className="resultado-row vuelto-final">
-                <span>Vuelto:</span>
-                <strong>₡{ventaExitosa.vuelto.toFixed(2)}</strong>
               </div>
 
               <div className="productos-vendidos">
@@ -602,10 +534,7 @@ const SalesDashboard = () => {
               {ventaExitosa.detalle && <p>{ventaExitosa.detalle}</p>}
               {!ventaExitosa.esError && ventaExitosa.total && (
                 <>
-                  <p>
-                    Total: ₡{ventaExitosa.total.toFixed(2)} | Vuelto: ₡
-                    {ventaExitosa.vuelto.toFixed(2)}
-                  </p>
+                  <p>Total: ₡{ventaExitosa.total.toFixed(2)}</p>
                   <small>El inventario ha sido actualizado</small>
                 </>
               )}

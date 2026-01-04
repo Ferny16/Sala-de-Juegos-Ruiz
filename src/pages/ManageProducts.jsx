@@ -8,6 +8,7 @@
  * - Listado completo de productos con paginación
  * - Búsqueda en tiempo real por nombre de producto
  * - Edición inline de productos (nombre, cantidad, precios, fecha, disponibilidad)
+ * - **NUEVO**: Modificación opcional de imagen
  * - Eliminación de productos con confirmación
  * - Visualización de imágenes con zoom
  * - Control de disponibilidad para venta
@@ -16,7 +17,7 @@
  *
  * @component
  * @author jefernee
- * @version 2.0.0
+ * @version 2.2.0
  */
 
 import { useState, useEffect } from "react";
@@ -36,6 +37,7 @@ const ManageProducts = () => {
   const [search, setSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [imagenesNuevas, setImagenesNuevas] = useState({}); // ✅ NUEVO: { productoId: { file, preview } }
 
   // ===================================
   // FUNCIONES DE CARGA DE DATOS
@@ -49,7 +51,6 @@ const ManageProducts = () => {
   const fetchProductos = async (searchTerm = "") => {
     setLoading(true);
     try {
-      // ✅ OBTENER TOKEN
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
@@ -106,13 +107,75 @@ const ManageProducts = () => {
       precioCompra: producto.precioCompra,
       precioVenta: producto.precioVenta,
       fechaCompra: producto.fechaCompra.split("T")[0],
-      seVende: producto.seVende, // ✅ NUEVO
+      seVende: producto.seVende,
+    });
+
+    // ✅ Limpiar imagen de este producto específico
+    setImagenesNuevas((prev) => {
+      const newState = { ...prev };
+      delete newState[producto._id];
+      return newState;
     });
   };
 
   const handleCancelEdit = () => {
+    const productoId = editingProduct;
     setEditingProduct(null);
     setEditForm({});
+
+    // ✅ Limpiar imagen del producto que se estaba editando
+    if (productoId) {
+      setImagenesNuevas((prev) => {
+        const newState = { ...prev };
+        delete newState[productoId];
+        return newState;
+      });
+    }
+  };
+
+  // ✅ Manejar selección de imagen
+  const handleImageChange = (e, productoId) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith("image/")) {
+        alert("Por favor selecciona un archivo de imagen válido");
+        return;
+      }
+
+      // Validar tamaño (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("La imagen no debe superar los 5MB");
+        return;
+      }
+
+      // Crear preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagenesNuevas((prev) => ({
+          ...prev,
+          [productoId]: {
+            file: file,
+            preview: reader.result,
+          },
+        }));
+        console.log(
+          `✅ Imagen cargada para producto ${productoId}:`,
+          file.name
+        );
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // ✅ Limpiar imagen seleccionada
+  const handleClearImage = (productoId) => {
+    setImagenesNuevas((prev) => {
+      const newState = { ...prev };
+      delete newState[productoId];
+      return newState;
+    });
+    console.log(`🗑️ Imagen eliminada para producto ${productoId}`);
   };
 
   /**
@@ -130,13 +193,43 @@ const ManageProducts = () => {
     setProcessing(id);
 
     try {
-      // ✅ OBTENER TOKEN
       const token = localStorage.getItem("token");
 
-      // ✅ ENVIAR DATOS CON TOKEN
-      await axios.put(
+      // ✅ Obtener imagen del producto específico
+      const imagenData = imagenesNuevas[id];
+      const nuevaImagen = imagenData?.file;
+
+      console.log("🚀 Iniciando actualización...");
+      console.log("ID:", id);
+      console.log("Datos:", editForm);
+      console.log("¿Tiene nueva imagen?", !!nuevaImagen);
+      if (nuevaImagen) {
+        console.log("📷 Nombre de archivo:", nuevaImagen.name);
+      }
+
+      // ✅ Siempre usar FormData (funciona con o sin imagen)
+      const formData = new FormData();
+      formData.append("nombre", editForm.nombre);
+      formData.append("cantidad", editForm.cantidad);
+      formData.append("precioCompra", editForm.precioCompra);
+      formData.append("precioVenta", editForm.precioVenta);
+      formData.append("fechaCompra", editForm.fechaCompra);
+      formData.append("seVende", editForm.seVende);
+
+      // ✅ IMPORTANTE: Solo agregar imagen si el usuario seleccionó una
+      if (nuevaImagen) {
+        formData.append("imagen", nuevaImagen);
+        console.log("✅ Imagen agregada al FormData");
+      } else {
+        console.log("ℹ️ Sin nueva imagen - se mantendrá la actual");
+      }
+
+      console.log("📤 Enviando petición PUT...");
+
+      // ✅ NO especificar Content-Type - el navegador lo hace automáticamente
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/products/${id}`,
-        editForm,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -144,21 +237,31 @@ const ManageProducts = () => {
         }
       );
 
-      // Actualiza el producto en el estado local
-      setProductos(
-        productos.map((p) => (p._id === id ? { ...p, ...editForm } : p))
-      );
+      console.log("✅ Respuesta del servidor:", response.data);
+
+      // Recargar productos
+      await fetchProductos(search);
 
       alert(`"${nombre}" actualizado correctamente.`);
 
+      // Limpiar estados
       setEditingProduct(null);
       setEditForm({});
+      setImagenesNuevas((prev) => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
     } catch (error) {
-      console.error("Error al actualizar:", error);
+      console.error("❌ Error al actualizar:", error);
+      console.error("Respuesta del error:", error.response?.data);
+
       if (error.response?.status === 401) {
         alert("Sesión expirada. Por favor inicia sesión nuevamente.");
       } else {
-        alert("Error al actualizar el producto.");
+        alert(
+          `Error al actualizar el producto: ${error.response?.data?.error || error.message}`
+        );
       }
     } finally {
       setProcessing(null);
@@ -181,7 +284,6 @@ const ManageProducts = () => {
     setProcessing(id);
 
     try {
-      // ✅ OBTENER TOKEN
       const token = localStorage.getItem("token");
 
       await axios.delete(
@@ -392,6 +494,7 @@ const ManageProducts = () => {
                   <div className="product-image-wrapper">
                     <img
                       src={
+                        imagenesNuevas[producto._id]?.preview ||
                         producto.imagenOptimizada ||
                         producto.imagen ||
                         "https://via.placeholder.com/100"
@@ -494,7 +597,7 @@ const ManageProducts = () => {
                             />
                           </div>
 
-                          {/* ✅ NUEVO: Campo Se Vende */}
+                          {/* Campo Se Vende */}
                           <div className="col-12">
                             <div className="form-check">
                               <input
@@ -517,6 +620,48 @@ const ManageProducts = () => {
                               </label>
                             </div>
                           </div>
+
+                          {/* ✅ Campo de imagen opcional */}
+                          <div className="col-12">
+                            <label
+                              className="form-label text-muted"
+                              style={{ fontSize: "0.85rem" }}
+                            >
+                              📷 Cambiar imagen (opcional)
+                            </label>
+                            <div className="d-flex gap-2 align-items-center">
+                              <input
+                                type="file"
+                                className="form-control form-control-sm"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  console.log("🔍 EVENTO DISPARADO");
+                                  console.log(
+                                    "Archivo seleccionado:",
+                                    e.target.files[0]
+                                  );
+                                  console.log("ID del producto:", producto._id);
+                                  handleImageChange(e, producto._id);
+                                }}
+                              />
+                              {imagenesNuevas[producto._id] && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() => handleClearImage(producto._id)}
+                                  title="Quitar imagen seleccionada"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                            {imagenesNuevas[producto._id] && (
+                              <small className="text-success d-block mt-1">
+                                ✓ Nueva imagen seleccionada:{" "}
+                                {imagenesNuevas[producto._id].file.name}
+                              </small>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -524,7 +669,7 @@ const ManageProducts = () => {
                       <>
                         <h5 className="product-name">
                           {producto.nombre}
-                          {/* ✅ NUEVO: Badge de disponibilidad */}
+                          {/* Badge de disponibilidad */}
                           {producto.seVende ? (
                             <span
                               className="badge bg-success ms-2"
@@ -558,7 +703,7 @@ const ManageProducts = () => {
                               "es-ES"
                             )}
                           </span>
-                          {/* ✅ NUEVO: Mostrar información de auditoría */}
+                          {/* Información de auditoría */}
                           {producto.createdBy && (
                             <span
                               className="meta-item text-muted"
@@ -657,38 +802,3 @@ const ManageProducts = () => {
 };
 
 export default ManageProducts;
-
-/**
- * NOTAS DE IMPLEMENTACIÓN:
- *
- * 1. ARQUITECTURA:
- *    - Componente funcional con React Hooks
- *    - Estado manejado con useState
- *    - Efectos con useEffect
- *    - Sin Redux (estado local suficiente)
- *
- * 2. OPTIMIZACIONES:
- *    - Optimistic updates (actualiza UI antes de confirmar con servidor)
- *    - Carga única de datos al montar
- *    - Búsqueda sin recargar página completa
- *
- * 3. UX/UI:
- *    - Feedback visual inmediato (spinners, disabled states)
- *    - Confirmaciones antes de acciones destructivas
- *    - Mensajes claros de éxito/error
- *    - Responsive design
- *
- * 4. SEGURIDAD:
- *    - Confirmación antes de eliminar
- *    - Validación de campos requeridos
- *    - Manejo de errores robusto
- *
- * 5. MEJORAS FUTURAS:
- *    - [ ] Paginación real (actualmente limit=100)
- *    - [ ] Filtros avanzados (por precio, fecha, cantidad)
- *    - [ ] Exportar a CSV/Excel
- *    - [ ] Edición por lotes
- *    - [ ] Historial de cambios
- *    - [ ] Subir/cambiar imagen del producto
- *    - [ ] Toast notifications en lugar de alerts
- */
