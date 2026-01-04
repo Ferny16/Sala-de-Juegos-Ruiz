@@ -169,14 +169,7 @@ const SalesDashboard = () => {
         getAuthHeaders()
       );
 
-      for (const item of carrito) {
-        const nuevaCantidad = item.cantidad - item.cantidadVenta;
-        await axios.put(
-          `${API_URL}/api/products/${item._id}`,
-          { cantidad: nuevaCantidad },
-          getAuthHeaders()
-        );
-      }
+      // ✅ El backend ya actualizó el inventario
 
       setVentaExitosa({
         total: total,
