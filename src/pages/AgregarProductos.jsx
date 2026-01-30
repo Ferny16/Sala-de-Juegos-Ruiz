@@ -1,9 +1,11 @@
+// src/pages/AgregarProductos.jsx
 import { useState, useRef } from "react";
 import axios from "axios";
 import "../styles/AgregarProductos.css";
 import { Link, useNavigate } from "react-router-dom";
+import ImageUploadWithCompression from "../components/ImageUploadWithCompression";
 
-const Dashboard = () => {
+const AgregarProductos = () => {
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     nombre: "",
@@ -12,13 +14,15 @@ const Dashboard = () => {
     precioVenta: "",
     fechaCompra: "",
     imagen: null,
-    seVende: true, // ✅ NUEVO CAMPO
+    seVende: true,
   });
-  const [preview, setPreview] = useState(null);
   const [toast, setToast] = useState({ show: false, text: "", type: "" });
-  const fileInputRef = useRef(null);
+  const imageUploadRef = useRef(null);
   const navigate = useNavigate();
 
+  /**
+   * Muestra un mensaje toast
+   */
   const showToast = (text, type = "success") => {
     setToast({ show: true, text, type });
     setTimeout(() => {
@@ -26,27 +30,37 @@ const Dashboard = () => {
     }, 3000);
   };
 
+  /**
+   * Maneja los cambios en los inputs del formulario
+   */
   const handleChange = (e) => {
-    const { name, value, files, type, checked } = e.target; // ✅ Agregado type y checked
+    const { name, value, type, checked } = e.target;
 
-    if (files && files[0]) {
-      // Liberar preview anterior
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-
-      const imageURL = URL.createObjectURL(files[0]);
-
-      setForm({ ...form, imagen: files[0] });
-      setPreview(imageURL);
-    } else if (type === "checkbox") {
-      // ✅ NUEVO: Manejo de checkbox
+    if (type === "checkbox") {
       setForm({ ...form, [name]: checked });
     } else {
       setForm({ ...form, [name]: value });
     }
   };
 
+  /**
+   * Maneja la imagen comprimida que viene del componente
+   */
+  const handleImageChange = (compressedFile) => {
+    setForm({ ...form, imagen: compressedFile });
+  };
+
+  /**
+   * Maneja errores al procesar la imagen
+   */
+  const handleImageError = (error) => {
+    console.error("Error procesando imagen:", error);
+    showToast("Error al procesar la imagen", "error");
+  };
+
+  /**
+   * Maneja el envío del formulario
+   */
   const handleAddProduct = async (e) => {
     e.preventDefault();
 
@@ -56,6 +70,7 @@ const Dashboard = () => {
     setUploading(true);
 
     try {
+      // Crear FormData con todos los campos
       const formData = new FormData();
       Object.keys(form).forEach((key) => {
         if (form[key] !== null) {
@@ -63,17 +78,15 @@ const Dashboard = () => {
         }
       });
 
-      // ✅ OBTENER TOKEN
-      const token = localStorage.getItem("token"); // O sessionStorage.getItem('token')
+      // Obtener token de autenticación
+      const token = localStorage.getItem("token");
 
       if (!token) {
         showToast("Debes iniciar sesión para agregar productos", "error");
-        // Opcional: redirigir al login
-        // navigate('/login');
         return;
       }
 
-      // ✅ ENVIAR CON TOKEN EN HEADERS
+      // Enviar petición al backend
       await axios.post(
         `${process.env.REACT_APP_API_URL}/api/products`,
         formData,
@@ -87,11 +100,7 @@ const Dashboard = () => {
 
       showToast("Producto agregado correctamente");
 
-      // Liberar preview ANTES de limpiar
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-
+      // Resetear formulario
       setForm({
         nombre: "",
         cantidad: "",
@@ -99,25 +108,20 @@ const Dashboard = () => {
         precioVenta: "",
         fechaCompra: "",
         imagen: null,
-        seVende: true, // ✅ Reset del campo
+        seVende: true,
       });
 
-      setPreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      // Resetear componente de imagen
+      imageUploadRef.current?.reset();
     } catch (error) {
-      console.error(error);
+      console.error("Error al agregar producto:", error);
 
-      // ✅ MANEJO MEJORADO DE ERRORES
+      // Manejo específico de errores
       if (error.response?.status === 401) {
         showToast(
           "Sesión expirada. Por favor inicia sesión nuevamente.",
           "error"
         );
-        // Opcional: limpiar token y redirigir
-        // localStorage.removeItem('token');
-        // navigate('/login');
       } else if (error.response?.data?.error) {
         showToast(error.response.data.error, "error");
       } else {
@@ -128,11 +132,10 @@ const Dashboard = () => {
     }
   };
 
+  /**
+   * Cierra el formulario y vuelve al dashboard
+   */
   const handleClose = () => {
-    // Liberar preview si existe
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
     navigate("/dashboard");
   };
 
@@ -141,7 +144,6 @@ const Dashboard = () => {
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
         <div className="container-fluid">
-          {/* Logo / Home */}
           <Link className="navbar-brand fw-bold" to="/">
             🎮 Sala de Juegos Ruiz
           </Link>
@@ -161,7 +163,7 @@ const Dashboard = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto gap-2">
               <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/pedidos">
+                <Link className="nav-link" to="/dashboard/pedidos">
                   📦 Pedidos
                 </Link>
               </li>
@@ -171,12 +173,12 @@ const Dashboard = () => {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/sales">
+                <Link className="nav-link" to="/dashboard/sales">
                   💰 Ventas
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/add-product">
+                <Link className="nav-link active" to="/dashboard/add-product">
                   🆕 Agregar Producto
                 </Link>
               </li>
@@ -190,160 +192,176 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      {/* Toast */}
+      {/* Toast de notificaciones */}
       {toast.show && (
         <div className={`toast-custom ${toast.type}`}>{toast.text}</div>
       )}
 
-      {/* Contenedor cuadrado centrado */}
+      {/* Contenedor principal */}
       <div
         className="container-fluid d-flex justify-content-center align-items-center py-4"
         style={{ minHeight: "calc(100vh - 56px)" }}
       >
         <div className="square-container position-relative p-4 bg-white rounded shadow">
-          {/* Botón X para cerrar */}
+          {/* Botón cerrar */}
           <button
             className="btn-close position-absolute"
             style={{ top: "15px", right: "15px" }}
             onClick={handleClose}
             aria-label="Volver al menú"
+            disabled={uploading}
           ></button>
 
           <h2 className="text-center mb-4">Agregar Producto</h2>
 
-          <div className="row align-items-start">
-            {/* Preview desktop */}
-            {preview && (
-              <div className="col-md-3 d-none d-md-flex justify-content-center">
-                <img
-                  src={preview}
-                  alt="Vista previa del producto"
-                  className="img-preview"
-                />
-              </div>
-            )}
+          <form className="row g-3" onSubmit={handleAddProduct}>
+            {/* Nombre */}
+            <div className="col-md-6">
+              <label htmlFor="nombre" className="form-label">
+                Nombre
+              </label>
+              <input
+                id="nombre"
+                name="nombre"
+                type="text"
+                className="form-control"
+                value={form.nombre}
+                onChange={handleChange}
+                required
+                disabled={uploading}
+              />
+            </div>
 
-            <form
-              className="col-12 col-md-9 row g-3"
-              onSubmit={handleAddProduct}
-            >
-              <div className="col-md-6">
-                <label>Nombre</label>
+            {/* Cantidad */}
+            <div className="col-md-3">
+              <label htmlFor="cantidad" className="form-label">
+                Cantidad
+              </label>
+              <input
+                id="cantidad"
+                name="cantidad"
+                type="number"
+                min="0"
+                className="form-control"
+                value={form.cantidad}
+                onChange={handleChange}
+                required
+                disabled={uploading}
+              />
+            </div>
+
+            {/* Fecha */}
+            <div className="col-md-3">
+              <label htmlFor="fechaCompra" className="form-label">
+                Fecha
+              </label>
+              <input
+                id="fechaCompra"
+                name="fechaCompra"
+                type="date"
+                className="form-control"
+                value={form.fechaCompra}
+                onChange={handleChange}
+                required
+                disabled={uploading}
+              />
+            </div>
+
+            {/* Precio Compra */}
+            <div className="col-md-4">
+              <label htmlFor="precioCompra" className="form-label">
+                Precio Compra
+              </label>
+              <input
+                id="precioCompra"
+                name="precioCompra"
+                type="number"
+                min="0"
+                step="0.01"
+                className="form-control"
+                value={form.precioCompra}
+                onChange={handleChange}
+                required
+                disabled={uploading}
+              />
+            </div>
+
+            {/* Precio Venta */}
+            <div className="col-md-4">
+              <label htmlFor="precioVenta" className="form-label">
+                Precio Venta
+              </label>
+              <input
+                id="precioVenta"
+                name="precioVenta"
+                type="number"
+                min="0"
+                step="0.01"
+                className="form-control"
+                value={form.precioVenta}
+                onChange={handleChange}
+                required
+                disabled={uploading}
+              />
+            </div>
+
+            {/* Disponible para venta */}
+            <div className="col-md-4 d-flex align-items-end">
+              <div className="form-check">
                 <input
-                  name="nombre"
-                  className="form-control"
-                  value={form.nombre}
-                  required
+                  id="seVende"
+                  name="seVende"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={form.seVende}
                   onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-3">
-                <label>Cantidad</label>
-                <input
-                  type="number"
-                  name="cantidad"
-                  className="form-control"
-                  value={form.cantidad}
-                  required
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-3">
-                <label>Fecha</label>
-                <input
-                  type="date"
-                  name="fechaCompra"
-                  className="form-control"
-                  value={form.fechaCompra}
-                  required
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <label>Precio Compra</label>
-                <input
-                  type="number"
-                  name="precioCompra"
-                  className="form-control"
-                  value={form.precioCompra}
-                  required
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <label>Precio Venta</label>
-                <input
-                  type="number"
-                  name="precioVenta"
-                  className="form-control"
-                  value={form.precioVenta}
-                  required
-                  onChange={handleChange}
-                />
-              </div>
-
-              {/* ✅ NUEVO CAMPO: Disponible para Venta */}
-              <div className="col-md-4 d-flex align-items-end">
-                <div className="form-check">
-                  <input
-                    type="checkbox"
-                    name="seVende"
-                    id="seVende"
-                    className="form-check-input"
-                    checked={form.seVende}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="seVende">
-                    Disponible para venta
-                  </label>
-                </div>
-              </div>
-
-              {/* Archivo */}
-              <div className="col-12">
-                <label>Imagen</label>
-                <input
-                  type="file"
-                  name="imagen"
-                  accept="image/*"
-                  className="form-control"
-                  onChange={handleChange}
-                  required
                   disabled={uploading}
-                  ref={fileInputRef}
                 />
+                <label className="form-check-label" htmlFor="seVende">
+                  Disponible para venta
+                </label>
               </div>
+            </div>
 
-              {/* Preview móvil */}
-              {preview && (
-                <div className="col-12 d-md-none">
-                  <img
-                    src={preview}
-                    alt="Vista previa del producto"
-                    className="img-preview"
-                  />
-                </div>
-              )}
+            {/* Imagen con compresión */}
+            <div className="col-12">
+              <label className="form-label">Imagen</label>
+              <ImageUploadWithCompression
+                onChange={handleImageChange}
+                onError={handleImageError}
+                required
+                disabled={uploading}
+                showPreview={true}
+                ref={imageUploadRef}
+              />
+            </div>
 
-              <div className="col-12">
-                <button
-                  type="submit"
-                  className="btn btn-primary w-100"
-                  disabled={uploading}
-                >
-                  {uploading ? "Subiendo..." : "Agregar"}
-                </button>
-              </div>
-            </form>
-          </div>
+            {/* Botón submit */}
+            <div className="col-12">
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Subiendo...
+                  </>
+                ) : (
+                  "Agregar Producto"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AgregarProductos;

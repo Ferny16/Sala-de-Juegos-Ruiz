@@ -14,7 +14,7 @@ import ReportesDashboard from "./pages/ReportesDashboard";
 import { useBackendWarmup } from "./hocks/useBackendWarmup";
 
 function App() {
-  useBackendWarmup();
+  //useBackendWarmup();
   return (
     <AppRouter>
       <Routes>

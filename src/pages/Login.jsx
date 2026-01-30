@@ -3,7 +3,6 @@ import axios from "axios";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
 
-
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -13,6 +12,10 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log("🌐 ========================================");
+    console.log("🌐 INICIANDO LOGIN DESDE FRONTEND");
+    console.log("🌐 Timestamp:", new Date().toISOString());
+    const inicioFrontend = Date.now();
     setError("");
     setLoading(true);
     console.log(process.env.REACT_APP_API_URL); // para verificar que la variable está cargada
@@ -24,8 +27,15 @@ export default function Login() {
         {
           email,
           password,
-        }
+        },
       );
+      const tiempoTotal = Date.now() - inicioFrontend;
+      console.log("✅ ========================================");
+      console.log(`✅ LOGIN COMPLETADO`);
+      console.log(
+        `⏱️ TIEMPO TOTAL (FRONTEND): ${tiempoTotal}ms (${(tiempoTotal / 1000).toFixed(2)}s)`,
+      );
+      console.log("✅ ========================================");
 
       // Guardar token en localStorage
       localStorage.setItem("token", response.data.token);

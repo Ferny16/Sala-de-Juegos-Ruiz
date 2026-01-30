@@ -35,7 +35,7 @@ const PublicProductsList = () => {
         `${process.env.REACT_APP_API_URL}/api/products/public`,
         {
           params: { page, limit: 12, search: searchTerm },
-        }
+        },
       );
 
       setProductos(response.data.productos);
@@ -132,10 +132,13 @@ const PublicProductsList = () => {
         total: selectedProduct.precioVenta * parseInt(pedidoForm.cantidad),
       };
 
-      await axios.post("http://localhost:5000/api/pedidos", pedidoData);
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/pedidos`,
+        pedidoData,
+      );
 
       alert(
-        "¡Pedido enviado exitosamente! Nos pondremos en contacto contigo pronto."
+        "¡Pedido enviado exitosamente! Nos pondremos en contacto contigo pronto.",
       );
       handleCerrarModal();
     } catch (error) {
@@ -167,7 +170,6 @@ const PublicProductsList = () => {
   return (
     <div className="public-products-container">
       <NavBar /> {/* 🎯 USA EL COMPONENTE en lugar de todo el <nav> */}
-
       {/* Contenido principal */}
       <div className="public-products-content">
         <div className="container py-4">
@@ -238,7 +240,7 @@ const PublicProductsList = () => {
                         onClick={() =>
                           window.open(
                             producto.imagenOriginal || producto.imagen,
-                            "_blank"
+                            "_blank",
                           )
                         }
                         title="Click para ver imagen completa"
@@ -362,7 +364,6 @@ const PublicProductsList = () => {
           )}
         </div>
       </div>
-
       {/* Modal de pedido */}
       {showModal && selectedProduct && (
         <div className="modal-overlay" onClick={handleCerrarModal}>
