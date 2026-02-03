@@ -23,6 +23,8 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
+    "dev": "env-cmd -f .env.development react-scripts start",
+    "prod": "env-cmd -f .env.production react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -49,6 +51,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "^9.17.0",
+    "cross-env": "^10.1.0",
+    "env-cmd": "^11.0.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-react-app": "^7.0.1",
