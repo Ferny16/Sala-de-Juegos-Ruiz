@@ -1,19 +1,39 @@
-import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+// src/pages/SalesDashboard.jsx
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/SalesDashboard.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
+// Lazy load de axios solo cuando se necesite
+let axiosModule = null;
+const getAxios = async () => {
+  if (!axiosModule) {
+    axiosModule = await import("axios");
+  }
+  return axiosModule.default;
+};
+
 const SalesDashboard = () => {
   const [productos, setProductos] = useState([]);
+  const [productosVisibles, setProductosVisibles] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Solo para carga inicial
+  const [searching, setSearching] = useState(false); // ⭐ NUEVO: para búsquedas
+  const [loadingMore, setLoadingMore] = useState(false);
   const [processingVenta, setProcessingVenta] = useState(false);
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(null);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef(null);
+  const searchInputRef = useRef(null); // ⭐ NUEVO: ref para mantener el foco
+  const timeoutRef = useRef(null);
+  
+  const PRODUCTOS_POR_PAGINA = 10;
 
   const getAuthHeaders = useCallback(() => {
     const token = localStorage.getItem("token");
@@ -25,15 +45,35 @@ const SalesDashboard = () => {
   }, []);
 
   const fetchProductos = useCallback(
-    async (searchTerm = "") => {
-      setLoading(true);
+    async (searchTerm = "", isInitialLoad = false) => {
+      // ⭐ Solo mostrar pantalla de carga completa en la primera carga
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setSearching(true); // ⭐ Indicador pequeño para búsquedas
+      }
+      
+      setCurrentPage(0);
+      setProductos([]);
+      setProductosVisibles([]);
+      setHasMore(true);
+
       try {
+        const axios = await getAxios();
         const url = searchTerm
           ? `${API_URL}/api/products/para-venta?search=${encodeURIComponent(searchTerm)}`
           : `${API_URL}/api/products/para-venta`;
 
         const response = await axios.get(url, getAuthHeaders());
-        setProductos(response.data.productos || response.data);
+        const productosData = response.data.productos || response.data;
+
+        setProductos(productosData);
+        
+        const inicial = productosData.slice(0, PRODUCTOS_POR_PAGINA);
+        setProductosVisibles(inicial);
+        setHasMore(productosData.length > PRODUCTOS_POR_PAGINA);
+        setCurrentPage(1);
+
       } catch (error) {
         console.error("❌ Error al cargar productos:", error);
         if (error.response?.status === 401 || error.response?.status === 403) {
@@ -43,19 +83,104 @@ const SalesDashboard = () => {
         }
       } finally {
         setLoading(false);
+        setSearching(false); // ⭐ Quitar indicador de búsqueda
       }
     },
     [getAuthHeaders]
   );
 
+  const cargarMasProductos = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    
+    const siguientePagina = currentPage + 1;
+    const inicio = currentPage * PRODUCTOS_POR_PAGINA;
+    const fin = siguientePagina * PRODUCTOS_POR_PAGINA;
+    
+    const nuevosProductos = productos.slice(inicio, fin);
+    
+    if (nuevosProductos.length > 0) {
+      setProductosVisibles(prev => [...prev, ...nuevosProductos]);
+      setCurrentPage(siguientePagina);
+      setHasMore(fin < productos.length);
+    } else {
+      setHasMore(false);
+    }
+    
+    setLoadingMore(false);
+  }, [currentPage, productos, hasMore, loadingMore]);
+
   useEffect(() => {
-    fetchProductos("");
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          cargarMasProductos();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, loadingMore, cargarMasProductos]);
+
+  useEffect(() => {
+    fetchProductos("", true); // ⭐ true = carga inicial
     document.title = "Ventas - Sala de Juegos Ruiz";
   }, [fetchProductos]);
 
-  const handleSearch = (e) => {
+  // ⭐ NUEVO: Mantener el foco en el input después de búsquedas
+  useEffect(() => {
+    if (!searching && !loading && searchInputRef.current && document.activeElement !== searchInputRef.current) {
+      // Solo restaurar el foco si el input no lo tiene ya
+      const shouldFocus = search !== ""; // Solo si hay texto en la búsqueda
+      if (shouldFocus) {
+        searchInputRef.current.focus();
+      }
+    }
+  }, [searching, loading, search]);
+  
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // ⭐ NO establecer searching aquí para evitar pérdida de foco
+    
+    timeoutRef.current = setTimeout(() => {
+      setSearching(true);
+      fetchProductos(value, false);
+      // setSearching(false) se maneja en fetchProductos
+    }, 500);
+  };
+
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchProductos(search);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setSearching(true);
+    fetchProductos(search, false);
+  };
+
+  const limpiarBusqueda = () => {
+    setSearch("");
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setSearching(true);
+    fetchProductos("", false);
   };
 
   const agregarAlCarrito = (producto) => {
@@ -149,6 +274,8 @@ const SalesDashboard = () => {
     setProcessingVenta(true);
 
     try {
+      const axios = await getAxios();
+      
       const ventaData = {
         productos: carrito.map((item) => ({
           productoId: item._id,
@@ -169,8 +296,6 @@ const SalesDashboard = () => {
         getAuthHeaders()
       );
 
-      // ✅ El backend ya actualizó el inventario
-
       setVentaExitosa({
         total: total,
         productos: carrito,
@@ -179,7 +304,8 @@ const SalesDashboard = () => {
       setMostrarResultado(true);
 
       setCarrito([]);
-      fetchProductos(search);
+      fetchProductos(search, false); // ⭐ Recargar sin pantalla negra
+      
     } catch (error) {
       console.error("❌ ERROR:", error);
       if (error.response?.status === 401) {
@@ -196,13 +322,14 @@ const SalesDashboard = () => {
     }
   };
 
+  // ⭐ Pantalla de carga SOLO para primera carga
   if (loading) {
     return (
       <div className="sales-container">
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
           <div className="container-fluid">
             <Link className="navbar-brand fw-bold" to="/">
-              Sala de Juegos Ruiz
+              🎮 Sala de Juegos Ruiz
             </Link>
           </div>
         </nav>
@@ -233,29 +360,19 @@ const SalesDashboard = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto gap-2">
               <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/pedidos">
-                  📦 Pedidos
-                </Link>
+                <Link className="nav-link" to="/dashboard/pedidos">📦 Pedidos</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/reportes">
-                  📈 Reportes
-                </Link>
+                <Link className="nav-link" to="/dashboard/reportes">📈 Reportes</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/sales">
-                  💰 Ventas
-                </Link>
+                <Link className="nav-link active" to="/dashboard/sales">💰 Ventas</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/add-product">
-                  🆕 Agregar Producto
-                </Link>
+                <Link className="nav-link" to="/dashboard/add-product">🆕 Agregar Producto</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/manage-products">
-                  ⚙️ Gestionar Productos
-                </Link>
+                <Link className="nav-link" to="/dashboard/manage-products">⚙️ Gestionar Productos</Link>
               </li>
             </ul>
           </div>
@@ -267,33 +384,36 @@ const SalesDashboard = () => {
           <h2 className="sales-title text-center mb-4">💰 Sistema de Ventas</h2>
 
           <div className="row g-4">
-            {/* Panel derecho - Productos */}
             <div className="col-lg-5 order-lg-2">
               <div className="card carrito-panel">
                 <div className="card-header">
                   <h5 className="mb-0">📦 Productos Disponibles</h5>
                 </div>
                 <div className="card-body">
-                  <form onSubmit={handleSearch} className="mb-3">
+                  <form onSubmit={handleSearchSubmit} className="mb-3">
                     <div className="input-group">
                       <input
+                        ref={searchInputRef} // ⭐ IMPORTANTE: Agregar ref
                         type="text"
                         className="form-control"
                         placeholder="Buscar producto..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={handleSearchChange}
+                        // ⭐ REMOVIDO: disabled={searching}
                       />
-                      <button className="btn btn-primary" type="submit">
-                        🔍
+                      <button className="btn btn-primary" type="submit" disabled={searching}>
+                        {searching ? (
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        ) : (
+                          '🔍'
+                        )}
                       </button>
                       {search && (
                         <button
                           className="btn btn-secondary"
                           type="button"
-                          onClick={() => {
-                            setSearch("");
-                            fetchProductos("");
-                          }}
+                          onClick={limpiarBusqueda}
+                          disabled={searching}
                         >
                           ✕
                         </button>
@@ -302,50 +422,71 @@ const SalesDashboard = () => {
                   </form>
 
                   <div className="productos-lista">
-                    {productos.length === 0 ? (
+                    {/* ⭐ Mostrar indicador de búsqueda dentro de la lista */}
+                    {searching ? (
+                      <div className="text-center py-4">
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="visually-hidden">Buscando...</span>
+                        </div>
+                        <p className="mt-2 text-muted">Buscando productos...</p>
+                      </div>
+                    ) : productosVisibles.length === 0 ? (
                       <div className="alert alert-info">
                         📦 No hay productos disponibles
                       </div>
                     ) : (
-                      productos.map((producto) => (
-                        <div key={producto._id} className="producto-item">
-                          <img
-                            src={
-                              producto.imagenOptimizada ||
-                              producto.imagen ||
-                              "https://via.placeholder.com/60"
-                            }
-                            alt={producto.nombre}
-                            className="producto-img"
-                          />
-                          <div className="producto-info">
-                            <h6 className="producto-nombre">
-                              {producto.nombre}
-                            </h6>
-                            <p className="producto-detalles">
-                              <span className="precio">
-                                ₡{producto.precioVenta}
-                              </span>
-                              <span className="stock">
-                                Stock: {producto.cantidad}
-                              </span>
-                            </p>
+                      <>
+                        {productosVisibles.map((producto) => (
+                          <div key={producto._id} className="producto-item">
+                            <img
+                              src={
+                                producto.imagenOptimizada ||
+                                producto.imagen ||
+                                "https://via.placeholder.com/60"
+                              }
+                              alt={producto.nombre}
+                              className="producto-img"
+                              loading="lazy"
+                            />
+                            <div className="producto-info">
+                              <h6 className="producto-nombre">
+                                {producto.nombre}
+                              </h6>
+                              <p className="producto-detalles">
+                                <span className="precio">
+                                  ₡{producto.precioVenta}
+                                </span>
+                                <span className="stock">
+                                  Stock: {producto.cantidad}
+                                </span>
+                              </p>
+                            </div>
+                            <button
+                              className="btn btn-success btn-sm"
+                              onClick={() => agregarAlCarrito(producto)}
+                            >
+                              + Agregar
+                            </button>
                           </div>
-                          <button
-                            className="btn btn-success btn-sm"
-                            onClick={() => agregarAlCarrito(producto)}
-                          >
-                            + Agregar
-                          </button>
-                        </div>
-                      ))
+                        ))}
+                        
+                        {hasMore && (
+                          <div ref={observerTarget} className="text-center py-3">
+                            {loadingMore && (
+                              <div className="spinner-border spinner-border-sm text-primary" role="status">
+                                <span className="visually-hidden">Cargando más...</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Panel izquierdo - Carrito */}
+            {/* Resto del código del carrito igual... */}
             <div className="col-lg-7 order-lg-1">
               <div className="card productos-panel">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -415,10 +556,7 @@ const SalesDashboard = () => {
                                 </button>
                               </div>
                               <div className="item-subtotal">
-                                ₡
-                                {(
-                                  item.precioVenta * item.cantidadVenta
-                                ).toFixed(2)}
+                                ₡{(item.precioVenta * item.cantidadVenta).toFixed(2)}
                               </div>
                               <button
                                 className="btn btn-sm btn-danger"
@@ -463,11 +601,9 @@ const SalesDashboard = () => {
         </div>
       </div>
 
+      {/* Modales igual... */}
       {mostrarResultado && ventaExitosa && (
-        <div
-          className="modal-overlay"
-          onClick={() => setMostrarResultado(false)}
-        >
+        <div className="modal-overlay" onClick={() => setMostrarResultado(false)}>
           <div className="modal-resultado" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-resultado">
               <h3>✅ Venta Exitosa</h3>
@@ -497,9 +633,7 @@ const SalesDashboard = () => {
                   setMostrarResultado(false);
                   setTimeout(() => {
                     setMostrarNotificacion(true);
-                    setTimeout(() => {
-                      setMostrarNotificacion(false);
-                    }, 4000);
+                    setTimeout(() => setMostrarNotificacion(false), 4000);
                   }, 300);
                 }}
               >
@@ -521,9 +655,7 @@ const SalesDashboard = () => {
                   : "✅"}
             </div>
             <div className="notificacion-texto">
-              <h4>
-                {ventaExitosa.mensaje || "¡Venta Procesada Exitosamente!"}
-              </h4>
+              <h4>{ventaExitosa.mensaje || "¡Venta Procesada Exitosamente!"}</h4>
               {ventaExitosa.detalle && <p>{ventaExitosa.detalle}</p>}
               {!ventaExitosa.esError && ventaExitosa.total && (
                 <>

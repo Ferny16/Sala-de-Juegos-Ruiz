@@ -27,7 +27,7 @@ const AgregarProductos = () => {
     setToast({ show: true, text, type });
     setTimeout(() => {
       setToast({ show: false, text: "", type: "" });
-    }, 3000);
+    }, 5000); // Aumentado a 5 segundos para mensajes de error más largos
   };
 
   /**
@@ -55,7 +55,135 @@ const AgregarProductos = () => {
    */
   const handleImageError = (error) => {
     console.error("Error procesando imagen:", error);
-    showToast("Error al procesar la imagen", "error");
+    showToast(
+      "Error al procesar la imagen. Por favor, verifica que sea una imagen válida (JPG, PNG, WebP) y que no supere los 5MB.",
+      "error"
+    );
+  };
+
+  /**
+   * Registra el error completo en consola para debugging
+   */
+  const logDetailedError = (error, context) => {
+    console.group(`❌ Error en ${context}`);
+    console.error("Mensaje:", error.message);
+    console.error("Stack:", error.stack);
+    
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+      console.error("Headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("Request:", error.request);
+    }
+    
+    console.error("Config:", error.config);
+    console.groupEnd();
+  };
+
+  /**
+   * Obtiene un mensaje de error amigable para el usuario
+   */
+  const getUserFriendlyErrorMessage = (error) => {
+    // Error de red o servidor no responde
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        return "⏱️ La petición tardó demasiado tiempo. Por favor, verifica tu conexión a internet y vuelve a intentarlo.";
+      }
+      if (error.message === 'Network Error') {
+        return "🌐 No hay conexión con el servidor. Verifica tu conexión a internet o contacta al administrador.";
+      }
+      return "❌ No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.";
+    }
+
+    const status = error.response.status;
+    const errorData = error.response.data;
+
+    // Errores específicos según código HTTP
+    switch (status) {
+      case 400:
+        if (errorData?.error) {
+          return `📝 ${errorData.error}`;
+        }
+        return "📝 Datos inválidos. Por favor, revisa que todos los campos estén correctamente llenados.";
+
+      case 401:
+        setTimeout(() => {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }, 3000);
+        return "🔒 Tu sesión ha expirado. Serás redirigido al login en 3 segundos...";
+
+      case 403:
+        return "🚫 No tienes permisos para realizar esta acción. Contacta al administrador.";
+
+      case 404:
+        return "🔍 El servidor no encontró el recurso solicitado. Contacta al administrador.";
+
+      case 413:
+        return "📦 El archivo es demasiado grande. Reduce el tamaño de la imagen e intenta nuevamente.";
+
+      case 415:
+        return "🖼️ Formato de imagen no soportado. Usa JPG, PNG o WebP.";
+
+      case 422:
+        if (errorData?.errors) {
+          const errorMessages = Object.values(errorData.errors).flat().join(", ");
+          return `⚠️ Errores de validación: ${errorMessages}`;
+        }
+        return "⚠️ Los datos enviados no son válidos. Verifica todos los campos.";
+
+      case 500:
+        return "🔧 Error interno del servidor. Por favor, contacta al administrador del sistema.";
+
+      case 502:
+      case 503:
+      case 504:
+        return "⚠️ El servidor está temporalmente no disponible. Intenta nuevamente en unos minutos.";
+
+      default:
+        if (errorData?.error) {
+          return `❌ ${errorData.error}`;
+        }
+        return `❌ Error inesperado (Código ${status}). Por favor, contacta al administrador.`;
+    }
+  };
+
+  /**
+   * Valida el formulario antes de enviar
+   */
+  const validateForm = () => {
+    const errors = [];
+
+    if (!form.nombre.trim()) {
+      errors.push("El nombre es obligatorio");
+    }
+
+    if (!form.cantidad || form.cantidad <= 0) {
+      errors.push("La cantidad debe ser mayor a 0");
+    }
+
+    if (!form.precioCompra || form.precioCompra < 0) {
+      errors.push("El precio de compra no puede ser negativo");
+    }
+
+    if (!form.precioVenta || form.precioVenta < 0) {
+      errors.push("El precio de venta no puede ser negativo");
+    }
+
+    if (parseFloat(form.precioVenta) < parseFloat(form.precioCompra)) {
+      errors.push("⚠️ Advertencia: El precio de venta es menor al precio de compra");
+    }
+
+    if (!form.fechaCompra) {
+      errors.push("La fecha de compra es obligatoria");
+    }
+
+    if (!form.imagen) {
+      errors.push("Debes seleccionar una imagen");
+    }
+
+    return errors;
   };
 
   /**
@@ -66,6 +194,14 @@ const AgregarProductos = () => {
 
     // Evita doble submit
     if (uploading) return;
+
+    // Validar formulario antes de enviar
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      showToast(validationErrors.join(". "), "error");
+      console.warn("Errores de validación:", validationErrors);
+      return;
+    }
 
     setUploading(true);
 
@@ -78,16 +214,33 @@ const AgregarProductos = () => {
         }
       });
 
+      // Log de debugging (solo en desarrollo)
+      if (process.env.NODE_ENV === 'development') {
+        console.log("📤 Enviando producto:", {
+          nombre: form.nombre,
+          cantidad: form.cantidad,
+          precioCompra: form.precioCompra,
+          precioVenta: form.precioVenta,
+          fechaCompra: form.fechaCompra,
+          seVende: form.seVende,
+          imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB` : 'N/A'
+        });
+      }
+
       // Obtener token de autenticación
       const token = localStorage.getItem("token");
 
       if (!token) {
-        showToast("Debes iniciar sesión para agregar productos", "error");
+        showToast(
+          "🔒 Debes iniciar sesión para agregar productos. Serás redirigido al login...",
+          "error"
+        );
+        setTimeout(() => navigate("/login"), 2000);
         return;
       }
 
       // Enviar petición al backend
-      await axios.post(
+      const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/products`,
         formData,
         {
@@ -95,10 +248,12 @@ const AgregarProductos = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
+          timeout: 30000, // 30 segundos de timeout
         }
       );
 
-      showToast("Producto agregado correctamente");
+      console.log("✅ Producto agregado exitosamente:", response.data);
+      showToast("✅ Producto agregado correctamente");
 
       // Resetear formulario
       setForm({
@@ -113,20 +268,18 @@ const AgregarProductos = () => {
 
       // Resetear componente de imagen
       imageUploadRef.current?.reset();
-    } catch (error) {
-      console.error("Error al agregar producto:", error);
 
-      // Manejo específico de errores
-      if (error.response?.status === 401) {
-        showToast(
-          "Sesión expirada. Por favor inicia sesión nuevamente.",
-          "error"
-        );
-      } else if (error.response?.data?.error) {
-        showToast(error.response.data.error, "error");
-      } else {
-        showToast("Error al agregar producto", "error");
-      }
+      // Opcional: Redirigir después de 2 segundos
+      // setTimeout(() => navigate("/dashboard/manage-products"), 2000);
+
+    } catch (error) {
+      // Log detallado del error para debugging
+      logDetailedError(error, "Agregar Producto");
+
+      // Mostrar mensaje amigable al usuario
+      const userMessage = getUserFriendlyErrorMessage(error);
+      showToast(userMessage, "error");
+
     } finally {
       setUploading(false);
     }
@@ -136,7 +289,14 @@ const AgregarProductos = () => {
    * Cierra el formulario y vuelve al dashboard
    */
   const handleClose = () => {
-    navigate("/dashboard");
+    // Si está subiendo, pedir confirmación
+    if (uploading) {
+      if (window.confirm("¿Estás seguro de cancelar? Se perderá el progreso de la carga.")) {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -218,7 +378,7 @@ const AgregarProductos = () => {
             {/* Nombre */}
             <div className="col-md-6">
               <label htmlFor="nombre" className="form-label">
-                Nombre
+                Nombre <span className="text-danger">*</span>
               </label>
               <input
                 id="nombre"
@@ -229,31 +389,33 @@ const AgregarProductos = () => {
                 onChange={handleChange}
                 required
                 disabled={uploading}
+                placeholder="Ej: Coca Cola 600ml"
               />
             </div>
 
             {/* Cantidad */}
             <div className="col-md-3">
               <label htmlFor="cantidad" className="form-label">
-                Cantidad
+                Cantidad <span className="text-danger">*</span>
               </label>
               <input
                 id="cantidad"
                 name="cantidad"
                 type="number"
-                min="0"
+                min="1"
                 className="form-control"
                 value={form.cantidad}
                 onChange={handleChange}
                 required
                 disabled={uploading}
+                placeholder="1"
               />
             </div>
 
             {/* Fecha */}
             <div className="col-md-3">
               <label htmlFor="fechaCompra" className="form-label">
-                Fecha
+                Fecha <span className="text-danger">*</span>
               </label>
               <input
                 id="fechaCompra"
@@ -264,13 +426,14 @@ const AgregarProductos = () => {
                 onChange={handleChange}
                 required
                 disabled={uploading}
+                max={new Date().toISOString().split('T')[0]}
               />
             </div>
 
             {/* Precio Compra */}
             <div className="col-md-4">
               <label htmlFor="precioCompra" className="form-label">
-                Precio Compra
+                Precio Compra <span className="text-danger">*</span>
               </label>
               <input
                 id="precioCompra"
@@ -283,13 +446,14 @@ const AgregarProductos = () => {
                 onChange={handleChange}
                 required
                 disabled={uploading}
+                placeholder="0.00"
               />
             </div>
 
             {/* Precio Venta */}
             <div className="col-md-4">
               <label htmlFor="precioVenta" className="form-label">
-                Precio Venta
+                Precio Venta <span className="text-danger">*</span>
               </label>
               <input
                 id="precioVenta"
@@ -302,6 +466,7 @@ const AgregarProductos = () => {
                 onChange={handleChange}
                 required
                 disabled={uploading}
+                placeholder="0.00"
               />
             </div>
 
@@ -325,7 +490,9 @@ const AgregarProductos = () => {
 
             {/* Imagen con compresión */}
             <div className="col-12">
-              <label className="form-label">Imagen</label>
+              <label className="form-label">
+                Imagen <span className="text-danger">*</span>
+              </label>
               <ImageUploadWithCompression
                 onChange={handleImageChange}
                 onError={handleImageError}
@@ -334,6 +501,9 @@ const AgregarProductos = () => {
                 showPreview={true}
                 ref={imageUploadRef}
               />
+              <small className="form-text text-muted">
+                Formatos aceptados: JPG, PNG, WebP. Tamaño máximo: 5MB
+              </small>
             </div>
 
             {/* Botón submit */}
