@@ -26,13 +26,13 @@ const SalesDashboard = () => {
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(null);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
-  
+
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const observerTarget = useRef(null);
   const searchInputRef = useRef(null); // ⭐ NUEVO: ref para mantener el foco
   const timeoutRef = useRef(null);
-  
+
   const PRODUCTOS_POR_PAGINA = 10;
 
   const getAuthHeaders = useCallback(() => {
@@ -52,7 +52,7 @@ const SalesDashboard = () => {
       } else {
         setSearching(true); // ⭐ Indicador pequeño para búsquedas
       }
-      
+
       setCurrentPage(0);
       setProductos([]);
       setProductosVisibles([]);
@@ -68,12 +68,11 @@ const SalesDashboard = () => {
         const productosData = response.data.productos || response.data;
 
         setProductos(productosData);
-        
+
         const inicial = productosData.slice(0, PRODUCTOS_POR_PAGINA);
         setProductosVisibles(inicial);
         setHasMore(productosData.length > PRODUCTOS_POR_PAGINA);
         setCurrentPage(1);
-
       } catch (error) {
         console.error("❌ Error al cargar productos:", error);
         if (error.response?.status === 401 || error.response?.status === 403) {
@@ -86,48 +85,50 @@ const SalesDashboard = () => {
         setSearching(false); // ⭐ Quitar indicador de búsqueda
       }
     },
-    [getAuthHeaders]
+    [getAuthHeaders],
   );
 
   const cargarMasProductos = useCallback(() => {
     if (loadingMore || !hasMore) return;
 
     setLoadingMore(true);
-    
+
     const siguientePagina = currentPage + 1;
     const inicio = currentPage * PRODUCTOS_POR_PAGINA;
     const fin = siguientePagina * PRODUCTOS_POR_PAGINA;
-    
+
     const nuevosProductos = productos.slice(inicio, fin);
-    
+
     if (nuevosProductos.length > 0) {
-      setProductosVisibles(prev => [...prev, ...nuevosProductos]);
+      setProductosVisibles((prev) => [...prev, ...nuevosProductos]);
       setCurrentPage(siguientePagina);
       setHasMore(fin < productos.length);
     } else {
       setHasMore(false);
     }
-    
+
     setLoadingMore(false);
   }, [currentPage, productos, hasMore, loadingMore]);
 
   useEffect(() => {
+    const target = observerTarget.current; // 👈 CLAVE
+
     const observer = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore) {
           cargarMasProductos();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    if (target) {
+      observer.observe(target);
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+      if (target) {
+        observer.unobserve(target);
       }
     };
   }, [hasMore, loadingMore, cargarMasProductos]);
@@ -139,7 +140,12 @@ const SalesDashboard = () => {
 
   // ⭐ NUEVO: Mantener el foco en el input después de búsquedas
   useEffect(() => {
-    if (!searching && !loading && searchInputRef.current && document.activeElement !== searchInputRef.current) {
+    if (
+      !searching &&
+      !loading &&
+      searchInputRef.current &&
+      document.activeElement !== searchInputRef.current
+    ) {
       // Solo restaurar el foco si el input no lo tiene ya
       const shouldFocus = search !== ""; // Solo si hay texto en la búsqueda
       if (shouldFocus) {
@@ -147,17 +153,17 @@ const SalesDashboard = () => {
       }
     }
   }, [searching, loading, search]);
-  
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-    
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     // ⭐ NO establecer searching aquí para evitar pérdida de foco
-    
+
     timeoutRef.current = setTimeout(() => {
       setSearching(true);
       fetchProductos(value, false);
@@ -202,8 +208,8 @@ const SalesDashboard = () => {
         carrito.map((item) =>
           item._id === producto._id
             ? { ...item, cantidadVenta: item.cantidadVenta + 1 }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       setCarrito([...carrito, { ...producto, cantidadVenta: 1 }]);
@@ -240,8 +246,8 @@ const SalesDashboard = () => {
 
     setCarrito(
       carrito.map((item) =>
-        item._id === id ? { ...item, cantidadVenta: nuevaCantidad } : item
-      )
+        item._id === id ? { ...item, cantidadVenta: nuevaCantidad } : item,
+      ),
     );
   };
 
@@ -252,7 +258,7 @@ const SalesDashboard = () => {
   const calcularTotal = () => {
     return carrito.reduce(
       (total, item) => total + item.precioVenta * item.cantidadVenta,
-      0
+      0,
     );
   };
 
@@ -275,7 +281,7 @@ const SalesDashboard = () => {
 
     try {
       const axios = await getAxios();
-      
+
       const ventaData = {
         productos: carrito.map((item) => ({
           productoId: item._id,
@@ -293,7 +299,7 @@ const SalesDashboard = () => {
       const ventaResponse = await axios.post(
         `${API_URL}/api/sales`,
         ventaData,
-        getAuthHeaders()
+        getAuthHeaders(),
       );
 
       setVentaExitosa({
@@ -305,7 +311,6 @@ const SalesDashboard = () => {
 
       setCarrito([]);
       fetchProductos(search, false); // ⭐ Recargar sin pantalla negra
-      
     } catch (error) {
       console.error("❌ ERROR:", error);
       if (error.response?.status === 401) {
@@ -360,19 +365,29 @@ const SalesDashboard = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto gap-2">
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/pedidos">📦 Pedidos</Link>
+                <Link className="nav-link" to="/dashboard/pedidos">
+                  📦 Pedidos
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/reportes">📈 Reportes</Link>
+                <Link className="nav-link" to="/dashboard/reportes">
+                  📈 Reportes
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/sales">💰 Ventas</Link>
+                <Link className="nav-link active" to="/dashboard/sales">
+                  💰 Ventas
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/add-product">🆕 Agregar Producto</Link>
+                <Link className="nav-link" to="/dashboard/add-product">
+                  🆕 Agregar Producto
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/manage-products">⚙️ Gestionar Productos</Link>
+                <Link className="nav-link" to="/dashboard/manage-products">
+                  ⚙️ Gestionar Productos
+                </Link>
               </li>
             </ul>
           </div>
@@ -401,11 +416,19 @@ const SalesDashboard = () => {
                         onChange={handleSearchChange}
                         // ⭐ REMOVIDO: disabled={searching}
                       />
-                      <button className="btn btn-primary" type="submit" disabled={searching}>
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={searching}
+                      >
                         {searching ? (
-                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
                         ) : (
-                          '🔍'
+                          "🔍"
                         )}
                       </button>
                       {search && (
@@ -425,7 +448,10 @@ const SalesDashboard = () => {
                     {/* ⭐ Mostrar indicador de búsqueda dentro de la lista */}
                     {searching ? (
                       <div className="text-center py-4">
-                        <div className="spinner-border text-primary" role="status">
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        >
                           <span className="visually-hidden">Buscando...</span>
                         </div>
                         <p className="mt-2 text-muted">Buscando productos...</p>
@@ -469,12 +495,20 @@ const SalesDashboard = () => {
                             </button>
                           </div>
                         ))}
-                        
+
                         {hasMore && (
-                          <div ref={observerTarget} className="text-center py-3">
+                          <div
+                            ref={observerTarget}
+                            className="text-center py-3"
+                          >
                             {loadingMore && (
-                              <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                <span className="visually-hidden">Cargando más...</span>
+                              <div
+                                className="spinner-border spinner-border-sm text-primary"
+                                role="status"
+                              >
+                                <span className="visually-hidden">
+                                  Cargando más...
+                                </span>
                               </div>
                             )}
                           </div>
@@ -524,7 +558,7 @@ const SalesDashboard = () => {
                                   onClick={() =>
                                     cambiarCantidad(
                                       item._id,
-                                      item.cantidadVenta - 1
+                                      item.cantidadVenta - 1,
                                     )
                                   }
                                 >
@@ -537,7 +571,7 @@ const SalesDashboard = () => {
                                   onChange={(e) =>
                                     cambiarCantidad(
                                       item._id,
-                                      parseInt(e.target.value) || 0
+                                      parseInt(e.target.value) || 0,
                                     )
                                   }
                                   min="1"
@@ -548,7 +582,7 @@ const SalesDashboard = () => {
                                   onClick={() =>
                                     cambiarCantidad(
                                       item._id,
-                                      item.cantidadVenta + 1
+                                      item.cantidadVenta + 1,
                                     )
                                   }
                                 >
@@ -556,7 +590,10 @@ const SalesDashboard = () => {
                                 </button>
                               </div>
                               <div className="item-subtotal">
-                                ₡{(item.precioVenta * item.cantidadVenta).toFixed(2)}
+                                ₡
+                                {(
+                                  item.precioVenta * item.cantidadVenta
+                                ).toFixed(2)}
                               </div>
                               <button
                                 className="btn btn-sm btn-danger"
@@ -603,7 +640,10 @@ const SalesDashboard = () => {
 
       {/* Modales igual... */}
       {mostrarResultado && ventaExitosa && (
-        <div className="modal-overlay" onClick={() => setMostrarResultado(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setMostrarResultado(false)}
+        >
           <div className="modal-resultado" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-resultado">
               <h3>✅ Venta Exitosa</h3>
@@ -655,7 +695,9 @@ const SalesDashboard = () => {
                   : "✅"}
             </div>
             <div className="notificacion-texto">
-              <h4>{ventaExitosa.mensaje || "¡Venta Procesada Exitosamente!"}</h4>
+              <h4>
+                {ventaExitosa.mensaje || "¡Venta Procesada Exitosamente!"}
+              </h4>
               {ventaExitosa.detalle && <p>{ventaExitosa.detalle}</p>}
               {!ventaExitosa.esError && ventaExitosa.total && (
                 <>
