@@ -7,27 +7,32 @@ const AppRouter = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Detectar si la app fue abierta desde el icono instalado
-    const isOpenedFromInstalledApp = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('source') === 'pwa';
-    };
+  // Leer los parámetros de la URL (ej: ?source=pwa)
+  const params = new URLSearchParams(window.location.search);
 
-    const fromPWA = isOpenedFromInstalledApp();
-    
-    // Logs para debugging (solo visibles en consola de desarrollador)
-    console.log('--- AppRouter ---');
-    console.log('Ruta:', location.pathname);
-    console.log('Parámetro source:', new URLSearchParams(window.location.search).get('source'));
-    console.log('Desde app instalada:', fromPWA);
-    console.log('-----------------');
+  // Verificar si la app fue abierta desde la PWA instalada
+  // Si viene desde la app, esperamos source=pwa
+  const fromPWA = params.get('source') === 'pwa';
 
-    // Solo redirigir al login si viene de la app instalada Y está en la raíz
-    if (fromPWA && location.pathname === '/') {
-      console.log('📱 Redirigiendo al login desde app instalada');
-      navigate('/login', { replace: true });
-    }
-  }, [navigate, location]);
+  // ===== Logs de debugging =====
+  // Ayudan a verificar desde dónde se abrió la app y en qué ruta
+  console.log('--- AppRouter ---');
+  console.log('Ruta actual:', location.pathname);
+  console.log('Query string:', window.location.search);
+  console.log('¿Abierto desde PWA?:', fromPWA);
+  console.log('-----------------');
+
+  // Si la app se abre desde la PWA y está en la raíz (/),
+  // redirigimos directamente al login para evitar cargar Home2
+  // y mejorar el tiempo de carga percibido
+  if (fromPWA && location.pathname === '/') {
+    console.log('📱 PWA detectada → redirigiendo a /login');
+    navigate('/login', { replace: true });
+  }
+
+  // El efecto se ejecuta solo cuando cambia la ruta
+  // o la función navigate (comportamiento esperado)
+}, [location.pathname, navigate]);
 
   return <>{children}</>;
 };
