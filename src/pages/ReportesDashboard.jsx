@@ -135,7 +135,7 @@ export default function ReportesDashboard() {
               <DollarSign className="tarjeta-icon verde" size={24} />
             </div>
             <p className="tarjeta-valor">{formatearMoneda(resumen?.ventasHoy?.total || 0)}</p>
-            <p className="tarjeta-detalle">{resumen?.ventasHoy?.cantidad || 0} ventas</p>
+            <p className="tarjeta-detalle verde">Ganancia: {formatearMoneda(resumen?.ventasHoy?.ganancias || 0)}</p>
             <div className="tarjeta-emoji verde">💰</div>
           </div>
 
