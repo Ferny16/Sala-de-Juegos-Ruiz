@@ -2,49 +2,89 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     
-    <!-- Pre-conectar a recursos críticos -->
-    <link rel="preconnect" href="https://chosen-sandra-jefernee-f13f70d9.koyeb.app">
-    <link rel="dns-prefetch" href="hhttps://chosen-sandra-jefernee-f13f70d9.koyeb.app">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://www.googletagmanager.com">
-    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    <!-- Pre-conectar -->
+    <link rel="preconnect" href="https://sala-de-juegos-backend.onrender.com" />
+    <link rel="dns-prefetch" href="https://sala-de-juegos-backend.onrender.com" />
     
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="96x9n6" href="/favicon-96x96.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     
     <title>Sala de Juegos Ruiz - Diversión en Batán de Limón</title>
     
-    <meta name="description" content="Vive la diversión al máximo en la Sala de Juegos Ruiz, ubicada en Batán de Limón. Ofrecemos una experiencia única con videojuegos modernos, clásicos arcade y juegos de mesa. Disfruta de un ambiente acogedor, snacks y promociones especiales. ¡Diversión para todas las edades!" />
+    <meta name="description" content="Vive la diversión al máximo en la Sala de Juegos Ruiz, ubicada en Batán de Limón." />
     <meta name="author" content="Jefernee Ruiz" />
-    <meta name="keywords" content="sala de juegos, entretenimiento, torneos, videojuegos, juegos, futbolín, ping pong, consolas, Playstation, gaming, tecnología, máquinas tragamonedas, sala de juegos Ruiz, futbol, diversión, centro de entretenimiento, videojuegos en vivo, Batán de Limón, Costa Rica" />
+    <meta name="keywords" content="sala de juegos, entretenimiento, videojuegos, Batán de Limón, Costa Rica" />
     
-    <!-- Meta para Open Graph -->
-    <meta property="og:title" content="Sala de Juegos Ruiz - Diversión en Batán de Limón" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sala de Juegos Ruiz" />
     <meta property="og:description" content="Un lugar seguro y confiable para divertirse sanamente" />
     <meta property="og:image" content="https://salajuegosruiz.netlify.app/og-image.png" />
     <meta property="og:url" content="https://salajuegosruiz.netlify.app/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_CR" />
-
-    <!-- Meta para Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Sala de Juegos Ruiz - Diversión en Batán de Limón" />
-    <meta name="twitter:description" content="Un lugar seguro y confiable para divertirse sanamente" />
-    <meta name="twitter:image" content="https://salajuegosruiz.netlify.app/og-image.png" />
     
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- Meta de Google -->
     <meta name="google-site-verification" content="tdIeuxZ8KKJ6pX6zBi7PV7bYjTRJCXeu1mS6KqZWt5Y" />
-    <meta name="google" content="notranslate" />
     <meta name="google-adsense-account" content="ca-pub-3625472845182144" />
     
-    <!-- Google Analytics optimizado -->
+    <!-- Estilos inline para skeleton (carga INMEDIATAMENTE) -->
+    <style>
+      #app-skeleton {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .skeleton-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .skeleton-text {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 24px;
+      }
+      
+      /* Ocultar cuando React monte */
+      #root:not(:empty) + #app-skeleton {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>Necesitas habilitar JavaScript para usar esta aplicación.</noscript>
+    
+    <div id="root"></div>
+    
+    <!-- Skeleton que aparece INMEDIATAMENTE -->
+    <div id="app-skeleton">
+      <div class="skeleton-spinner"></div>
+      <div class="skeleton-text">Cargando...</div>
+    </div>
+    
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLG40V0E8E"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -52,13 +92,24 @@
       gtag("js", new Date());
       gtag("config", "G-ZLG40V0E8E");
     </script>
-  </head>
-  <body>
-    <noscript>Necesitas habilitar JavaScript para usar esta aplicación.</noscript>
-    <div id="root"></div>
     
-    <!-- Scripts de Bootstrap al final con defer -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap (defer para no bloquear) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+    
+    <!-- Script para ocultar skeleton -->
+    <script>
+      const observer = new MutationObserver(() => {
+        const root = document.getElementById('root');
+        if (root && root.children.length > 0) {
+          const skeleton = document.getElementById('app-skeleton');
+          if (skeleton) {
+            setTimeout(() => skeleton.remove(), 300);
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true });
+    </script>
   </body>
 </html>
