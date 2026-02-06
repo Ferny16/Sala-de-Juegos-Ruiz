@@ -34,6 +34,7 @@ function App() {
         {/* Rutas del dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/sales" element={<SalesDashboard />} />
+        <Route path="/dashboard/add-product" element={<Dashboard />} />
         <Route path="/dashboard/products" element={<ProductsList />} />
         <Route path="/dashboard/manage-products" element={<ManageProducts />} />
         <Route path="/dashboard/pedidos" element={<PedidosDashboard />} />
