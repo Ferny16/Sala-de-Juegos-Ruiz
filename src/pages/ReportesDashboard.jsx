@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // ✅ IMPORTAR Link
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, AlertTriangle, DollarSign, ShoppingCart } from 'lucide-react';
-import '../styles/ReportesDashboard.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // ✅ IMPORTAR Link
+// ✅ AGREGA ESTO EN SU LUGAR:
+import { lazy, Suspense } from "react";
+import {
+  TrendingUp,
+  AlertTriangle,
+  DollarSign,
+  ShoppingCart,
+} from "lucide-react";
+import "../styles/ReportesDashboard.css";
+// ✅ Mueve el lazy fuera del archivo o usa esta estructura
+let GraficoVentas;
 
-const API_URL = process.env.REACT_APP_API_URL + '/api';
 
+
+const API_URL = process.env.REACT_APP_API_URL + "/api";
 
 export default function ReportesDashboard() {
   const [resumen, setResumen] = useState(null);
@@ -16,6 +25,10 @@ export default function ReportesDashboard() {
   const [estadisticasPedidos, setEstadisticasPedidos] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Inicializa el lazy component DENTRO del componente
+  if (!GraficoVentas) {
+    GraficoVentas = lazy(() => import("../components/GraficoVentas"));
+  }
   useEffect(() => {
     cargarDatos();
   }, []);
@@ -23,13 +36,20 @@ export default function ReportesDashboard() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [resumenRes, masVendidosRes, menosVendidosRes, stockBajoRes, ventasRes, pedidosRes] = await Promise.all([
+      const [
+        resumenRes,
+        masVendidosRes,
+        menosVendidosRes,
+        stockBajoRes,
+        ventasRes,
+        pedidosRes,
+      ] = await Promise.all([
         fetch(`${API_URL}/reports/resumen`),
         fetch(`${API_URL}/reports/mas-vendidos?limit=10`),
         fetch(`${API_URL}/reports/menos-vendidos?limit=10`),
         fetch(`${API_URL}/reports/stock-bajo`),
         fetch(`${API_URL}/reports/ventas-periodo?days=30`),
-        fetch(`${API_URL}/reports/pedidos-stats`)
+        fetch(`${API_URL}/reports/pedidos-stats`),
       ]);
 
       setResumen(await resumenRes.json());
@@ -39,17 +59,17 @@ export default function ReportesDashboard() {
       setVentasPorDia((await ventasRes.json()).datos || []);
       setEstadisticasPedidos(await pedidosRes.json());
     } catch (error) {
-      console.error('Error al cargar datos:', error);
+      console.error("Error al cargar datos:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const formatearMoneda = (valor) => {
-    return new Intl.NumberFormat('es-CR', {
-      style: 'currency',
-      currency: 'CRC',
-      minimumFractionDigits: 0
+    return new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency: "CRC",
+      minimumFractionDigits: 0,
     }).format(valor);
   };
 
@@ -134,8 +154,12 @@ export default function ReportesDashboard() {
               <h3 className="tarjeta-label">Ventas Hoy</h3>
               <DollarSign className="tarjeta-icon verde" size={24} />
             </div>
-            <p className="tarjeta-valor">{formatearMoneda(resumen?.ventasHoy?.total || 0)}</p>
-            <p className="tarjeta-detalle verde">Ganancia: {formatearMoneda(resumen?.ventasHoy?.ganancias || 0)}</p>
+            <p className="tarjeta-valor">
+              {formatearMoneda(resumen?.ventasHoy?.total || 0)}
+            </p>
+            <p className="tarjeta-detalle verde">
+              Ganancia: {formatearMoneda(resumen?.ventasHoy?.ganancias || 0)}
+            </p>
             <div className="tarjeta-emoji verde">💰</div>
           </div>
 
@@ -145,8 +169,12 @@ export default function ReportesDashboard() {
               <h3 className="tarjeta-label">Ventas del Mes</h3>
               <TrendingUp className="tarjeta-icon azul" size={24} />
             </div>
-            <p className="tarjeta-valor">{formatearMoneda(resumen?.ventasMes?.total || 0)}</p>
-            <p className="tarjeta-detalle verde">Ganancia: {formatearMoneda(resumen?.ventasMes?.ganancias || 0)}</p>
+            <p className="tarjeta-valor">
+              {formatearMoneda(resumen?.ventasMes?.total || 0)}
+            </p>
+            <p className="tarjeta-detalle verde">
+              Ganancia: {formatearMoneda(resumen?.ventasMes?.ganancias || 0)}
+            </p>
             <div className="tarjeta-emoji azul">📊</div>
           </div>
 
@@ -157,7 +185,9 @@ export default function ReportesDashboard() {
               <ShoppingCart className="tarjeta-icon amarillo" size={24} />
             </div>
             <p className="tarjeta-valor">{resumen?.pedidosPendientes || 0}</p>
-            <p className="tarjeta-detalle">{resumen?.inventarioVenta?.stockBajo || 0} con stock bajo</p>
+            <p className="tarjeta-detalle">
+              {resumen?.inventarioVenta?.stockBajo || 0} con stock bajo
+            </p>
             <div className="tarjeta-emoji amarillo">⏳</div>
           </div>
 
@@ -167,7 +197,9 @@ export default function ReportesDashboard() {
               <h3 className="tarjeta-label">Productos Agotados</h3>
               <AlertTriangle className="tarjeta-icon rojo" size={24} />
             </div>
-            <p className="tarjeta-valor">{resumen?.inventarioVenta?.agotados || 0}</p>
+            <p className="tarjeta-valor">
+              {resumen?.inventarioVenta?.agotados || 0}
+            </p>
             <p className="tarjeta-detalle">Requieren reabastecimiento</p>
             <div className="tarjeta-emoji rojo">❌</div>
           </div>
@@ -181,14 +213,22 @@ export default function ReportesDashboard() {
             <div className="inventario-info">
               <div className="inventario-row">
                 <span className="inventario-label">Valor Total:</span>
-                <span className="inventario-valor indigo">{formatearMoneda(resumen?.inventarioTotal?.valorTotal || 0)}</span>
+                <span className="inventario-valor indigo">
+                  {formatearMoneda(resumen?.inventarioTotal?.valorTotal || 0)}
+                </span>
               </div>
               <div className="inventario-secundario">
-                <span>📦 {resumen?.inventarioTotal?.totalProductos || 0} productos</span>
-                <span>{resumen?.inventarioTotal?.totalUnidades || 0} unidades</span>
+                <span>
+                  📦 {resumen?.inventarioTotal?.totalProductos || 0} productos
+                </span>
+                <span>
+                  {resumen?.inventarioTotal?.totalUnidades || 0} unidades
+                </span>
               </div>
             </div>
-            <p className="inventario-nota">Incluye todos los productos de la sala</p>
+            <p className="inventario-nota">
+              Incluye todos los productos de la sala
+            </p>
           </div>
 
           {/* Inventario de Venta */}
@@ -197,14 +237,25 @@ export default function ReportesDashboard() {
             <div className="inventario-info">
               <div className="inventario-row">
                 <span className="inventario-label">Valor Total:</span>
-                <span className="inventario-valor verde">{formatearMoneda(resumen?.inventarioVenta?.valorTotal || 0)}</span>
+                <span className="inventario-valor verde">
+                  {formatearMoneda(resumen?.inventarioVenta?.valorTotal || 0)}
+                </span>
               </div>
               <div className="inventario-secundario">
-                <span>🛒 {resumen?.inventarioVenta?.totalProductos || 0} productos</span>
-                <span>{resumen?.inventarioVenta?.totalUnidades || 0} unidades</span>
+                <span>
+                  🛒 {resumen?.inventarioVenta?.totalProductos || 0} productos
+                </span>
+                <span>
+                  {resumen?.inventarioVenta?.totalUnidades || 0} unidades
+                </span>
               </div>
               <div className="inventario-porcentaje">
-                {((resumen?.inventarioVenta?.valorTotal / resumen?.inventarioTotal?.valorTotal) * 100 || 0).toFixed(1)}% del inventario total
+                {(
+                  (resumen?.inventarioVenta?.valorTotal /
+                    resumen?.inventarioTotal?.valorTotal) *
+                    100 || 0
+                ).toFixed(1)}
+                % del inventario total
               </div>
             </div>
           </div>
@@ -224,7 +275,9 @@ export default function ReportesDashboard() {
                     <p>{producto.cantidadVendida} unidades</p>
                   </div>
                 </div>
-                <p className="producto-precio">{formatearMoneda(producto.totalVentas)}</p>
+                <p className="producto-precio">
+                  {formatearMoneda(producto.totalVentas)}
+                </p>
               </div>
             ))}
           </div>
@@ -233,12 +286,17 @@ export default function ReportesDashboard() {
         {/* Productos Menos Vendidos */}
         <div className="tarjeta-blanca">
           <h3 className="tarjeta-titulo">📉 Productos Menos Vendidos</h3>
-          <p className="tarjeta-subtitulo">Últimos 30 días (solo productos de venta)</p>
+          <p className="tarjeta-subtitulo">
+            Últimos 30 días (solo productos de venta)
+          </p>
           <div className="menos-vendidos-grid">
             {menosVendidos.map((producto, index) => (
               <div key={index} className="producto-menos-vendido">
                 <h4>{producto.nombre}</h4>
-                <p>{producto.cantidadVendida} vendidas | Stock: {producto.stockActual}</p>
+                <p>
+                  {producto.cantidadVendida} vendidas | Stock:{" "}
+                  {producto.stockActual}
+                </p>
               </div>
             ))}
           </div>
@@ -248,8 +306,12 @@ export default function ReportesDashboard() {
         <div className="stock-grid">
           {/* Stock Bajo */}
           <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">⚠️ Stock Bajo (Productos de Venta)</h3>
-            <p className="tarjeta-subtitulo">Productos con inventario crítico</p>
+            <h3 className="tarjeta-titulo">
+              ⚠️ Stock Bajo (Productos de Venta)
+            </h3>
+            <p className="tarjeta-subtitulo">
+              Productos con inventario crítico
+            </p>
             <div>
               {stockBajo.stockBajo?.length > 0 ? (
                 stockBajo.stockBajo.map((producto, index) => (
@@ -270,7 +332,9 @@ export default function ReportesDashboard() {
           {/* Productos Agotados */}
           <div className="tarjeta-blanca">
             <h3 className="tarjeta-titulo">❌ Productos Agotados (Venta)</h3>
-            <p className="tarjeta-subtitulo">Requieren reabastecimiento urgente</p>
+            <p className="tarjeta-subtitulo">
+              Requieren reabastecimiento urgente
+            </p>
             <div>
               {stockBajo.agotados?.length > 0 ? (
                 stockBajo.agotados.map((producto, index) => (
@@ -289,26 +353,29 @@ export default function ReportesDashboard() {
           </div>
         </div>
 
-        {/* Gráfica de Ventas */}
+        {/* ✅ GRÁFICA CON LAZY LOADING */}
         <div className="tarjeta-blanca">
           <h3 className="tarjeta-titulo">📈 Ventas por Día</h3>
           <p className="tarjeta-subtitulo">Últimos 30 días</p>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={ventasPorDia}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="fecha" 
-                tickFormatter={(fecha) => new Date(fecha).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' })}
-              />
-              <YAxis />
-              <Tooltip 
-                formatter={(value) => formatearMoneda(value)}
-                labelFormatter={(fecha) => new Date(fecha).toLocaleDateString('es-CR')}
-              />
-              <Legend />
-              <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={2} name="Total Ventas" />
-            </LineChart>
-          </ResponsiveContainer>
+          <Suspense
+            fallback={
+              <div
+                style={{
+                  height: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div className="loading-spinner"></div>
+              </div>
+            }
+          >
+            <GraficoVentas
+              ventasPorDia={ventasPorDia}
+              formatearMoneda={formatearMoneda}
+            />
+          </Suspense>
         </div>
 
         {/* Estadísticas de Pedidos */}
@@ -317,23 +384,33 @@ export default function ReportesDashboard() {
             <h3 className="tarjeta-titulo">📦 Estadísticas de Pedidos</h3>
             <div className="pedidos-stats-grid">
               <div className="stat-pedido gris">
-                <p className="stat-numero gris">{estadisticasPedidos.estadisticas?.total || 0}</p>
+                <p className="stat-numero gris">
+                  {estadisticasPedidos.estadisticas?.total || 0}
+                </p>
                 <p className="stat-label">Total</p>
               </div>
               <div className="stat-pedido amarillo">
-                <p className="stat-numero amarillo">{estadisticasPedidos.estadisticas?.pendientes || 0}</p>
+                <p className="stat-numero amarillo">
+                  {estadisticasPedidos.estadisticas?.pendientes || 0}
+                </p>
                 <p className="stat-label">Pendientes</p>
               </div>
               <div className="stat-pedido azul">
-                <p className="stat-numero azul">{estadisticasPedidos.estadisticas?.confirmados || 0}</p>
+                <p className="stat-numero azul">
+                  {estadisticasPedidos.estadisticas?.confirmados || 0}
+                </p>
                 <p className="stat-label">Confirmados</p>
               </div>
               <div className="stat-pedido verde">
-                <p className="stat-numero verde">{estadisticasPedidos.estadisticas?.completados || 0}</p>
+                <p className="stat-numero verde">
+                  {estadisticasPedidos.estadisticas?.completados || 0}
+                </p>
                 <p className="stat-label">Completados</p>
               </div>
               <div className="stat-pedido rojo">
-                <p className="stat-numero rojo">{estadisticasPedidos.estadisticas?.cancelados || 0}</p>
+                <p className="stat-numero rojo">
+                  {estadisticasPedidos.estadisticas?.cancelados || 0}
+                </p>
                 <p className="stat-label">Cancelados</p>
               </div>
             </div>
@@ -344,11 +421,17 @@ export default function ReportesDashboard() {
                 <div key={index} className="pedido-reciente">
                   <div className="pedido-izquierda">
                     {pedido.productoId?.imagen && (
-                      <img src={pedido.productoId.imagen} alt="" className="pedido-imagen" />
+                      <img
+                        src={pedido.productoId.imagen}
+                        alt=""
+                        className="pedido-imagen"
+                      />
                     )}
                     <div className="pedido-info">
-                      <h4>{pedido.productoId?.nombre || 'Producto'}</h4>
-                      <p>{pedido.nombreCliente} - {pedido.cantidad} unidades</p>
+                      <h4>{pedido.productoId?.nombre || "Producto"}</h4>
+                      <p>
+                        {pedido.nombreCliente} - {pedido.cantidad} unidades
+                      </p>
                     </div>
                   </div>
                   <span className={`pedido-estado ${pedido.estado}`}>
