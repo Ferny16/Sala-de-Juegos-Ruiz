@@ -17,6 +17,7 @@ const ProductsList = lazy(() => import("./pages/ProductsList"));
 const ManageProducts = lazy(() => import("./pages/ManageProducts"));
 const PedidosDashboard = lazy(() => import("./pages/PedidosDashboard"));
 const ReportesDashboard = lazy(() => import("./pages/ReportesDashboard"));
+const PlaysManagement = lazy(() => import("./pages/PlaysManagement"));
 
 // Loader simple mientras carga lazy components
 const PageLoader = () => <div>Cargando...</div>;
@@ -40,6 +41,7 @@ function App() {
           <Route path="/dashboard/manage-products" element={<ManageProducts />} />
           <Route path="/dashboard/pedidos" element={<PedidosDashboard />} />
           <Route path="/dashboard/reportes" element={<ReportesDashboard />} />
+          <Route path="/dashboard/plays" element={<PlaysManagement />} />
         </Routes>
       </Suspense>
     </AppRouter>

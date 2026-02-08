@@ -125,3 +125,40 @@
 .navbar-collapse {
   transition-delay: 0s !important;
 }
+
+
+/* =========================================================
+   EFECTO RAYITA INFERIOR (UNDERLINE ANIMADO)
+   ========================================================= */
+
+.navbar .nav-link {
+  position: relative; /* necesario para la rayita */
+  overflow: hidden;
+}
+
+/* Rayita */
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #38bdf8;
+  transition: width 0.3s ease;
+}
+
+/* Hover */
+.navbar .nav-link:hover::after {
+  width: 100%;
+}
+
+/* Link activo */
+.navbar .nav-link.active::after {
+  width: 100%;
+}
+
+/* Opcional: leve elevación */
+.navbar .nav-link:hover {
+  transform: translateY(-2px);
+}

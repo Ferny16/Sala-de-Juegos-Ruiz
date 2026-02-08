@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // ✅ IMPORTAR Link
+import "../styles/ReportesDashboard.css";
 // ✅ AGREGA ESTO EN SU LUGAR:
+import Navbar from "../components/NavBar2";
 import { lazy, Suspense } from "react";
 import {
   TrendingUp,
@@ -8,12 +9,8 @@ import {
   DollarSign,
   ShoppingCart,
 } from "lucide-react";
-import "../styles/ReportesDashboard.css";
 // ✅ Mueve el lazy fuera del archivo o usa esta estructura
 let GraficoVentas;
-
-
-
 const API_URL = process.env.REACT_APP_API_URL + "/api";
 
 export default function ReportesDashboard() {
@@ -87,56 +84,7 @@ export default function ReportesDashboard() {
   return (
     <div className="reportes-dashboard">
       {/* ✅ NAVBAR AGREGADO */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100">
-        <div className="container-fluid">
-          {/* Logo / Home */}
-          <Link className="navbar-brand fw-bold" to="/">
-            🎮 Sala de Juegos Ruiz
-          </Link>
-
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto gap-2">
-              <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/pedidos">
-                  📦 Pedidos
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/reportes">
-                  📈 Reportes
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/dashboard/sales">
-                  💰 Ventas
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/add-product">
-                  🆕 Agregar Producto
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/dashboard/manage-products">
-                  ⚙️ Gestionar Productos
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ✅ CONTENIDO ORIGINAL */}
       <div className="reportes-container">
@@ -149,25 +97,25 @@ export default function ReportesDashboard() {
         {/* Tarjetas de Resumen */}
         <div className="resumen-grid">
           {/* Ventas Hoy */}
-          <div className="tarjeta-resumen verde">
+          <div className="tarjeta-resumen reporte-verde">
             <div className="tarjeta-header">
               <h3 className="tarjeta-label">Ventas Hoy</h3>
-              <DollarSign className="tarjeta-icon verde" size={24} />
+              <DollarSign className="tarjeta-icon reporte-verde" size={24} />
             </div>
             <p className="tarjeta-valor">
               {formatearMoneda(resumen?.ventasHoy?.total || 0)}
             </p>
-            <p className="tarjeta-detalle verde">
+            <p className="tarjeta-detalle reporte-verde">
               Ganancia: {formatearMoneda(resumen?.ventasHoy?.ganancias || 0)}
             </p>
-            <div className="tarjeta-emoji verde">💰</div>
+            <div className="tarjeta-emoji reporte-verde">💰</div>
           </div>
 
           {/* Ventas del Mes */}
-          <div className="tarjeta-resumen azul">
+          <div className="tarjeta-resumen reporte-azul">
             <div className="tarjeta-header">
               <h3 className="tarjeta-label">Ventas del Mes</h3>
-              <TrendingUp className="tarjeta-icon azul" size={24} />
+              <TrendingUp className="tarjeta-icon reporte-azul" size={24} />
             </div>
             <p className="tarjeta-valor">
               {formatearMoneda(resumen?.ventasMes?.total || 0)}
@@ -179,7 +127,7 @@ export default function ReportesDashboard() {
           </div>
 
           {/* Pedidos Pendientes */}
-          <div className="tarjeta-resumen amarillo">
+          <div className="tarjeta-resumen reporte-amarillo">
             <div className="tarjeta-header">
               <h3 className="tarjeta-label">Pedidos Pendientes</h3>
               <ShoppingCart className="tarjeta-icon amarillo" size={24} />
@@ -192,7 +140,7 @@ export default function ReportesDashboard() {
           </div>
 
           {/* Productos Agotados */}
-          <div className="tarjeta-resumen rojo">
+          <div className="tarjeta-resumen reporte-rojo">
             <div className="tarjeta-header">
               <h3 className="tarjeta-label">Productos Agotados</h3>
               <AlertTriangle className="tarjeta-icon rojo" size={24} />

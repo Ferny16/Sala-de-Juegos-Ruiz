@@ -1,42 +1,6 @@
 /* ReportesDashboard.css */
 
 /* ========================================
-   NAVBAR STYLES (desde AgregarProductos)
-   ======================================== */
-
-/* Navbar con estilos consistentes */
-.reportes-dashboard .navbar {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.reportes-dashboard .navbar-brand {
-  background: linear-gradient(90deg, #38bdf8, #22d3ee, #a5f3fc);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  font-weight: 700;
-}
-
-.reportes-dashboard .nav-link {
-  color: rgba(255, 255, 255, 0.85) !important;
-  transition: all 0.3s ease;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-}
-
-.reportes-dashboard .nav-link:hover {
-  color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.1);
-  transform: translateY(-2px);
-}
-
-.reportes-dashboard .nav-link.active {
-  color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.15);
-  font-weight: 500;
-}
-
-/* ========================================
    CONTENEDOR PRINCIPAL
    ======================================== */
 .reportes-dashboard {
