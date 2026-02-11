@@ -40,7 +40,10 @@ const AgregarProductos = () => {
     if (type === "checkbox") {
       setForm({ ...form, [name]: checked });
     } else {
-      setForm({ ...form, [name]: value });
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
     }
   };
 
@@ -51,9 +54,12 @@ const AgregarProductos = () => {
     console.log("📷 Imagen recibida:", {
       name: compressedFile.name,
       size: `${(compressedFile.size / 1024).toFixed(2)} KB (${(compressedFile.size / (1024 * 1024)).toFixed(2)} MB)`,
-      type: compressedFile.type
+      type: compressedFile.type,
     });
-    setForm({ ...form, imagen: compressedFile });
+    setForm((prev) => ({
+      ...prev,
+      imagen: compressedFile,
+    }));
   };
 
   /**
@@ -71,7 +77,7 @@ const AgregarProductos = () => {
     console.group(`❌ Error en ${context}`);
     console.error("Mensaje:", error.message);
     console.error("Stack:", error.stack);
-    
+
     if (error.response) {
       console.error("Status:", error.response.status);
       console.error("Data:", error.response.data);
@@ -82,7 +88,7 @@ const AgregarProductos = () => {
     } else {
       console.error("Error al configurar la petición");
     }
-    
+
     console.error("Config:", error.config);
     console.groupEnd();
   };
@@ -93,26 +99,32 @@ const AgregarProductos = () => {
   const getUserFriendlyErrorMessage = (error) => {
     // Error de red o servidor no responde
     if (!error.response) {
-      if (error.code === 'ECONNABORTED') {
-        return "⏱️ La petición tardó demasiado tiempo.\n\n" +
+      if (error.code === "ECONNABORTED") {
+        return (
+          "⏱️ La petición tardó demasiado tiempo.\n\n" +
           "Esto puede deberse a:\n" +
           "• Imagen muy pesada (intenta con una más pequeña)\n" +
           "• Conexión lenta (verifica tu internet)\n" +
-          "• Servidor sobrecargado (intenta de nuevo en un momento)";
+          "• Servidor sobrecargado (intenta de nuevo en un momento)"
+        );
       }
-      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        return "🌐 Error de red al subir la imagen.\n\n" +
+      if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        return (
+          "🌐 Error de red al subir la imagen.\n\n" +
           "Posibles causas:\n" +
           "• El archivo es demasiado grande para tu conexión\n" +
           "• Timeout en la subida (intenta con imagen más pequeña)\n" +
           "• Problema temporal de conexión\n\n" +
-          "💡 Solución: Comprime la imagen con una app antes de subirla";
+          "💡 Solución: Comprime la imagen con una app antes de subirla"
+        );
       }
-      return "❌ No se pudo completar la petición.\n\n" +
+      return (
+        "❌ No se pudo completar la petición.\n\n" +
         "Intenta:\n" +
         "• Usar una imagen más pequeña\n" +
         "• Verificar tu conexión a internet\n" +
-        "• Intentar nuevamente en un momento";
+        "• Intentar nuevamente en un momento"
+      );
     }
 
     const status = error.response.status;
@@ -140,34 +152,46 @@ const AgregarProductos = () => {
         return "🔍 No se encontró el endpoint en el servidor. Verifica que la URL del API sea correcta o contacta al administrador.";
 
       case 413:
-        return "📦 El archivo es demasiado grande para el servidor.\n\n" +
+        return (
+          "📦 El archivo es demasiado grande para el servidor.\n\n" +
           "La imagen fue comprimida pero el servidor la rechazó.\n\n" +
           "📱 Soluciones:\n" +
           "1. Usa una app de compresión de imágenes\n" +
           "2. Toma una foto con menor calidad\n" +
-          "3. Contacta al administrador para aumentar el límite";
+          "3. Contacta al administrador para aumentar el límite"
+        );
 
       case 415:
         return "🖼️ Formato de imagen no soportado. Usa JPG, PNG o WebP.";
 
       case 422:
         if (errorData?.errors) {
-          const errorMessages = Object.values(errorData.errors).flat().join(", ");
+          const errorMessages = Object.values(errorData.errors)
+            .flat()
+            .join(", ");
           return `⚠️ Errores de validación: ${errorMessages}`;
         }
         return "⚠️ Los datos enviados no son válidos. Verifica todos los campos.";
 
       case 500:
         if (errorData?.error) {
-          if (errorData.error.includes('cloudinary') || errorData.error.includes('upload')) {
-            return "☁️ Error al subir la imagen a Cloudinary.\n\n" +
+          if (
+            errorData.error.includes("cloudinary") ||
+            errorData.error.includes("upload")
+          ) {
+            return (
+              "☁️ Error al subir la imagen a Cloudinary.\n\n" +
               "Esto puede deberse a:\n" +
               "• Problemas temporales del servicio\n" +
               "• Límite de almacenamiento alcanzado\n" +
               "• Credenciales incorrectas\n\n" +
-              "Contacta al administrador.";
+              "Contacta al administrador."
+            );
           }
-          if (errorData.error.includes('mongo') || errorData.error.includes('database')) {
+          if (
+            errorData.error.includes("mongo") ||
+            errorData.error.includes("database")
+          ) {
             return "🗄️ Error al guardar en la base de datos. Contacta al administrador.";
           }
           return `🔧 Error del servidor: ${errorData.error}`;
@@ -210,7 +234,9 @@ const AgregarProductos = () => {
     }
 
     if (parseFloat(form.precioVenta) < parseFloat(form.precioCompra)) {
-      errors.push("⚠️ Advertencia: El precio de venta es menor al precio de compra");
+      errors.push(
+        "⚠️ Advertencia: El precio de venta es menor al precio de compra",
+      );
     }
 
     if (!form.fechaCompra) {
@@ -226,10 +252,10 @@ const AgregarProductos = () => {
         const currentSize = (form.imagen.size / (1024 * 1024)).toFixed(2);
         errors.push(
           `La imagen es demasiado grande (${currentSize} MB).\n\n` +
-          `📱 Soluciones:\n` +
-          `1. Instala una app como "Compress Image"\n` +
-          `2. Reduce la calidad de la cámara\n` +
-          `3. Elige otra imagen más pequeña`
+            `📱 Soluciones:\n` +
+            `1. Instala una app como "Compress Image"\n` +
+            `2. Reduce la calidad de la cámara\n` +
+            `3. Elige otra imagen más pequeña`,
         );
       }
     }
@@ -266,7 +292,7 @@ const AgregarProductos = () => {
       if (!token) {
         showToast(
           "🔒 Debes iniciar sesión para agregar productos. Serás redirigido al login...",
-          "error"
+          "error",
         );
         setTimeout(() => navigate("/login"), 2000);
         return;
@@ -278,20 +304,20 @@ const AgregarProductos = () => {
         console.error("❌ REACT_APP_API_URL no está configurado en .env");
         showToast(
           "Error de configuración: URL del API no definida. Contacta al administrador.",
-          "error"
+          "error",
         );
         return;
       }
 
       // Crear FormData con todos los campos
       const formData = new FormData();
-      formData.append('nombre', form.nombre);
-      formData.append('cantidad', form.cantidad);
-      formData.append('precioCompra', form.precioCompra);
-      formData.append('precioVenta', form.precioVenta);
-      formData.append('fechaCompra', form.fechaCompra);
-      formData.append('seVende', form.seVende);
-      formData.append('imagen', form.imagen);
+      formData.append("nombre", form.nombre);
+      formData.append("cantidad", form.cantidad);
+      formData.append("precioCompra", form.precioCompra);
+      formData.append("precioVenta", form.precioVenta);
+      formData.append("fechaCompra", form.fechaCompra);
+      formData.append("seVende", form.seVende);
+      formData.append("imagen", form.imagen);
 
       // Log de debugging
       console.log("📤 Enviando producto:", {
@@ -303,35 +329,35 @@ const AgregarProductos = () => {
         fechaCompra: form.fechaCompra,
         seVende: form.seVende,
         imagenNombre: form.imagen?.name,
-        imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB (${(form.imagen.size / (1024 * 1024)).toFixed(2)} MB)` : 'N/A',
+        imagenSize: form.imagen
+          ? `${(form.imagen.size / 1024).toFixed(2)} KB (${(form.imagen.size / (1024 * 1024)).toFixed(2)} MB)`
+          : "N/A",
         imagenType: form.imagen?.type,
-        tokenPresente: !!token
+        tokenPresente: !!token,
       });
 
       console.log("🌐 URL completa:", `${apiUrl}/api/products`);
+      onsole.log("IMAGEN FINAL:", form.imagen);
+      console.log("Es File:", form.imagen instanceof File);
 
       // Enviar petición al backend con timeout más largo
-      const response = await axios.post(
-        `${apiUrl}/api/products`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          timeout: 120000, // 120 segundos (2 minutos) - aumentado para imágenes grandes
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            console.log(`⬆️ Progreso de carga: ${percentCompleted}%`);
-            
-            // Mostrar progreso al usuario si tarda más de 5 segundos
-            if (percentCompleted > 0 && percentCompleted < 100) {
-              // Podrías actualizar el UI aquí si quieres
-            }
-          },
-        }
-      );
+      const response = await axios.post(`${apiUrl}/api/products`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        timeout: 120000, // 120 segundos (2 minutos) - aumentado para imágenes grandes
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          console.log(`⬆️ Progreso de carga: ${percentCompleted}%`);
+
+          // Mostrar progreso al usuario si tarda más de 5 segundos
+          if (percentCompleted > 0 && percentCompleted < 100) {
+            // Podrías actualizar el UI aquí si quieres
+          }
+        },
+      });
 
       console.log("✅ Producto agregado exitosamente:", response.data);
       showToast("✅ Producto agregado correctamente");
@@ -352,7 +378,6 @@ const AgregarProductos = () => {
 
       // Opcional: redirigir a la lista de productos después de 2 segundos
       // setTimeout(() => navigate("/productos"), 2000);
-
     } catch (error) {
       // Log detallado del error para debugging
       logDetailedError(error, "Agregar Producto");
@@ -360,7 +385,6 @@ const AgregarProductos = () => {
       // Mostrar mensaje amigable al usuario
       const userMessage = getUserFriendlyErrorMessage(error);
       showToast(userMessage, "error");
-
     } finally {
       setUploading(false);
     }
@@ -372,7 +396,11 @@ const AgregarProductos = () => {
   const handleClose = () => {
     // Si está subiendo, pedir confirmación
     if (uploading) {
-      if (window.confirm("¿Estás seguro de cancelar? Se perderá el progreso de la carga.")) {
+      if (
+        window.confirm(
+          "¿Estás seguro de cancelar? Se perderá el progreso de la carga.",
+        )
+      ) {
         navigate("/dashboard");
       }
     } else {
@@ -387,15 +415,15 @@ const AgregarProductos = () => {
 
       {/* Toast de notificaciones */}
       {toast.show && (
-        <div 
+        <div
           className={`toast-custom ${toast.type}`}
-          style={{ 
-            whiteSpace: 'pre-line',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            fontSize: '0.9rem',
-            lineHeight: '1.6',
-            padding: '16px'
+          style={{
+            whiteSpace: "pre-line",
+            maxHeight: "80vh",
+            overflowY: "auto",
+            fontSize: "0.9rem",
+            lineHeight: "1.6",
+            padding: "16px",
           }}
         >
           {toast.text}
@@ -471,7 +499,7 @@ const AgregarProductos = () => {
                 onChange={handleChange}
                 required
                 disabled={uploading}
-                max={new Date().toISOString().split('T')[0]}
+                max={new Date().toISOString().split("T")[0]}
               />
             </div>
 
