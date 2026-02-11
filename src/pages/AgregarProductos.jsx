@@ -28,7 +28,7 @@ const AgregarProductos = () => {
     setToast({ show: true, text, type });
     setTimeout(() => {
       setToast({ show: false, text: "", type: "" });
-    }, 8000); // Aumentado a 8 segundos para que lean bien los mensajes
+    }, 8000);
   };
 
   /**
@@ -94,12 +94,25 @@ const AgregarProductos = () => {
     // Error de red o servidor no responde
     if (!error.response) {
       if (error.code === 'ECONNABORTED') {
-        return "⏱️ La petición tardó demasiado tiempo. Esto puede deberse a una conexión lenta. Por favor, intenta nuevamente.";
+        return "⏱️ La petición tardó demasiado tiempo.\n\n" +
+          "Esto puede deberse a:\n" +
+          "• Imagen muy pesada (intenta con una más pequeña)\n" +
+          "• Conexión lenta (verifica tu internet)\n" +
+          "• Servidor sobrecargado (intenta de nuevo en un momento)";
       }
-      if (error.message === 'Network Error') {
-        return "🌐 No hay conexión con el servidor. Verifica:\n• Tu conexión a internet\n• Que el servidor esté activo\n• Contacta al administrador si el problema persiste";
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        return "🌐 Error de red al subir la imagen.\n\n" +
+          "Posibles causas:\n" +
+          "• El archivo es demasiado grande para tu conexión\n" +
+          "• Timeout en la subida (intenta con imagen más pequeña)\n" +
+          "• Problema temporal de conexión\n\n" +
+          "💡 Solución: Comprime la imagen con una app antes de subirla";
       }
-      return "❌ No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.";
+      return "❌ No se pudo completar la petición.\n\n" +
+        "Intenta:\n" +
+        "• Usar una imagen más pequeña\n" +
+        "• Verificar tu conexión a internet\n" +
+        "• Intentar nuevamente en un momento";
     }
 
     const status = error.response.status;
@@ -147,7 +160,12 @@ const AgregarProductos = () => {
       case 500:
         if (errorData?.error) {
           if (errorData.error.includes('cloudinary') || errorData.error.includes('upload')) {
-            return "☁️ Error al subir la imagen. Esto puede deberse a:\n• Problemas temporales del servicio\n• Límite de almacenamiento\nContacta al administrador.";
+            return "☁️ Error al subir la imagen a Cloudinary.\n\n" +
+              "Esto puede deberse a:\n" +
+              "• Problemas temporales del servicio\n" +
+              "• Límite de almacenamiento alcanzado\n" +
+              "• Credenciales incorrectas\n\n" +
+              "Contacta al administrador.";
           }
           if (errorData.error.includes('mongo') || errorData.error.includes('database')) {
             return "🗄️ Error al guardar en la base de datos. Contacta al administrador.";
@@ -227,7 +245,7 @@ const AgregarProductos = () => {
 
     // Evita doble submit
     if (uploading) {
-      console.warn("Ya hay una carga en progreso");
+      console.warn("⚠️ Ya hay una carga en progreso");
       return;
     }
 
@@ -235,34 +253,13 @@ const AgregarProductos = () => {
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       showToast(validationErrors.join("\n\n"), "error");
-      console.warn("Errores de validación:", validationErrors);
+      console.warn("❌ Errores de validación:", validationErrors);
       return;
     }
 
     setUploading(true);
 
     try {
-      // Crear FormData con todos los campos
-      const formData = new FormData();
-      Object.keys(form).forEach((key) => {
-        if (form[key] !== null) {
-          formData.append(key, form[key]);
-        }
-      });
-
-      // Log de debugging
-      console.log("📤 Enviando producto:", {
-        nombre: form.nombre,
-        cantidad: form.cantidad,
-        precioCompra: form.precioCompra,
-        precioVenta: form.precioVenta,
-        fechaCompra: form.fechaCompra,
-        seVende: form.seVende,
-        imagenNombre: form.imagen?.name,
-        imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB (${(form.imagen.size / (1024 * 1024)).toFixed(2)} MB)` : 'N/A',
-        imagenType: form.imagen?.type
-      });
-
       // Obtener token de autenticación
       const token = localStorage.getItem("token");
 
@@ -286,9 +283,34 @@ const AgregarProductos = () => {
         return;
       }
 
-      console.log("🌐 Enviando a:", `${apiUrl}/api/products`);
+      // Crear FormData con todos los campos
+      const formData = new FormData();
+      formData.append('nombre', form.nombre);
+      formData.append('cantidad', form.cantidad);
+      formData.append('precioCompra', form.precioCompra);
+      formData.append('precioVenta', form.precioVenta);
+      formData.append('fechaCompra', form.fechaCompra);
+      formData.append('seVende', form.seVende);
+      formData.append('imagen', form.imagen);
 
-      // Enviar petición al backend
+      // Log de debugging
+      console.log("📤 Enviando producto:", {
+        url: `${apiUrl}/api/products`,
+        nombre: form.nombre,
+        cantidad: form.cantidad,
+        precioCompra: form.precioCompra,
+        precioVenta: form.precioVenta,
+        fechaCompra: form.fechaCompra,
+        seVende: form.seVende,
+        imagenNombre: form.imagen?.name,
+        imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB (${(form.imagen.size / (1024 * 1024)).toFixed(2)} MB)` : 'N/A',
+        imagenType: form.imagen?.type,
+        tokenPresente: !!token
+      });
+
+      console.log("🌐 URL completa:", `${apiUrl}/api/products`);
+
+      // Enviar petición al backend con timeout más largo
       const response = await axios.post(
         `${apiUrl}/api/products`,
         formData,
@@ -297,12 +319,17 @@ const AgregarProductos = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-          timeout: 60000, // 60 segundos de timeout
+          timeout: 120000, // 120 segundos (2 minutos) - aumentado para imágenes grandes
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
             console.log(`⬆️ Progreso de carga: ${percentCompleted}%`);
+            
+            // Mostrar progreso al usuario si tarda más de 5 segundos
+            if (percentCompleted > 0 && percentCompleted < 100) {
+              // Podrías actualizar el UI aquí si quieres
+            }
           },
         }
       );
@@ -323,6 +350,9 @@ const AgregarProductos = () => {
 
       // Resetear componente de imagen
       imageUploadRef.current?.reset();
+
+      // Opcional: redirigir a la lista de productos después de 2 segundos
+      // setTimeout(() => navigate("/productos"), 2000);
 
     } catch (error) {
       // Log detallado del error para debugging
@@ -364,8 +394,9 @@ const AgregarProductos = () => {
             whiteSpace: 'pre-line',
             maxHeight: '80vh',
             overflowY: 'auto',
-            fontSize: '0.95rem',
-            lineHeight: '1.5'
+            fontSize: '0.9rem',
+            lineHeight: '1.6',
+            padding: '16px'
           }}
         >
           {toast.text}
@@ -535,7 +566,7 @@ const AgregarProductos = () => {
                       role="status"
                       aria-hidden="true"
                     ></span>
-                    Subiendo producto...
+                    Subiendo producto... (puede tardar un momento)
                   </>
                 ) : (
                   "Agregar Producto"
