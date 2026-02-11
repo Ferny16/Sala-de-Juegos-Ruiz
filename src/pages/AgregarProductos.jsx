@@ -317,7 +317,6 @@ const AgregarProductos = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
           timeout: 120000, // 120 segundos (2 minutos) - aumentado para imágenes grandes
           onUploadProgress: (progressEvent) => {
