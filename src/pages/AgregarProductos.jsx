@@ -337,7 +337,7 @@ const AgregarProductos = () => {
       });
 
       console.log("🌐 URL completa:", `${apiUrl}/api/products`);
-      onsole.log("IMAGEN FINAL:", form.imagen);
+      console.log("IMAGEN FINAL:", form.imagen);
       console.log("Es File:", form.imagen instanceof File);
 
       // Enviar petición al backend con timeout más largo
