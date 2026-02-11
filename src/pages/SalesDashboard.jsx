@@ -139,21 +139,8 @@ const SalesDashboard = () => {
     document.title = "Ventas - Sala de Juegos Ruiz";
   }, [fetchProductos]);
 
-  // ⭐ NUEVO: Mantener el foco en el input después de búsquedas
-  useEffect(() => {
-    if (
-      !searching &&
-      !loading &&
-      searchInputRef.current &&
-      document.activeElement !== searchInputRef.current
-    ) {
-      // Solo restaurar el foco si el input no lo tiene ya
-      const shouldFocus = search !== ""; // Solo si hay texto en la búsqueda
-      if (shouldFocus) {
-        searchInputRef.current.focus();
-      }
-    }
-  }, [searching, loading, search]);
+  // ✅ ELIMINADO: useEffect que restauraba el foco automáticamente
+  // Esto causaba que el teclado se quedara activo en móviles
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -191,6 +178,11 @@ const SalesDashboard = () => {
   };
 
   const agregarAlCarrito = (producto) => {
+    // ✅ Quitar el foco del input de búsqueda al agregar productos
+    if (searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+    
     const existe = carrito.find((item) => item._id === producto._id);
 
     if (existe) {
@@ -271,9 +263,14 @@ const SalesDashboard = () => {
       return;
     }
 
-    // ✅ Quitar el foco de cualquier input antes de procesar
+    // ✅ Quitar el foco de TODOS los inputs antes de procesar
     if (document.activeElement && document.activeElement.blur) {
       document.activeElement.blur();
+    }
+    
+    // ✅ Específicamente cerrar el teclado del input de búsqueda
+    if (searchInputRef.current) {
+      searchInputRef.current.blur();
     }
 
     setProcessingVenta(true);
@@ -309,6 +306,17 @@ const SalesDashboard = () => {
       setMostrarResultado(true);
 
       setCarrito([]);
+      
+      // ✅ Forzar blur después de mostrar resultado
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+        if (searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }, 100);
+      
       fetchProductos(search, false); // ⭐ Recargar sin pantalla negra
     } catch (error) {
       console.error("❌ ERROR:", error);
@@ -323,6 +331,16 @@ const SalesDashboard = () => {
       alert("Error al procesar la venta");
     } finally {
       setProcessingVenta(false);
+      
+      // ✅ Forzar blur adicional al finalizar
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+        if (searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }, 200);
     }
   };
 
@@ -364,21 +382,22 @@ const SalesDashboard = () => {
                   <form onSubmit={handleSearchSubmit} className="mb-3">
                     <div className="input-group">
                       <input
-                        ref={searchInputRef} // ⭐ IMPORTANTE: Agregar ref
+                        ref={searchInputRef}
                         type="text"
                         className="form-control"
                         placeholder="Buscar producto..."
                         value={search}
                         onChange={handleSearchChange}
                         inputMode="search"
-                        // ✅ Prevenir teclado en móviles al hacer clic en botones
-                        onBlur={(e) => {
-                          // Solo hacer blur si se hace clic fuera del input
-                          setTimeout(() => {
-                            if (document.activeElement !== e.target) {
-                              e.target.blur();
-                            }
-                          }, 100);
+                        autoComplete="off"
+                        // ✅ NO auto-focus en móviles
+                        autoFocus={false}
+                        // ✅ Prevenir que el teclado se quede abierto
+                        onFocus={(e) => {
+                          // Permitir focus solo si el usuario hace clic explícitamente
+                          if (processingVenta || mostrarResultado) {
+                            e.target.blur();
+                          }
                         }}
                       />
                       <button
@@ -615,7 +634,18 @@ const SalesDashboard = () => {
       {mostrarResultado && ventaExitosa && (
         <div
           className="modal-overlay"
-          onClick={() => setMostrarResultado(false)}
+          onClick={() => {
+            setMostrarResultado(false);
+            // ✅ Forzar blur al cerrar modal
+            setTimeout(() => {
+              if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+              }
+              if (searchInputRef.current) {
+                searchInputRef.current.blur();
+              }
+            }, 100);
+          }}
         >
           <div className="modal-resultado" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-resultado">
@@ -644,6 +674,15 @@ const SalesDashboard = () => {
                 className="btn btn-primary"
                 onClick={() => {
                   setMostrarResultado(false);
+                  // ✅ Forzar blur al hacer clic en Aceptar
+                  setTimeout(() => {
+                    if (document.activeElement && document.activeElement.blur) {
+                      document.activeElement.blur();
+                    }
+                    if (searchInputRef.current) {
+                      searchInputRef.current.blur();
+                    }
+                  }, 100);
                 }}
                 type="button"
               >
