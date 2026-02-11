@@ -28,7 +28,7 @@ const AgregarProductos = () => {
     setToast({ show: true, text, type });
     setTimeout(() => {
       setToast({ show: false, text: "", type: "" });
-    }, 6000); // 6 segundos para dar tiempo de leer errores
+    }, 6000);
   };
 
   /**
@@ -50,7 +50,7 @@ const AgregarProductos = () => {
   const handleImageChange = (compressedFile) => {
     console.log("📷 Imagen recibida:", {
       name: compressedFile.name,
-      size: `${(compressedFile.size / 1024).toFixed(2)} KB`,
+      size: `${(compressedFile.size / 1024).toFixed(2)} KB (${(compressedFile.size / (1024 * 1024)).toFixed(2)} MB)`,
       type: compressedFile.type
     });
     setForm({ ...form, imagen: compressedFile });
@@ -143,7 +143,6 @@ const AgregarProductos = () => {
         return "⚠️ Los datos enviados no son válidos. Verifica todos los campos y la imagen.";
 
       case 500:
-        // Error común cuando hay problemas con Cloudinary o MongoDB
         if (errorData?.error) {
           if (errorData.error.includes('cloudinary') || errorData.error.includes('upload')) {
             return "☁️ Error al subir la imagen a Cloudinary. Esto puede deberse a:\n• Problemas con las credenciales de Cloudinary\n• Límite de almacenamiento alcanzado\n• Problema temporal del servicio\nContacta al administrador.";
@@ -200,13 +199,10 @@ const AgregarProductos = () => {
 
     if (!form.imagen) {
       errors.push("Debes seleccionar una imagen");
-    } else {
-      // Verificar tamaño de la imagen
-      const sizeInMB = form.imagen.size / (1024 * 1024);
-      if (sizeInMB > 1) {
-        errors.push(`La imagen es demasiado grande (${sizeInMB.toFixed(2)} MB). Debe ser menor a 1 MB. Intenta con otra imagen o espera a que se comprima más.`);
-      }
     }
+    // ✅ YA NO VALIDAMOS EL TAMAÑO AQUÍ
+    // La validación se hace en el componente ImageUploadWithCompression
+    // que comprime primero y valida después
 
     return errors;
   };
@@ -242,7 +238,7 @@ const AgregarProductos = () => {
         }
       });
 
-      // Log de debugging (siempre mostrar para troubleshooting)
+      // Log de debugging
       console.log("📤 Enviando producto:", {
         nombre: form.nombre,
         cantidad: form.cantidad,
@@ -289,7 +285,7 @@ const AgregarProductos = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-          timeout: 45000, // 45 segundos de timeout (aumentado por Cloudinary)
+          timeout: 60000, // 60 segundos de timeout (aumentado para imágenes grandes)
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -315,9 +311,6 @@ const AgregarProductos = () => {
 
       // Resetear componente de imagen
       imageUploadRef.current?.reset();
-
-      // Opcional: Redirigir después de 2 segundos
-      // setTimeout(() => navigate("/dashboard/manage-products"), 2000);
 
     } catch (error) {
       // Log detallado del error para debugging
@@ -355,7 +348,7 @@ const AgregarProductos = () => {
       {toast.show && (
         <div 
           className={`toast-custom ${toast.type}`}
-          style={{ whiteSpace: 'pre-line' }} // Para que respete los saltos de línea
+          style={{ whiteSpace: 'pre-line' }}
         >
           {toast.text}
         </div>
@@ -506,7 +499,8 @@ const AgregarProductos = () => {
                 ref={imageUploadRef}
               />
               <small className="form-text text-muted">
-                Formatos aceptados: JPG, PNG, WebP. Tamaño máximo original: 10 MB (se comprimirá automáticamente a menos de 1 MB)
+                📷 Selecciona cualquier imagen - será comprimida automáticamente. 
+                Formatos: JPG, PNG, WebP.
               </small>
             </div>
 
