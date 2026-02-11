@@ -28,7 +28,7 @@ const AgregarProductos = () => {
     setToast({ show: true, text, type });
     setTimeout(() => {
       setToast({ show: false, text: "", type: "" });
-    }, 5000); // Aumentado a 5 segundos para mensajes de error más largos
+    }, 6000); // 6 segundos para dar tiempo de leer errores
   };
 
   /**
@@ -48,6 +48,11 @@ const AgregarProductos = () => {
    * Maneja la imagen comprimida que viene del componente
    */
   const handleImageChange = (compressedFile) => {
+    console.log("📷 Imagen recibida:", {
+      name: compressedFile.name,
+      size: `${(compressedFile.size / 1024).toFixed(2)} KB`,
+      type: compressedFile.type
+    });
     setForm({ ...form, imagen: compressedFile });
   };
 
@@ -57,7 +62,7 @@ const AgregarProductos = () => {
   const handleImageError = (error) => {
     console.error("Error procesando imagen:", error);
     showToast(
-      "Error al procesar la imagen. Por favor, verifica que sea una imagen válida (JPG, PNG, WebP) y que no supere los 5MB.",
+      error.message || "Error al procesar la imagen. Por favor, intenta con otra imagen.",
       "error"
     );
   };
@@ -75,7 +80,10 @@ const AgregarProductos = () => {
       console.error("Data:", error.response.data);
       console.error("Headers:", error.response.headers);
     } else if (error.request) {
+      console.error("Request enviado pero sin respuesta");
       console.error("Request:", error.request);
+    } else {
+      console.error("Error al configurar la petición");
     }
     
     console.error("Config:", error.config);
@@ -89,12 +97,12 @@ const AgregarProductos = () => {
     // Error de red o servidor no responde
     if (!error.response) {
       if (error.code === 'ECONNABORTED') {
-        return "⏱️ La petición tardó demasiado tiempo. Por favor, verifica tu conexión a internet y vuelve a intentarlo.";
+        return "⏱️ La petición tardó demasiado tiempo. Esto puede deberse a una imagen muy pesada o conexión lenta. Intenta con una imagen más pequeña.";
       }
       if (error.message === 'Network Error') {
-        return "🌐 No hay conexión con el servidor. Verifica tu conexión a internet o contacta al administrador.";
+        return "🌐 No hay conexión con el servidor. Verifica:\n• Tu conexión a internet\n• Que el servidor esté activo\n• Contacta al administrador si el problema persiste";
       }
-      return "❌ No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.";
+      return "❌ No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.";
     }
 
     const status = error.response.status;
@@ -104,9 +112,9 @@ const AgregarProductos = () => {
     switch (status) {
       case 400:
         if (errorData?.error) {
-          return `📝 ${errorData.error}`;
+          return `📝 Error de validación: ${errorData.error}`;
         }
-        return "📝 Datos inválidos. Por favor, revisa que todos los campos estén correctamente llenados.";
+        return "📝 Datos inválidos. Por favor, revisa que todos los campos estén correctamente llenados y que la imagen sea válida.";
 
       case 401:
         setTimeout(() => {
@@ -119,34 +127,44 @@ const AgregarProductos = () => {
         return "🚫 No tienes permisos para realizar esta acción. Contacta al administrador.";
 
       case 404:
-        return "🔍 El servidor no encontró el recurso solicitado. Contacta al administrador.";
+        return "🔍 No se encontró el endpoint en el servidor. Verifica que la URL del API sea correcta o contacta al administrador.";
 
       case 413:
-        return "📦 El archivo es demasiado grande. Reduce el tamaño de la imagen e intenta nuevamente.";
+        return "📦 El archivo es demasiado grande para el servidor. Aunque la imagen fue comprimida, el servidor la rechazó. Intenta con una imagen más pequeña o contacta al administrador para aumentar el límite.";
 
       case 415:
-        return "🖼️ Formato de imagen no soportado. Usa JPG, PNG o WebP.";
+        return "🖼️ Formato de imagen no soportado por el servidor. Asegúrate de usar JPG, PNG o WebP.";
 
       case 422:
         if (errorData?.errors) {
           const errorMessages = Object.values(errorData.errors).flat().join(", ");
           return `⚠️ Errores de validación: ${errorMessages}`;
         }
-        return "⚠️ Los datos enviados no son válidos. Verifica todos los campos.";
+        return "⚠️ Los datos enviados no son válidos. Verifica todos los campos y la imagen.";
 
       case 500:
+        // Error común cuando hay problemas con Cloudinary o MongoDB
+        if (errorData?.error) {
+          if (errorData.error.includes('cloudinary') || errorData.error.includes('upload')) {
+            return "☁️ Error al subir la imagen a Cloudinary. Esto puede deberse a:\n• Problemas con las credenciales de Cloudinary\n• Límite de almacenamiento alcanzado\n• Problema temporal del servicio\nContacta al administrador.";
+          }
+          if (errorData.error.includes('mongo') || errorData.error.includes('database')) {
+            return "🗄️ Error al guardar en la base de datos. Contacta al administrador.";
+          }
+          return `🔧 Error del servidor: ${errorData.error}`;
+        }
         return "🔧 Error interno del servidor. Por favor, contacta al administrador del sistema.";
 
       case 502:
       case 503:
       case 504:
-        return "⚠️ El servidor está temporalmente no disponible. Intenta nuevamente en unos minutos.";
+        return "⚠️ El servidor está temporalmente no disponible. Esto puede deberse a:\n• Mantenimiento programado\n• Sobrecarga del servidor\n• Problemas de red\nIntenta nuevamente en unos minutos.";
 
       default:
         if (errorData?.error) {
-          return `❌ ${errorData.error}`;
+          return `❌ Error: ${errorData.error}`;
         }
-        return `❌ Error inesperado (Código ${status}). Por favor, contacta al administrador.`;
+        return `❌ Error inesperado (Código ${status}). Por favor, contacta al administrador si el problema persiste.`;
     }
   };
 
@@ -182,6 +200,12 @@ const AgregarProductos = () => {
 
     if (!form.imagen) {
       errors.push("Debes seleccionar una imagen");
+    } else {
+      // Verificar tamaño de la imagen
+      const sizeInMB = form.imagen.size / (1024 * 1024);
+      if (sizeInMB > 1) {
+        errors.push(`La imagen es demasiado grande (${sizeInMB.toFixed(2)} MB). Debe ser menor a 1 MB. Intenta con otra imagen o espera a que se comprima más.`);
+      }
     }
 
     return errors;
@@ -194,7 +218,10 @@ const AgregarProductos = () => {
     e.preventDefault();
 
     // Evita doble submit
-    if (uploading) return;
+    if (uploading) {
+      console.warn("Ya hay una carga en progreso");
+      return;
+    }
 
     // Validar formulario antes de enviar
     const validationErrors = validateForm();
@@ -215,18 +242,18 @@ const AgregarProductos = () => {
         }
       });
 
-      // Log de debugging (solo en desarrollo)
-      if (process.env.NODE_ENV === 'development') {
-        console.log("📤 Enviando producto:", {
-          nombre: form.nombre,
-          cantidad: form.cantidad,
-          precioCompra: form.precioCompra,
-          precioVenta: form.precioVenta,
-          fechaCompra: form.fechaCompra,
-          seVende: form.seVende,
-          imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB` : 'N/A'
-        });
-      }
+      // Log de debugging (siempre mostrar para troubleshooting)
+      console.log("📤 Enviando producto:", {
+        nombre: form.nombre,
+        cantidad: form.cantidad,
+        precioCompra: form.precioCompra,
+        precioVenta: form.precioVenta,
+        fechaCompra: form.fechaCompra,
+        seVende: form.seVende,
+        imagenNombre: form.imagen?.name,
+        imagenSize: form.imagen ? `${(form.imagen.size / 1024).toFixed(2)} KB (${(form.imagen.size / (1024 * 1024)).toFixed(2)} MB)` : 'N/A',
+        imagenType: form.imagen?.type
+      });
 
       // Obtener token de autenticación
       const token = localStorage.getItem("token");
@@ -240,16 +267,35 @@ const AgregarProductos = () => {
         return;
       }
 
+      // Verificar que el API_URL esté configurado
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error("❌ REACT_APP_API_URL no está configurado en .env");
+        showToast(
+          "Error de configuración: URL del API no definida. Contacta al administrador.",
+          "error"
+        );
+        return;
+      }
+
+      console.log("🌐 Enviando a:", `${apiUrl}/api/products`);
+
       // Enviar petición al backend
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/products`,
+        `${apiUrl}/api/products`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-          timeout: 30000, // 30 segundos de timeout
+          timeout: 45000, // 45 segundos de timeout (aumentado por Cloudinary)
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(`⬆️ Progreso de carga: ${percentCompleted}%`);
+          },
         }
       );
 
@@ -307,7 +353,12 @@ const AgregarProductos = () => {
 
       {/* Toast de notificaciones */}
       {toast.show && (
-        <div className={`toast-custom ${toast.type}`}>{toast.text}</div>
+        <div 
+          className={`toast-custom ${toast.type}`}
+          style={{ whiteSpace: 'pre-line' }} // Para que respete los saltos de línea
+        >
+          {toast.text}
+        </div>
       )}
 
       {/* Contenedor principal */}
@@ -455,7 +506,7 @@ const AgregarProductos = () => {
                 ref={imageUploadRef}
               />
               <small className="form-text text-muted">
-                Formatos aceptados: JPG, PNG, WebP. Tamaño máximo: 5MB
+                Formatos aceptados: JPG, PNG, WebP. Tamaño máximo original: 10 MB (se comprimirá automáticamente a menos de 1 MB)
               </small>
             </div>
 
@@ -473,7 +524,7 @@ const AgregarProductos = () => {
                       role="status"
                       aria-hidden="true"
                     ></span>
-                    Subiendo...
+                    Subiendo producto...
                   </>
                 ) : (
                   "Agregar Producto"

@@ -182,7 +182,7 @@ const SalesDashboard = () => {
     if (searchInputRef.current) {
       searchInputRef.current.blur();
     }
-    
+
     const existe = carrito.find((item) => item._id === producto._id);
 
     if (existe) {
@@ -267,7 +267,7 @@ const SalesDashboard = () => {
     if (document.activeElement && document.activeElement.blur) {
       document.activeElement.blur();
     }
-    
+
     // ✅ Específicamente cerrar el teclado del input de búsqueda
     if (searchInputRef.current) {
       searchInputRef.current.blur();
@@ -306,7 +306,7 @@ const SalesDashboard = () => {
       setMostrarResultado(true);
 
       setCarrito([]);
-      
+
       // ✅ Forzar blur después de mostrar resultado
       setTimeout(() => {
         if (document.activeElement && document.activeElement.blur) {
@@ -316,7 +316,7 @@ const SalesDashboard = () => {
           searchInputRef.current.blur();
         }
       }, 100);
-      
+
       fetchProductos(search, false); // ⭐ Recargar sin pantalla negra
     } catch (error) {
       console.error("❌ ERROR:", error);
@@ -331,7 +331,7 @@ const SalesDashboard = () => {
       alert("Error al procesar la venta");
     } finally {
       setProcessingVenta(false);
-      
+
       // ✅ Forzar blur adicional al finalizar
       setTimeout(() => {
         if (document.activeElement && document.activeElement.blur) {
@@ -370,8 +370,12 @@ const SalesDashboard = () => {
 
       <div className="sales-content">
         <div className="container-fluid py-4">
-          <h2 className="sales-title text-center mb-4">💰 Sistema de Ventas</h2>
-
+          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h2 className="sales-title mb-0">💰 Sistema de Ventas</h2>
+            <Link to="/sales-history" className="btn btn-outline-success">
+              📊 Ver Historial
+            </Link>
+          </div>
           <div className="row g-4">
             <div className="col-lg-5 order-lg-2">
               <div className="card carrito-panel">

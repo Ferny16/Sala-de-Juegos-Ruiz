@@ -3,6 +3,23 @@ import { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import imageCompression from "browser-image-compression";
 
 /**
+ * Formatea bytes a una unidad legible (KB, MB)
+ */
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const mb = bytes / (k * k);
+  const kb = bytes / k;
+  
+  // Si es mayor a 1 MB, mostrar en MB
+  if (mb >= 1) {
+    return `${mb.toFixed(2)} MB`;
+  }
+  // Si es menor a 1 MB, mostrar en KB
+  return `${kb.toFixed(2)} KB`;
+};
+
+/**
  * Componente de input de imagen con compresión automática
  *
  * @param {Function} onChange - Callback que recibe el archivo comprimido
@@ -13,12 +30,6 @@ import imageCompression from "browser-image-compression";
  * @param {boolean} showPreview - Mostrar vista previa de la imagen
  * @param {string} className - Clases CSS adicionales
  * @param {Function} onError - Callback en caso de error
- *
- * @example
- * <ImageUploadWithCompression
- *   onChange={(file) => setForm({...form, imagen: file})}
- *   required
- * />
  */
 const ImageUploadWithCompression = forwardRef(
   (
@@ -26,7 +37,7 @@ const ImageUploadWithCompression = forwardRef(
       onChange,
       required = false,
       disabled = false,
-      accept = "image/*",
+      accept = "image/jpeg,image/jpg,image/png,image/webp",
       compressionOptions = {},
       showPreview = true,
       className = "",
@@ -37,39 +48,77 @@ const ImageUploadWithCompression = forwardRef(
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressedFile, setCompressedFile] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [originalSize, setOriginalSize] = useState(null);
     const fileInputRef = useRef(null);
 
-    // Opciones por defecto de compresión
+    // Opciones por defecto de compresión más agresivas
     const defaultCompressionOptions = {
-      maxSizeMB: 4.5, // permitimos hasta 4.5 MB
-      maxWidthOrHeight: 1024, // rescalamos a 1024px máximo
+      maxSizeMB: 0.8, // Reducido a 0.8 MB para asegurar que pase
+      maxWidthOrHeight: 1024, // Máximo 1024px
       useWebWorker: true,
       fileType: "image/jpeg",
+      initialQuality: 0.8, // Calidad inicial del 80%
     };
 
     /**
-     * Comprime una imagen
+     * Valida el archivo antes de procesar
+     */
+    const validateFile = (file) => {
+      const maxSize = 10 * 1024 * 1024; // 10 MB máximo sin comprimir
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(
+          `Formato no válido. Solo se permiten: JPG, PNG, WebP. Tu archivo es: ${file.type}`
+        );
+      }
+
+      if (file.size > maxSize) {
+        throw new Error(
+          `Imagen demasiado grande (${formatFileSize(file.size)}). El máximo permitido es 10 MB.`
+        );
+      }
+
+      return true;
+    };
+
+    /**
+     * Comprime una imagen con manejo de errores mejorado
      */
     const compressImage = async (file) => {
       const options = { ...defaultCompressionOptions, ...compressionOptions };
 
       try {
-        const originalSizeKB = (file.size / 1024).toFixed(2);
-        console.log("📦 Imagen original:", originalSizeKB, "KB");
+        console.log("📦 Imagen original:", formatFileSize(file.size));
 
         const compressed = await imageCompression(file, options);
 
-        const compressedSizeKB = (compressed.size / 1024).toFixed(2);
+        console.log("✅ Imagen comprimida:", formatFileSize(compressed.size));
+        
         const reduction = ((1 - compressed.size / file.size) * 100).toFixed(1);
-
-        console.log("✅ Imagen comprimida:", compressedSizeKB, "KB");
         console.log("📉 Reducción:", reduction + "%");
+
+        // Verificar que la imagen comprimida no sea mayor a 1 MB
+        if (compressed.size > 1024 * 1024) {
+          console.warn("⚠️ Imagen comprimida aún es grande, aplicando compresión adicional...");
+          
+          // Segunda compresión más agresiva si es necesario
+          const secondCompression = await imageCompression(compressed, {
+            ...options,
+            maxSizeMB: 0.5,
+            initialQuality: 0.7,
+          });
+          
+          console.log("✅ Segunda compresión:", formatFileSize(secondCompression.size));
+          return secondCompression;
+        }
 
         return compressed;
       } catch (error) {
         console.error("❌ Error comprimiendo imagen:", error);
-        console.warn("⚠️ Usando imagen original sin comprimir");
-        return file;
+        throw new Error(
+          `No se pudo comprimir la imagen: ${error.message}. Intenta con una imagen más pequeña.`
+        );
       }
     };
 
@@ -88,6 +137,10 @@ const ImageUploadWithCompression = forwardRef(
       }
 
       try {
+        // Validar archivo
+        validateFile(file);
+        setOriginalSize(file.size);
+
         // Comprimir imagen
         const compressed = await compressImage(file);
         setCompressedFile(compressed);
@@ -104,6 +157,17 @@ const ImageUploadWithCompression = forwardRef(
         }
       } catch (error) {
         console.error("Error procesando imagen:", error);
+        
+        // Limpiar estado
+        setCompressedFile(null);
+        setPreview(null);
+        setOriginalSize(null);
+        
+        // Limpiar input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+
         if (onError) {
           onError(error);
         }
@@ -121,6 +185,7 @@ const ImageUploadWithCompression = forwardRef(
       }
       setCompressedFile(null);
       setPreview(null);
+      setOriginalSize(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -155,10 +220,16 @@ const ImageUploadWithCompression = forwardRef(
           </small>
         )}
 
-        {/* Confirmación de imagen lista */}
-        {compressedFile && !isCompressing && (
+        {/* Confirmación de imagen lista con tamaños */}
+        {compressedFile && !isCompressing && originalSize && (
           <small className="text-success d-block mt-2">
-            ✅ Imagen lista ({(compressedFile.size / 1024).toFixed(2)} KB)
+            ✅ Imagen lista: {formatFileSize(compressedFile.size)}
+            {originalSize !== compressedFile.size && (
+              <span className="text-muted">
+                {" "}(original: {formatFileSize(originalSize)}, 
+                reducción: {((1 - compressedFile.size / originalSize) * 100).toFixed(0)}%)
+              </span>
+            )}
           </small>
         )}
 
