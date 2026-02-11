@@ -28,7 +28,7 @@ const AgregarProductos = () => {
     setToast({ show: true, text, type });
     setTimeout(() => {
       setToast({ show: false, text: "", type: "" });
-    }, 6000);
+    }, 8000); // Aumentado a 8 segundos para que lean bien los mensajes
   };
 
   /**
@@ -60,11 +60,8 @@ const AgregarProductos = () => {
    * Maneja errores al procesar la imagen
    */
   const handleImageError = (error) => {
-    console.error("Error procesando imagen:", error);
-    showToast(
-      error.message || "Error al procesar la imagen. Por favor, intenta con otra imagen.",
-      "error"
-    );
+    console.error("❌ Error procesando imagen:", error);
+    // El componente ya muestra el error, solo lo logueamos aquí
   };
 
   /**
@@ -97,7 +94,7 @@ const AgregarProductos = () => {
     // Error de red o servidor no responde
     if (!error.response) {
       if (error.code === 'ECONNABORTED') {
-        return "⏱️ La petición tardó demasiado tiempo. Esto puede deberse a una imagen muy pesada o conexión lenta. Intenta con una imagen más pequeña.";
+        return "⏱️ La petición tardó demasiado tiempo. Esto puede deberse a una conexión lenta. Por favor, intenta nuevamente.";
       }
       if (error.message === 'Network Error') {
         return "🌐 No hay conexión con el servidor. Verifica:\n• Tu conexión a internet\n• Que el servidor esté activo\n• Contacta al administrador si el problema persiste";
@@ -114,7 +111,7 @@ const AgregarProductos = () => {
         if (errorData?.error) {
           return `📝 Error de validación: ${errorData.error}`;
         }
-        return "📝 Datos inválidos. Por favor, revisa que todos los campos estén correctamente llenados y que la imagen sea válida.";
+        return "📝 Datos inválidos. Por favor, revisa que todos los campos estén correctamente llenados.";
 
       case 401:
         setTimeout(() => {
@@ -130,40 +127,45 @@ const AgregarProductos = () => {
         return "🔍 No se encontró el endpoint en el servidor. Verifica que la URL del API sea correcta o contacta al administrador.";
 
       case 413:
-        return "📦 El archivo es demasiado grande para el servidor. Aunque la imagen fue comprimida, el servidor la rechazó. Intenta con una imagen más pequeña o contacta al administrador para aumentar el límite.";
+        return "📦 El archivo es demasiado grande para el servidor.\n\n" +
+          "La imagen fue comprimida pero el servidor la rechazó.\n\n" +
+          "📱 Soluciones:\n" +
+          "1. Usa una app de compresión de imágenes\n" +
+          "2. Toma una foto con menor calidad\n" +
+          "3. Contacta al administrador para aumentar el límite";
 
       case 415:
-        return "🖼️ Formato de imagen no soportado por el servidor. Asegúrate de usar JPG, PNG o WebP.";
+        return "🖼️ Formato de imagen no soportado. Usa JPG, PNG o WebP.";
 
       case 422:
         if (errorData?.errors) {
           const errorMessages = Object.values(errorData.errors).flat().join(", ");
           return `⚠️ Errores de validación: ${errorMessages}`;
         }
-        return "⚠️ Los datos enviados no son válidos. Verifica todos los campos y la imagen.";
+        return "⚠️ Los datos enviados no son válidos. Verifica todos los campos.";
 
       case 500:
         if (errorData?.error) {
           if (errorData.error.includes('cloudinary') || errorData.error.includes('upload')) {
-            return "☁️ Error al subir la imagen a Cloudinary. Esto puede deberse a:\n• Problemas con las credenciales de Cloudinary\n• Límite de almacenamiento alcanzado\n• Problema temporal del servicio\nContacta al administrador.";
+            return "☁️ Error al subir la imagen. Esto puede deberse a:\n• Problemas temporales del servicio\n• Límite de almacenamiento\nContacta al administrador.";
           }
           if (errorData.error.includes('mongo') || errorData.error.includes('database')) {
             return "🗄️ Error al guardar en la base de datos. Contacta al administrador.";
           }
           return `🔧 Error del servidor: ${errorData.error}`;
         }
-        return "🔧 Error interno del servidor. Por favor, contacta al administrador del sistema.";
+        return "🔧 Error interno del servidor. Por favor, contacta al administrador.";
 
       case 502:
       case 503:
       case 504:
-        return "⚠️ El servidor está temporalmente no disponible. Esto puede deberse a:\n• Mantenimiento programado\n• Sobrecarga del servidor\n• Problemas de red\nIntenta nuevamente en unos minutos.";
+        return "⚠️ El servidor está temporalmente no disponible.\n\nIntenta nuevamente en unos minutos.";
 
       default:
         if (errorData?.error) {
           return `❌ Error: ${errorData.error}`;
         }
-        return `❌ Error inesperado (Código ${status}). Por favor, contacta al administrador si el problema persiste.`;
+        return `❌ Error inesperado (Código ${status}). Contacta al administrador si persiste.`;
     }
   };
 
@@ -199,10 +201,20 @@ const AgregarProductos = () => {
 
     if (!form.imagen) {
       errors.push("Debes seleccionar una imagen");
+    } else {
+      // Validar que la imagen no sea muy grande
+      const maxSize = 5 * 1024 * 1024; // 5 MB
+      if (form.imagen.size > maxSize) {
+        const currentSize = (form.imagen.size / (1024 * 1024)).toFixed(2);
+        errors.push(
+          `La imagen es demasiado grande (${currentSize} MB).\n\n` +
+          `📱 Soluciones:\n` +
+          `1. Instala una app como "Compress Image"\n` +
+          `2. Reduce la calidad de la cámara\n` +
+          `3. Elige otra imagen más pequeña`
+        );
+      }
     }
-    // ✅ YA NO VALIDAMOS EL TAMAÑO AQUÍ
-    // La validación se hace en el componente ImageUploadWithCompression
-    // que comprime primero y valida después
 
     return errors;
   };
@@ -222,7 +234,7 @@ const AgregarProductos = () => {
     // Validar formulario antes de enviar
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
-      showToast(validationErrors.join(". "), "error");
+      showToast(validationErrors.join("\n\n"), "error");
       console.warn("Errores de validación:", validationErrors);
       return;
     }
@@ -285,7 +297,7 @@ const AgregarProductos = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-          timeout: 60000, // 60 segundos de timeout (aumentado para imágenes grandes)
+          timeout: 60000, // 60 segundos de timeout
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -348,7 +360,13 @@ const AgregarProductos = () => {
       {toast.show && (
         <div 
           className={`toast-custom ${toast.type}`}
-          style={{ whiteSpace: 'pre-line' }}
+          style={{ 
+            whiteSpace: 'pre-line',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            fontSize: '0.95rem',
+            lineHeight: '1.5'
+          }}
         >
           {toast.text}
         </div>
@@ -498,9 +516,8 @@ const AgregarProductos = () => {
                 showPreview={true}
                 ref={imageUploadRef}
               />
-              <small className="form-text text-muted">
-                📷 Selecciona cualquier imagen - será comprimida automáticamente. 
-                Formatos: JPG, PNG, WebP.
+              <small className="form-text text-muted d-block mt-1">
+                📷 Formatos: JPG, PNG, WebP. Tamaño máximo: 5 MB
               </small>
             </div>
 

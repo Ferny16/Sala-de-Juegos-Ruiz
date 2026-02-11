@@ -39,10 +39,11 @@ const ImageUploadWithCompression = forwardRef(
     const [preview, setPreview] = useState(null);
     const [originalSize, setOriginalSize] = useState(null);
     const [compressionStage, setCompressionStage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const fileInputRef = useRef(null);
 
     /**
-     * Comprime una imagen de forma progresiva hasta que sea < 1 MB
+     * Comprime una imagen de forma progresiva hasta que sea < 5 MB
      */
     const compressImageProgressively = async (file) => {
       try {
@@ -52,30 +53,48 @@ const ImageUploadWithCompression = forwardRef(
           formatFileSize(file.size),
         );
 
+        // Si la imagen ya es menor a 5MB, no comprimir (solo validar)
+        if (file.size <= 5 * 1024 * 1024) {
+          console.log("✅ Imagen ya es menor a 5MB, sin compresión necesaria");
+          return file;
+        }
+
         // Configuración inicial
         let currentFile = file;
         let attempt = 1;
-        const maxAttempts = 3;
+        const maxAttempts = 5; // Aumentado a 5 intentos
 
-        // Niveles de compresión progresivos
+        // Niveles de compresión progresivos más agresivos
         const compressionLevels = [
           {
-            maxSizeMB: 1,
+            maxSizeMB: 4.5,
+            maxWidthOrHeight: 1920,
+            quality: 0.85,
+            name: "Comprimiendo imagen... (paso 1/5)",
+          },
+          {
+            maxSizeMB: 3.5,
+            maxWidthOrHeight: 1600,
+            quality: 0.75,
+            name: "Optimizando imagen... (paso 2/5)",
+          },
+          {
+            maxSizeMB: 2.5,
+            maxWidthOrHeight: 1400,
+            quality: 0.65,
+            name: "Reduciendo tamaño... (paso 3/5)",
+          },
+          {
+            maxSizeMB: 1.5,
             maxWidthOrHeight: 1200,
-            quality: 0.8,
-            name: "Comprimiendo imagen...",
+            quality: 0.55,
+            name: "Compresión avanzada... (paso 4/5)",
           },
           {
-            maxSizeMB: 0.8,
+            maxSizeMB: 1,
             maxWidthOrHeight: 1000,
-            quality: 0.7,
-            name: "Optimizando imagen...",
-          },
-          {
-            maxSizeMB: 0.6,
-            maxWidthOrHeight: 800,
-            quality: 0.6,
-            name: "Compresión máxima...",
+            quality: 0.45,
+            name: "Compresión máxima... (paso 5/5)",
           },
         ];
 
@@ -91,6 +110,7 @@ const ImageUploadWithCompression = forwardRef(
             useWebWorker: true,
             fileType: "image/jpeg",
             initialQuality: level.quality,
+            alwaysKeepResolution: false, // Permite reducir resolución
             ...compressionOptions,
           };
 
@@ -100,8 +120,8 @@ const ImageUploadWithCompression = forwardRef(
             formatFileSize(compressed.size),
           );
 
-          // Si ya es menor a 1 MB, retornar
-          if (compressed.size <= 1024 * 1024) {
+          // Si ya es menor a 5 MB, retornar
+          if (compressed.size <= 5 * 1024 * 1024) {
             const reduction = ((1 - compressed.size / file.size) * 100).toFixed(
               1,
             );
@@ -114,14 +134,26 @@ const ImageUploadWithCompression = forwardRef(
           attempt++;
         }
 
-        // Si después de 3 intentos sigue siendo > 1 MB, retornar el último
-        console.warn(
-          "⚠️ Imagen aún grande después de 3 intentos, pero continuando...",
+        // Si después de todos los intentos sigue siendo > 5 MB, lanzar error específico
+        const finalSize = formatFileSize(currentFile.size);
+        console.error(
+          `⚠️ Imagen demasiado grande después de ${maxAttempts} intentos:`,
+          finalSize
         );
-        return currentFile;
+        
+        throw new Error(
+          `IMAGE_TOO_LARGE:${finalSize}`
+        );
       } catch (error) {
         console.error("❌ Error en compresión:", error);
-        throw new Error(`Error al comprimir: ${error.message}`);
+        
+        // Si es nuestro error personalizado, propagarlo
+        if (error.message.startsWith('IMAGE_TOO_LARGE:')) {
+          throw error;
+        }
+        
+        // Error genérico de compresión
+        throw new Error(`Error al comprimir la imagen: ${error.message || 'Desconocido'}`);
       }
     };
 
@@ -138,6 +170,7 @@ const ImageUploadWithCompression = forwardRef(
 
       setIsCompressing(true);
       setCompressionStage("Iniciando...");
+      setErrorMessage(""); // Limpiar errores previos
 
       // Liberar preview anterior
       if (preview) {
@@ -157,33 +190,35 @@ const ImageUploadWithCompression = forwardRef(
           "image/png",
           "image/webp",
         ];
+        
         if (!allowedTypes.includes(file.type)) {
           throw new Error(
-            `Formato no válido. Solo JPG, PNG, WebP. Tu archivo: ${file.type || "desconocido"}`,
+            `Formato no válido. Solo se permiten archivos JPG, PNG o WebP. Tu archivo es: ${file.type || "desconocido"}`
           );
         }
 
         // Guardar tamaño original
         setOriginalSize(file.size);
+        const originalSizeFormatted = formatFileSize(file.size);
+
+        console.log("📊 Tamaño original:", originalSizeFormatted);
+
+        // Mostrar mensaje si la imagen es muy grande desde el inicio
+        if (file.size > 10 * 1024 * 1024) {
+          console.warn("⚠️ Imagen muy grande (>10MB), la compresión puede tardar...");
+        }
 
         // Comprimir
         const compressed = await compressImageProgressively(file);
 
+        const finalSizeFormatted = formatFileSize(compressed.size);
         console.log("📊 RESULTADO FINAL:");
-        console.log("   Original:", formatFileSize(file.size));
-        console.log("   Comprimida:", formatFileSize(compressed.size));
+        console.log("   Original:", originalSizeFormatted);
+        console.log("   Comprimida:", finalSizeFormatted);
         console.log(
           "   Reducción:",
           ((1 - compressed.size / file.size) * 100).toFixed(1) + "%",
         );
-
-        // Validar que no sea demasiado grande para el servidor
-        if (compressed.size > 5 * 1024 * 1024) {
-          throw new Error(
-            `La imagen es muy grande incluso después de comprimir (${formatFileSize(compressed.size)}). ` +
-              `Intenta con una imagen más pequeña o de menor resolución.`,
-          );
-        }
 
         setCompressedFile(compressed);
 
@@ -214,10 +249,33 @@ const ImageUploadWithCompression = forwardRef(
           fileInputRef.current.value = "";
         }
 
-        if (onError) {
-          onError(error);
+        // Manejar error de imagen muy grande
+        if (error.message.startsWith('IMAGE_TOO_LARGE:')) {
+          const finalSize = error.message.split(':')[1];
+          const errorMsg = `❌ La imagen es demasiado grande (${finalSize}) incluso después de comprimirla.\n\n` +
+            `📱 Para usar esta imagen:\n` +
+            `1. Instala una app de compresión como "Compress Image" o "Photo Compress"\n` +
+            `2. Reduce el tamaño de la imagen a menos de 5 MB\n` +
+            `3. Vuelve a intentar subirla\n\n` +
+            `💡 Tip: También puedes tomar una nueva foto con menor calidad en la configuración de tu cámara.`;
+          
+          setErrorMessage(errorMsg);
+          
+          if (onError) {
+            onError(new Error(errorMsg));
+          } else {
+            alert(errorMsg);
+          }
         } else {
-          alert(error.message);
+          // Error genérico
+          const errorMsg = error.message || "Error desconocido al procesar la imagen";
+          setErrorMessage(`❌ ${errorMsg}`);
+          
+          if (onError) {
+            onError(error);
+          } else {
+            alert(errorMsg);
+          }
         }
       } finally {
         setIsCompressing(false);
@@ -235,6 +293,7 @@ const ImageUploadWithCompression = forwardRef(
       setPreview(null);
       setOriginalSize(null);
       setCompressionStage("");
+      setErrorMessage("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -269,8 +328,15 @@ const ImageUploadWithCompression = forwardRef(
           </small>
         )}
 
+        {/* Mensaje de error */}
+        {errorMessage && !isCompressing && (
+          <div className="alert alert-danger mt-2" role="alert" style={{ whiteSpace: 'pre-line', fontSize: '0.9rem' }}>
+            {errorMessage}
+          </div>
+        )}
+
         {/* Confirmación con tamaños */}
-        {compressedFile && !isCompressing && originalSize && (
+        {compressedFile && !isCompressing && originalSize && !errorMessage && (
           <small className="text-success d-block mt-2">
             ✅ Imagen lista: {formatFileSize(compressedFile.size)}
             {originalSize !== compressedFile.size && (
@@ -284,7 +350,7 @@ const ImageUploadWithCompression = forwardRef(
         )}
 
         {/* Preview */}
-        {showPreview && preview && (
+        {showPreview && preview && !errorMessage && (
           <div className="mt-3">
             <img
               src={preview}
