@@ -221,43 +221,42 @@ const AgregarProductos = () => {
       errors.push("El nombre es obligatorio");
     }
 
-    if (!form.cantidad || form.cantidad <= 0) {
+    if (!form.cantidad || Number(form.cantidad) <= 0) {
       errors.push("La cantidad debe ser mayor a 0");
     }
 
-    if (!form.precioCompra || form.precioCompra < 0) {
+    if (!form.precioCompra || Number(form.precioCompra) < 0) {
       errors.push("El precio de compra no puede ser negativo");
     }
 
-    if (!form.precioVenta || form.precioVenta < 0) {
+    if (!form.precioVenta || Number(form.precioVenta) < 0) {
       errors.push("El precio de venta no puede ser negativo");
-    }
-
-    if (parseFloat(form.precioVenta) < parseFloat(form.precioCompra)) {
-      errors.push(
-        "⚠️ Advertencia: El precio de venta es menor al precio de compra",
-      );
     }
 
     if (!form.fechaCompra) {
       errors.push("La fecha de compra es obligatoria");
     }
 
+    // ✅ VALIDACIÓN DE IMAGEN CORREGIDA
     if (!form.imagen) {
       errors.push("Debes seleccionar una imagen");
+    } else if (!(form.imagen instanceof File)) {
+      errors.push("Error: la imagen no es válida. Selecciona nuevamente.");
     } else {
-      // Validar que la imagen no sea muy grande
-      const maxSize = 5 * 1024 * 1024; // 5 MB
+      // ✅ PERMITIR HASTA 5MB (5120 KB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
       if (form.imagen.size > maxSize) {
         const currentSize = (form.imagen.size / (1024 * 1024)).toFixed(2);
         errors.push(
-          `La imagen es demasiado grande (${currentSize} MB).\n\n` +
-            `📱 Soluciones:\n` +
-            `1. Instala una app como "Compress Image"\n` +
-            `2. Reduce la calidad de la cámara\n` +
-            `3. Elige otra imagen más pequeña`,
+          `❌ La imagen es demasiado grande (${currentSize} MB).\n` +
+            `El límite es 5 MB. Por favor, comprime la imagen o elige otra.`,
         );
       }
+    }
+
+    // ✅ ADVERTENCIA (no error) si precio venta < precio compra
+    if (Number(form.precioVenta) < Number(form.precioCompra)) {
+      console.warn("⚠️ Precio de venta menor al precio de compra");
     }
 
     return errors;
@@ -268,6 +267,15 @@ const AgregarProductos = () => {
    */
   const handleAddProduct = async (e) => {
     e.preventDefault();
+
+    // 🔥 VALIDACIÓN IMPORTANTE
+    if (!(form.imagen instanceof File)) {
+      showToast(
+        "Error: la imagen no está lista. Intenta seleccionarla nuevamente.",
+        "error",
+      );
+      return;
+    }
 
     // Evita doble submit
     if (uploading) {
@@ -344,18 +352,14 @@ const AgregarProductos = () => {
       const response = await axios.post(`${apiUrl}/api/products`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        timeout: 120000, // 120 segundos (2 minutos) - aumentado para imágenes grandes
+        timeout: 180000, // ⚠️ AUMENTADO A 3 MINUTOS
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total,
           );
-          console.log(`⬆️ Progreso de carga: ${percentCompleted}%`);
-
-          // Mostrar progreso al usuario si tarda más de 5 segundos
-          if (percentCompleted > 0 && percentCompleted < 100) {
-            // Podrías actualizar el UI aquí si quieres
-          }
+          console.log(`⬆️ Progreso: ${percentCompleted}%`);
         },
       });
 
