@@ -4,7 +4,7 @@ import imageCompression from "browser-image-compression";
 
 /**
  * Componente de input de imagen con compresión automática
- * 
+ *
  * @param {Function} onChange - Callback que recibe el archivo comprimido
  * @param {boolean} required - Si el campo es requerido
  * @param {boolean} disabled - Si el input está deshabilitado
@@ -13,9 +13,9 @@ import imageCompression from "browser-image-compression";
  * @param {boolean} showPreview - Mostrar vista previa de la imagen
  * @param {string} className - Clases CSS adicionales
  * @param {Function} onError - Callback en caso de error
- * 
+ *
  * @example
- * <ImageUploadWithCompression 
+ * <ImageUploadWithCompression
  *   onChange={(file) => setForm({...form, imagen: file})}
  *   required
  * />
@@ -32,7 +32,7 @@ const ImageUploadWithCompression = forwardRef(
       className = "",
       onError = null,
     },
-    ref
+    ref,
   ) => {
     const [isCompressing, setIsCompressing] = useState(false);
     const [compressedFile, setCompressedFile] = useState(null);
@@ -41,10 +41,10 @@ const ImageUploadWithCompression = forwardRef(
 
     // Opciones por defecto de compresión
     const defaultCompressionOptions = {
-      maxSizeMB: 0.5, // Máximo 500KB
-      maxWidthOrHeight: 800, // Máximo 800px
-      useWebWorker: true, // Usar Web Worker para mejor rendimiento
-      fileType: "image/jpeg", // Convertir a JPEG para mejor compresión
+      maxSizeMB: 4.5, // permitimos hasta 4.5 MB
+      maxWidthOrHeight: 1024, // rescalamos a 1024px máximo
+      useWebWorker: true,
+      fileType: "image/jpeg",
     };
 
     /**
@@ -179,7 +179,7 @@ const ImageUploadWithCompression = forwardRef(
         )}
       </div>
     );
-  }
+  },
 );
 
 ImageUploadWithCompression.displayName = "ImageUploadWithCompression";
