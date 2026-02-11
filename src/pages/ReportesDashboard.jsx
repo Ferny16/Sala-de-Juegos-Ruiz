@@ -72,10 +72,10 @@ export default function ReportesDashboard() {
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <div className="loading-content">
-          <div className="loading-spinner"></div>
-          <p className="loading-text">Cargando reportes...</p>
+      <div className="reportes-loading-screen">
+        <div className="reportes-loading-content">
+          <div className="reportes-loading-spinner"></div>
+          <p className="reportes-loading-text">Cargando reportes...</p>
         </div>
       </div>
     );
@@ -95,77 +95,77 @@ export default function ReportesDashboard() {
         </div>
 
         {/* Tarjetas de Resumen */}
-        <div className="resumen-grid">
+        <div className="reportes-resumen-grid">
           {/* Ventas Hoy */}
-          <div className="tarjeta-resumen reporte-verde">
-            <div className="tarjeta-header">
-              <h3 className="tarjeta-label">Ventas Hoy</h3>
-              <DollarSign className="tarjeta-icon reporte-verde" size={24} />
+          <div className="reportes-tarjeta-resumen reporte-verde">
+            <div className="reportes-tarjeta-header">
+              <h3 className="reportes-tarjeta-label">Ventas Hoy</h3>
+              <DollarSign className="reportes-tarjeta-icon reporte-verde" size={24} />
             </div>
-            <p className="tarjeta-valor">
+            <p className="reportes-tarjeta-valor">
               {formatearMoneda(resumen?.ventasHoy?.total || 0)}
             </p>
-            <p className="tarjeta-detalle reporte-verde">
+            <p className="reportes-tarjeta-detalle reporte-verde">
               Ganancia: {formatearMoneda(resumen?.ventasHoy?.ganancias || 0)}
             </p>
-            <div className="tarjeta-emoji reporte-verde">💰</div>
+            <div className="reportes-tarjeta-emoji reporte-verde">💰</div>
           </div>
 
           {/* Ventas del Mes */}
-          <div className="tarjeta-resumen reporte-azul">
-            <div className="tarjeta-header">
-              <h3 className="tarjeta-label">Ventas del Mes</h3>
-              <TrendingUp className="tarjeta-icon reporte-azul" size={24} />
+          <div className="reportes-tarjeta-resumen reporte-azul">
+            <div className="reportes-tarjeta-header">
+              <h3 className="reportes-tarjeta-label">Ventas del Mes</h3>
+              <TrendingUp className="reportes-tarjeta-icon reporte-azul" size={24} />
             </div>
-            <p className="tarjeta-valor">
+            <p className="reportes-tarjeta-valor">
               {formatearMoneda(resumen?.ventasMes?.total || 0)}
             </p>
-            <p className="tarjeta-detalle verde">
+            <p className="reportes-tarjeta-detalle reporte-verde">
               Ganancia: {formatearMoneda(resumen?.ventasMes?.ganancias || 0)}
             </p>
-            <div className="tarjeta-emoji azul">📊</div>
+            <div className="reportes-tarjeta-emoji azul">📊</div>
           </div>
 
           {/* Pedidos Pendientes */}
-          <div className="tarjeta-resumen reporte-amarillo">
-            <div className="tarjeta-header">
-              <h3 className="tarjeta-label">Pedidos Pendientes</h3>
-              <ShoppingCart className="tarjeta-icon amarillo" size={24} />
+          <div className="reportes-tarjeta-resumen reporte-amarillo">
+            <div className="reportes-tarjeta-header">
+              <h3 className="reportes-tarjeta-label">Pedidos Pendientes</h3>
+              <ShoppingCart className="reportes-tarjeta-icon amarillo" size={24} />
             </div>
-            <p className="tarjeta-valor">{resumen?.pedidosPendientes || 0}</p>
-            <p className="tarjeta-detalle">
+            <p className="reportes-tarjeta-valor">{resumen?.pedidosPendientes || 0}</p>
+            <p className="reportes-tarjeta-detalle">
               {resumen?.inventarioVenta?.stockBajo || 0} con stock bajo
             </p>
-            <div className="tarjeta-emoji amarillo">⏳</div>
+            <div className="reportes-tarjeta-emoji amarillo">⏳</div>
           </div>
 
           {/* Productos Agotados */}
-          <div className="tarjeta-resumen reporte-rojo">
-            <div className="tarjeta-header">
-              <h3 className="tarjeta-label">Productos Agotados</h3>
-              <AlertTriangle className="tarjeta-icon rojo" size={24} />
+          <div className="reportes-tarjeta-resumen reporte-rojo">
+            <div className="reportes-tarjeta-header">
+              <h3 className="reportes-tarjeta-label">Productos Agotados</h3>
+              <AlertTriangle className="reportes-tarjeta-icon rojo" size={24} />
             </div>
-            <p className="tarjeta-valor">
+            <p className="reportes-tarjeta-valor">
               {resumen?.inventarioVenta?.agotados || 0}
             </p>
-            <p className="tarjeta-detalle">Requieren reabastecimiento</p>
-            <div className="tarjeta-emoji rojo">❌</div>
+            <p className="reportes-tarjeta-detalle">Requieren reabastecimiento</p>
+            <div className="reportes-tarjeta-emoji rojo">❌</div>
           </div>
         </div>
 
         {/* Inventario */}
-        <div className="inventario-grid">
+        <div className="reportes-inventario-grid">
           {/* Inventario Total */}
-          <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">🏪 Inventario Total (Sala)</h3>
-            <div className="inventario-info">
-              <div className="inventario-row">
-                <span className="inventario-label">Valor Total:</span>
-                <span className="inventario-valor indigo">
+          <div className="reportes-tarjeta-blanca">
+            <h3 className="reportes-tarjeta-titulo">🏪 Inventario Total (Sala)</h3>
+            <div className="reportes-inventario-info">
+              <div className="reportes-inventario-row">
+                <span className="reportes-inventario-label">Valor Total:</span>
+                <span className="reportes-inventario-valor indigo">
                   {formatearMoneda(resumen?.inventarioTotal?.valorTotal || 0)}
                 </span>
               </div>
-              <div className="inventario-secundario">
+              <div className="reportes-inventario-secundario">
                 <span>
                   📦 {resumen?.inventarioTotal?.totalProductos || 0} productos
                 </span>
@@ -174,22 +174,22 @@ export default function ReportesDashboard() {
                 </span>
               </div>
             </div>
-            <p className="inventario-nota">
+            <p className="reportes-inventario-nota">
               Incluye todos los productos de la sala
             </p>
           </div>
 
           {/* Inventario de Venta */}
-          <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">💵 Inventario de Venta</h3>
-            <div className="inventario-info">
-              <div className="inventario-row">
-                <span className="inventario-label">Valor Total:</span>
-                <span className="inventario-valor verde">
+          <div className="reportes-tarjeta-blanca">
+            <h3 className="reportes-tarjeta-titulo">💵 Inventario de Venta</h3>
+            <div className="reportes-inventario-info">
+              <div className="reportes-inventario-row">
+                <span className="reportes-inventario-label">Valor Total:</span>
+                <span className="reportes-inventario-valor verde">
                   {formatearMoneda(resumen?.inventarioVenta?.valorTotal || 0)}
                 </span>
               </div>
-              <div className="inventario-secundario">
+              <div className="reportes-inventario-secundario">
                 <span>
                   🛒 {resumen?.inventarioVenta?.totalProductos || 0} productos
                 </span>
@@ -197,7 +197,7 @@ export default function ReportesDashboard() {
                   {resumen?.inventarioVenta?.totalUnidades || 0} unidades
                 </span>
               </div>
-              <div className="inventario-porcentaje">
+              <div className="reportes-inventario-porcentaje">
                 {(
                   (resumen?.inventarioVenta?.valorTotal /
                     resumen?.inventarioTotal?.valorTotal) *
@@ -210,20 +210,20 @@ export default function ReportesDashboard() {
         </div>
 
         {/* Productos Más Vendidos */}
-        <div className="tarjeta-blanca productos-mas-vendidos">
-          <h3 className="tarjeta-titulo">🏆 Productos Más Vendidos</h3>
-          <p className="tarjeta-subtitulo">Últimos 30 días</p>
+        <div className="reportes-tarjeta-blanca reportes-productos-mas-vendidos">
+          <h3 className="reportes-tarjeta-titulo">🏆 Productos Más Vendidos</h3>
+          <p className="reportes-tarjeta-subtitulo">Últimos 30 días</p>
           <div>
             {masVendidos.map((producto, index) => (
-              <div key={index} className="producto-item">
-                <div className="producto-izquierda">
-                  <div className="producto-numero">#{index + 1}</div>
-                  <div className="producto-info">
+              <div key={index} className="reportes-producto-item">
+                <div className="reportes-producto-izquierda">
+                  <div className="reportes-producto-numero">#{index + 1}</div>
+                  <div className="reportes-producto-info">
                     <h4>{producto.nombre}</h4>
                     <p>{producto.cantidadVendida} unidades</p>
                   </div>
                 </div>
-                <p className="producto-precio">
+                <p className="reportes-producto-precio">
                   {formatearMoneda(producto.totalVentas)}
                 </p>
               </div>
@@ -232,14 +232,14 @@ export default function ReportesDashboard() {
         </div>
 
         {/* Productos Menos Vendidos */}
-        <div className="tarjeta-blanca">
-          <h3 className="tarjeta-titulo">📉 Productos Menos Vendidos</h3>
-          <p className="tarjeta-subtitulo">
+        <div className="reportes-tarjeta-blanca">
+          <h3 className="reportes-tarjeta-titulo">📉 Productos Menos Vendidos</h3>
+          <p className="reportes-tarjeta-subtitulo">
             Últimos 30 días (solo productos de venta)
           </p>
-          <div className="menos-vendidos-grid">
+          <div className="reportes-menos-vendidos-grid">
             {menosVendidos.map((producto, index) => (
-              <div key={index} className="producto-menos-vendido">
+              <div key={index} className="reportes-producto-menos-vendido">
                 <h4>{producto.nombre}</h4>
                 <p>
                   {producto.cantidadVendida} vendidas | Stock:{" "}
@@ -251,60 +251,60 @@ export default function ReportesDashboard() {
         </div>
 
         {/* Stock Bajo */}
-        <div className="stock-grid">
+        <div className="reportes-stock-grid">
           {/* Stock Bajo */}
-          <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">
+          <div className="reportes-tarjeta-blanca">
+            <h3 className="reportes-tarjeta-titulo">
               ⚠️ Stock Bajo (Productos de Venta)
             </h3>
-            <p className="tarjeta-subtitulo">
+            <p className="reportes-tarjeta-subtitulo">
               Productos con inventario crítico
             </p>
             <div>
               {stockBajo.stockBajo?.length > 0 ? (
                 stockBajo.stockBajo.map((producto, index) => (
-                  <div key={index} className="stock-item bajo">
-                    <div className="stock-info">
+                  <div key={index} className="reportes-stock-item bajo">
+                    <div className="reportes-stock-info">
                       <h4>{producto.nombre}</h4>
                       <p>Solo quedan {producto.cantidad} unidades</p>
                     </div>
-                    <div className="stock-icono">⚠️</div>
+                    <div className="reportes-stock-icono">⚠️</div>
                   </div>
                 ))
               ) : (
-                <p className="sin-datos">No hay productos con stock bajo</p>
+                <p className="reportes-sin-datos">No hay productos con stock bajo</p>
               )}
             </div>
           </div>
 
           {/* Productos Agotados */}
-          <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">❌ Productos Agotados (Venta)</h3>
-            <p className="tarjeta-subtitulo">
+          <div className="reportes-tarjeta-blanca">
+            <h3 className="reportes-tarjeta-titulo">❌ Productos Agotados (Venta)</h3>
+            <p className="reportes-tarjeta-subtitulo">
               Requieren reabastecimiento urgente
             </p>
             <div>
               {stockBajo.agotados?.length > 0 ? (
                 stockBajo.agotados.map((producto, index) => (
-                  <div key={index} className="stock-item agotado">
-                    <div className="stock-info">
+                  <div key={index} className="reportes-stock-item agotado">
+                    <div className="reportes-stock-info">
                       <h4>{producto.nombre}</h4>
                       <p>Sin stock disponible</p>
                     </div>
-                    <div className="stock-icono">❌</div>
+                    <div className="reportes-stock-icono">❌</div>
                   </div>
                 ))
               ) : (
-                <p className="sin-datos">No hay productos agotados</p>
+                <p className="reportes-sin-datos">No hay productos agotados</p>
               )}
             </div>
           </div>
         </div>
 
         {/* ✅ GRÁFICA CON LAZY LOADING */}
-        <div className="tarjeta-blanca">
-          <h3 className="tarjeta-titulo">📈 Ventas por Día</h3>
-          <p className="tarjeta-subtitulo">Últimos 30 días</p>
+        <div className="reportes-tarjeta-blanca">
+          <h3 className="reportes-tarjeta-titulo">📈 Ventas por Día</h3>
+          <p className="reportes-tarjeta-subtitulo">Últimos 30 días</p>
           <Suspense
             fallback={
               <div
@@ -315,7 +315,7 @@ export default function ReportesDashboard() {
                   justifyContent: "center",
                 }}
               >
-                <div className="loading-spinner"></div>
+                <div className="reportes-loading-spinner"></div>
               </div>
             }
           >
@@ -328,61 +328,61 @@ export default function ReportesDashboard() {
 
         {/* Estadísticas de Pedidos */}
         {estadisticasPedidos && (
-          <div className="tarjeta-blanca">
-            <h3 className="tarjeta-titulo">📦 Estadísticas de Pedidos</h3>
-            <div className="pedidos-stats-grid">
-              <div className="stat-pedido gris">
-                <p className="stat-numero gris">
+          <div className="reportes-tarjeta-blanca">
+            <h3 className="reportes-tarjeta-titulo">📦 Estadísticas de Pedidos</h3>
+            <div className="reportes-pedidos-stats-grid">
+              <div className="reportes-stat-pedido gris">
+                <p className="reportes-stat-numero gris">
                   {estadisticasPedidos.estadisticas?.total || 0}
                 </p>
-                <p className="stat-label">Total</p>
+                <p className="reportes-stat-label">Total</p>
               </div>
-              <div className="stat-pedido amarillo">
-                <p className="stat-numero amarillo">
+              <div className="reportes-stat-pedido amarillo">
+                <p className="reportes-stat-numero amarillo">
                   {estadisticasPedidos.estadisticas?.pendientes || 0}
                 </p>
-                <p className="stat-label">Pendientes</p>
+                <p className="reportes-stat-label">Pendientes</p>
               </div>
-              <div className="stat-pedido azul">
-                <p className="stat-numero azul">
+              <div className="reportes-stat-pedido azul">
+                <p className="reportes-stat-numero azul">
                   {estadisticasPedidos.estadisticas?.confirmados || 0}
                 </p>
-                <p className="stat-label">Confirmados</p>
+                <p className="reportes-stat-label">Confirmados</p>
               </div>
-              <div className="stat-pedido verde">
-                <p className="stat-numero verde">
+              <div className="reportes-stat-pedido verde">
+                <p className="reportes-stat-numero verde">
                   {estadisticasPedidos.estadisticas?.completados || 0}
                 </p>
-                <p className="stat-label">Completados</p>
+                <p className="reportes-stat-label">Completados</p>
               </div>
-              <div className="stat-pedido rojo">
-                <p className="stat-numero rojo">
+              <div className="reportes-stat-pedido rojo">
+                <p className="reportes-stat-numero rojo">
                   {estadisticasPedidos.estadisticas?.cancelados || 0}
                 </p>
-                <p className="stat-label">Cancelados</p>
+                <p className="reportes-stat-label">Cancelados</p>
               </div>
             </div>
 
-            <h4 className="pedidos-titulo">Pedidos Recientes</h4>
+            <h4 className="reportes-pedidos-titulo">Pedidos Recientes</h4>
             <div>
               {estadisticasPedidos.recientes?.map((pedido, index) => (
-                <div key={index} className="pedido-reciente">
-                  <div className="pedido-izquierda">
+                <div key={index} className="reportes-pedido-reciente">
+                  <div className="reportes-pedido-izquierda">
                     {pedido.productoId?.imagen && (
                       <img
                         src={pedido.productoId.imagen}
                         alt=""
-                        className="pedido-imagen"
+                        className="reportes-pedido-imagen"
                       />
                     )}
-                    <div className="pedido-info">
+                    <div className="reportes-pedido-info">
                       <h4>{pedido.productoId?.nombre || "Producto"}</h4>
                       <p>
                         {pedido.nombreCliente} - {pedido.cantidad} unidades
                       </p>
                     </div>
                   </div>
-                  <span className={`pedido-estado ${pedido.estado}`}>
+                  <span className={`reportes-pedido-estado ${pedido.estado}`}>
                     {pedido.estado}
                   </span>
                 </div>

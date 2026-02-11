@@ -214,14 +214,7 @@ const SalesDashboard = () => {
       );
     } else {
       setCarrito([...carrito, { ...producto, cantidadVenta: 1 }]);
-      setMostrarNotificacion(true);
-      setVentaExitosa({
-        esError: false,
-        mensaje: `Producto agregado`,
-        detalle: `"${producto.nombre}" añadido al carrito`,
-        tipo: "success",
-      });
-      setTimeout(() => setMostrarNotificacion(false), 2000);
+      // ✅ Notificación de producto agregado ELIMINADA
     }
   };
 
@@ -276,6 +269,11 @@ const SalesDashboard = () => {
     if (carrito.length === 0) {
       alert("El carrito está vacío");
       return;
+    }
+
+    // ✅ Quitar el foco de cualquier input antes de procesar
+    if (document.activeElement && document.activeElement.blur) {
+      document.activeElement.blur();
     }
 
     setProcessingVenta(true);
@@ -372,7 +370,16 @@ const SalesDashboard = () => {
                         placeholder="Buscar producto..."
                         value={search}
                         onChange={handleSearchChange}
-                        // ⭐ REMOVIDO: disabled={searching}
+                        inputMode="search"
+                        // ✅ Prevenir teclado en móviles al hacer clic en botones
+                        onBlur={(e) => {
+                          // Solo hacer blur si se hace clic fuera del input
+                          setTimeout(() => {
+                            if (document.activeElement !== e.target) {
+                              e.target.blur();
+                            }
+                          }, 100);
+                        }}
                       />
                       <button
                         className="btn btn-primary"
@@ -448,6 +455,7 @@ const SalesDashboard = () => {
                             <button
                               className="btn btn-success btn-sm"
                               onClick={() => agregarAlCarrito(producto)}
+                              type="button"
                             >
                               + Agregar
                             </button>
@@ -487,6 +495,7 @@ const SalesDashboard = () => {
                     <button
                       className="btn btn-sm btn-outline-danger"
                       onClick={vaciarCarrito}
+                      type="button"
                     >
                       🗑️ Vaciar
                     </button>
@@ -519,6 +528,7 @@ const SalesDashboard = () => {
                                       item.cantidadVenta - 1,
                                     )
                                   }
+                                  type="button"
                                 >
                                   -
                                 </button>
@@ -534,6 +544,8 @@ const SalesDashboard = () => {
                                   }
                                   min="1"
                                   max={item.cantidad}
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
                                 />
                                 <button
                                   className="btn btn-sm btn-outline-secondary"
@@ -543,6 +555,7 @@ const SalesDashboard = () => {
                                       item.cantidadVenta + 1,
                                     )
                                   }
+                                  type="button"
                                 >
                                   +
                                 </button>
@@ -556,6 +569,7 @@ const SalesDashboard = () => {
                               <button
                                 className="btn btn-sm btn-danger"
                                 onClick={() => eliminarDelCarrito(item._id)}
+                                type="button"
                               >
                                 🗑️
                               </button>
@@ -577,6 +591,7 @@ const SalesDashboard = () => {
                         className="btn btn-success btn-lg w-100 mt-3"
                         onClick={procesarVenta}
                         disabled={processingVenta}
+                        type="button"
                       >
                         {processingVenta ? (
                           <>
@@ -629,11 +644,8 @@ const SalesDashboard = () => {
                 className="btn btn-primary"
                 onClick={() => {
                   setMostrarResultado(false);
-                  setTimeout(() => {
-                    setMostrarNotificacion(true);
-                    setTimeout(() => setMostrarNotificacion(false), 4000);
-                  }, 300);
                 }}
+                type="button"
               >
                 ✅ Aceptar
               </button>
@@ -642,31 +654,21 @@ const SalesDashboard = () => {
         </div>
       )}
 
-      {mostrarNotificacion && ventaExitosa && (
-        <div className={`notificacion-exito ${ventaExitosa.tipo || "success"}`}>
+      {/* ✅ Solo mostrar notificaciones de ERROR o WARNING */}
+      {mostrarNotificacion && ventaExitosa && ventaExitosa.esError && (
+        <div className={`notificacion-exito ${ventaExitosa.tipo || "warning"}`}>
           <div className="notificacion-contenido">
             <div className="notificacion-icono">
-              {ventaExitosa.tipo === "warning"
-                ? "⚠️"
-                : ventaExitosa.esError
-                  ? "❌"
-                  : "✅"}
+              {ventaExitosa.tipo === "warning" ? "⚠️" : "❌"}
             </div>
             <div className="notificacion-texto">
-              <h4>
-                {ventaExitosa.mensaje || "¡Venta Procesada Exitosamente!"}
-              </h4>
+              <h4>{ventaExitosa.mensaje}</h4>
               {ventaExitosa.detalle && <p>{ventaExitosa.detalle}</p>}
-              {!ventaExitosa.esError && ventaExitosa.total && (
-                <>
-                  <p>Total: ₡{ventaExitosa.total.toFixed(2)}</p>
-                  <small>El inventario ha sido actualizado</small>
-                </>
-              )}
             </div>
             <button
               className="notificacion-cerrar"
               onClick={() => setMostrarNotificacion(false)}
+              type="button"
             >
               ✕
             </button>
