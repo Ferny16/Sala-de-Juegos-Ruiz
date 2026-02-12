@@ -41,6 +41,33 @@
   font-size: 1.1rem;
 }
 
+/* ✅ Botón Agregar Producto */
+.btn-add-product {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+  display: block;
+}
+
+.btn-add-product:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-add-product:active {
+  transform: translateY(0);
+}
+
 /* Barra de búsqueda */
 .search-bar {
   max-width: 600px;
@@ -141,28 +168,9 @@
   margin-right: 0.25rem;
 }
 
-/* Formulario de edición */
-.edit-form {
-  width: 100%;
-}
-
-.edit-form .form-control {
-  border: 2px solid #e5e7eb;
-  font-size: 0.875rem;
-}
-
-.edit-form .form-control:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 0.15rem rgba(56, 189, 248, 0.2);
-}
-
 /* Botones de acción */
 .product-actions {
   flex-shrink: 0;
-}
-
-.normal-actions,
-.edit-actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
@@ -198,24 +206,6 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
-.product-actions .btn-success {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.product-actions .btn-success:hover:not(:disabled) {
-  background: linear-gradient(135deg, #059669, #047857);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-}
-
-.product-actions .btn-secondary {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
-}
-
-.product-actions .btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4b5563, #374151);
-}
-
 .product-actions .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -236,6 +226,42 @@
   font-size: 1.1rem;
 }
 
+/* Toast dentro de manage */
+.toast-custom {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  z-index: 9999;
+  max-width: 400px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-custom.success {
+  background: #d1fae5;
+  border: 2px solid #10b981;
+  color: #065f46;
+}
+
+.toast-custom.error {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #991b1b;
+}
+
 /* ========================================
    RESPONSIVE - TABLETS
    ======================================== */
@@ -246,6 +272,12 @@
   
   .subtitle {
     font-size: 0.95rem;
+  }
+
+  .btn-add-product {
+    max-width: 100%;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.25rem;
   }
   
   .product-item {
@@ -284,6 +316,11 @@
   .subtitle {
     font-size: 0.875rem;
     padding: 0 1rem;
+  }
+
+  .btn-add-product {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
   }
   
   .products-list {
@@ -324,11 +361,6 @@
   
   .product-actions {
     width: 100%;
-  }
-  
-  .normal-actions,
-  .edit-actions {
-    width: 100%;
     justify-content: center;
   }
   
@@ -337,10 +369,6 @@
     min-width: 100px;
     padding: 0.6rem;
     font-size: 0.8rem;
-  }
-  
-  .edit-actions .btn {
-    flex: 1;
   }
   
   .search-bar .btn {
@@ -352,8 +380,10 @@
     font-size: 0.85rem;
     padding: 0.55rem;
   }
-  
-  .edit-form .row {
-    gap: 0.5rem;
+
+  .toast-custom {
+    right: 10px;
+    left: 10px;
+    max-width: none;
   }
 }

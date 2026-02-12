@@ -52,12 +52,6 @@ const Navbar = () => {
             </li>
 
             <li className="nav-item">
-              <NavLink to="/dashboard/add-product" className={navClass}>
-                🆕 Agregar Producto
-              </NavLink>
-            </li>
-
-            <li className="nav-item">
               <NavLink to="/dashboard/manage-products" className={navClass}>
                 ⚙️ Gestionar Productos
               </NavLink>

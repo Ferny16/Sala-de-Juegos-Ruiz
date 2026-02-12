@@ -1,12 +1,19 @@
-// src/pages/AgregarProductos.jsx
-import { useState, useRef } from "react";
+// src/components/ProductForm.jsx
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import "../styles/AgregarProductos.css";
-import { useNavigate } from "react-router-dom";
-import ImageUploadWithCompression from "../components/ImageUploadWithCompression";
-import Navbar from "../components/NavBar2";
+import ImageUploadWithCompression from "./ImageUploadWithCompression";
+import "../styles/ProductForm.css";
 
-const AgregarProductos = () => {
+/**
+ * Componente de formulario unificado para agregar y editar productos
+ * @param {Object} props
+ * @param {Object|null} props.producto - Producto a editar (null para crear nuevo)
+ * @param {Function} props.onClose - Callback al cerrar el formulario
+ * @param {Function} props.onSuccess - Callback al guardar exitosamente
+ */
+const ProductForm = ({ producto = null, onClose, onSuccess }) => {
+  const isEditing = !!producto;
+
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     nombre: "",
@@ -14,12 +21,28 @@ const AgregarProductos = () => {
     precioCompra: "",
     precioVenta: "",
     fechaCompra: "",
-    imagen: null,       // { file, base64 }
+    imagen: null, // { file, base64 }
     seVende: true,
   });
   const [toast, setToast] = useState({ show: false, text: "", type: "" });
   const imageUploadRef = useRef(null);
-  const navigate = useNavigate();
+
+  // ✅ Inicializar formulario con datos del producto si estamos editando
+  useEffect(() => {
+    if (isEditing && producto) {
+      setForm({
+        nombre: producto.nombre || "",
+        cantidad: producto.cantidad || "",
+        precioCompra: producto.precioCompra || "",
+        precioVenta: producto.precioVenta || "",
+        fechaCompra: producto.fechaCompra
+          ? producto.fechaCompra.split("T")[0]
+          : "",
+        imagen: null, // La imagen actual se mantiene en el servidor
+        seVende: producto.seVende ?? true,
+      });
+    }
+  }, [isEditing, producto]);
 
   const showToast = (text, type = "success") => {
     setToast({ show: true, text, type });
@@ -34,9 +57,6 @@ const AgregarProductos = () => {
     }));
   };
 
-  /**
-   * Recibe { file, base64 } del componente de imagen
-   */
   const handleImageChange = ({ file, base64 }) => {
     console.log("📷 Imagen recibida:", {
       name: file.name,
@@ -55,16 +75,32 @@ const AgregarProductos = () => {
     const errors = [];
 
     if (!form.nombre.trim()) errors.push("El nombre es obligatorio.");
-    if (!form.cantidad || Number(form.cantidad) <= 0) errors.push("La cantidad debe ser mayor a 0.");
-    if (form.precioCompra === "" || Number(form.precioCompra) < 0) errors.push("El precio de compra no puede ser negativo.");
-    if (form.precioVenta === "" || Number(form.precioVenta) < 0) errors.push("El precio de venta no puede ser negativo.");
+    if (!form.cantidad || Number(form.cantidad) <= 0)
+      errors.push("La cantidad debe ser mayor a 0.");
+    if (form.precioCompra === "" || Number(form.precioCompra) < 0)
+      errors.push("El precio de compra no puede ser negativo.");
+    if (form.precioVenta === "" || Number(form.precioVenta) < 0)
+      errors.push("El precio de venta no puede ser negativo.");
     if (!form.fechaCompra) errors.push("La fecha de compra es obligatoria.");
 
-    if (!form.imagen?.base64) {
-      errors.push("Debes seleccionar una imagen.");
-    } else if (form.imagen.file.size > 5 * 1024 * 1024) {
-      const mb = (form.imagen.file.size / (1024 * 1024)).toFixed(2);
-      errors.push(`La imagen es demasiado grande (${mb} MB). El límite es 5 MB.`);
+    // ✅ Solo validar imagen si estamos CREANDO (no editando)
+    if (!isEditing) {
+      if (!form.imagen?.base64) {
+        errors.push("Debes seleccionar una imagen.");
+      } else if (form.imagen.file.size > 5 * 1024 * 1024) {
+        const mb = (form.imagen.file.size / (1024 * 1024)).toFixed(2);
+        errors.push(
+          `La imagen es demasiado grande (${mb} MB). El límite es 5 MB.`,
+        );
+      }
+    } else {
+      // Si estamos editando y hay nueva imagen, validar tamaño
+      if (form.imagen?.file && form.imagen.file.size > 5 * 1024 * 1024) {
+        const mb = (form.imagen.file.size / (1024 * 1024)).toFixed(2);
+        errors.push(
+          `La imagen es demasiado grande (${mb} MB). El límite es 5 MB.`,
+        );
+      }
     }
 
     if (Number(form.precioVenta) < Number(form.precioCompra)) {
@@ -94,35 +130,28 @@ const AgregarProductos = () => {
           ? `📝 Error de validación: ${errorData.error}`
           : "📝 Datos inválidos. Por favor, revisa todos los campos.";
       case 401:
-        setTimeout(() => { localStorage.removeItem("token"); navigate("/login"); }, 3000);
-        return "🔒 Tu sesión ha expirado. Serás redirigido al login en 3 segundos...";
+        return "🔒 Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
       case 403:
         return "🚫 No tienes permisos para realizar esta acción.";
       case 404:
         return "🔍 No se encontró el endpoint. Contacta al administrador.";
       case 413:
-        return "📦 El archivo es demasiado grande para el servidor. Usa una imagen más pequeña o contacta al administrador.";
+        return "📦 El archivo es demasiado grande para el servidor. Usa una imagen más pequeña.";
       case 415:
         return "🖼️ Formato de imagen no soportado. Usa JPG, PNG o WebP.";
-      case 422:
-        if (errorData?.errors) {
-          return `⚠️ Errores de validación: ${Object.values(errorData.errors).flat().join(", ")}`;
-        }
-        return "⚠️ Los datos enviados no son válidos.";
       case 500:
         if (errorData?.error?.includes("cloudinary")) {
           return "☁️ Error al subir la imagen a Cloudinary. Contacta al administrador.";
         }
-        if (errorData?.error?.includes("mongo") || errorData?.error?.includes("database")) {
+        if (
+          errorData?.error?.includes("mongo") ||
+          errorData?.error?.includes("database")
+        ) {
           return "🗄️ Error al guardar en la base de datos. Contacta al administrador.";
         }
         return errorData?.error
           ? `🔧 Error del servidor: ${errorData.error}`
-          : "🔧 Error interno del servidor. Por favor, contacta al administrador.";
-      case 502:
-      case 503:
-      case 504:
-        return "⚠️ El servidor está temporalmente no disponible. Intenta nuevamente en unos minutos.";
+          : "🔧 Error interno del servidor. Contacta al administrador.";
       default:
         return errorData?.error
           ? `❌ Error: ${errorData.error}`
@@ -130,7 +159,7 @@ const AgregarProductos = () => {
     }
   };
 
-  const handleAddProduct = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (uploading) return;
@@ -146,8 +175,7 @@ const AgregarProductos = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        showToast("🔒 Debes iniciar sesión. Serás redirigido al login...", "error");
-        setTimeout(() => navigate("/login"), 2000);
+        showToast("🔒 Debes iniciar sesión.", "error");
         return;
       }
 
@@ -157,7 +185,7 @@ const AgregarProductos = () => {
         return;
       }
 
-      // ✅ ENVIAR COMO JSON con base64 — elimina problemas de multipart/FormData
+      // ✅ USAR JSON CON BASE64 PARA AMBOS (CREAR Y EDITAR)
       const payload = {
         nombre: form.nombre,
         cantidad: form.cantidad,
@@ -165,46 +193,51 @@ const AgregarProductos = () => {
         precioVenta: form.precioVenta,
         fechaCompra: form.fechaCompra,
         seVende: form.seVende,
-        imagenBase64: form.imagen.base64,          // data:image/jpeg;base64,...
-        imagenNombre: form.imagen.file.name,
-        imagenMimeType: form.imagen.file.type,
       };
 
-      console.log("📤 Enviando producto:", {
-        url: `${apiUrl}/api/products`,
-        nombre: payload.nombre,
-        cantidad: payload.cantidad,
-        imagenNombre: payload.imagenNombre,
-        imagenSize: `${(form.imagen.file.size / 1024).toFixed(2)} KB`,
-        base64Length: payload.imagenBase64.length,
-      });
+      // ✅ Solo incluir imagen si hay una nueva
+      if (form.imagen?.base64) {
+        payload.imagenBase64 = form.imagen.base64;
+        payload.imagenNombre = form.imagen.file.name;
+        payload.imagenMimeType = form.imagen.file.type;
+        console.log("✅ Nueva imagen incluida:", form.imagen.file.name);
+      } else if (!isEditing) {
+        // Si estamos creando y no hay imagen, es un error
+        showToast("Debes seleccionar una imagen.", "error");
+        setUploading(false);
+        return;
+      }
 
-      const response = await axios.post(`${apiUrl}/api/products`, payload, {
+      const config = {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        timeout: 120000, // 2 minutos
-      });
+        timeout: 120000,
+      };
 
-      console.log("✅ Producto agregado:", response.data);
-      showToast("✅ Producto agregado correctamente");
+      let response;
+      if (isEditing) {
+        console.log("📤 Actualizando producto ID:", producto._id);
+        response = await axios.put(
+          `${apiUrl}/api/products/${producto._id}`,
+          payload,
+          config,
+        );
+        showToast("✅ Producto actualizado correctamente");
+      } else {
+        console.log("📤 Creando nuevo producto");
+        response = await axios.post(`${apiUrl}/api/products`, payload, config);
+        showToast("✅ Producto agregado correctamente");
+      }
 
-      // Resetear formulario
-      setForm({
-        nombre: "",
-        cantidad: "",
-        precioCompra: "",
-        precioVenta: "",
-        fechaCompra: "",
-        imagen: null,
-        seVende: true,
-      });
+      console.log("✅ Operación exitosa:", response.data);
 
-      imageUploadRef.current?.reset();
-
+      setTimeout(() => {
+        if (onSuccess) onSuccess();
+      }, 1000);
     } catch (error) {
-      console.error("❌ Error al agregar producto:", {
+      console.error("❌ Error al guardar producto:", {
         message: error.message,
         code: error.code,
         status: error.response?.status,
@@ -216,52 +249,43 @@ const AgregarProductos = () => {
     }
   };
 
-  const handleClose = () => {
-    if (uploading) {
-      if (window.confirm("¿Estás seguro de cancelar? Se perderá el progreso.")) {
-        navigate("/dashboard");
-      }
-    } else {
-      navigate("/dashboard");
-    }
-  };
-
   return (
-    <div className="dashboard-container">
-      <Navbar />
-
-      {toast.show && (
-        <div
-          className={`toast-custom ${toast.type}`}
-          style={{
-            whiteSpace: "pre-line",
-            maxHeight: "80vh",
-            overflowY: "auto",
-            fontSize: "0.9rem",
-            lineHeight: "1.6",
-            padding: "16px",
-          }}
-        >
-          {toast.text}
-        </div>
-      )}
-
-      <div
-        className="container-fluid d-flex justify-content-center align-items-center py-4"
-        style={{ minHeight: "calc(100vh - 56px)" }}
-      >
-        <div className="square-container position-relative p-4 bg-white rounded shadow">
+    <div className="product-form-overlay">
+      <div className="product-form-modal">
+        {/* Header */}
+        <div className="product-form-header">
+          <h2 className="product-form-title">
+            {isEditing ? "✏️ Editar Producto" : "➕ Agregar Producto"}
+          </h2>
           <button
-            className="btn-close position-absolute"
-            style={{ top: "15px", right: "15px" }}
-            onClick={handleClose}
-            aria-label="Volver al menú"
+            className="btn-close"
+            onClick={onClose}
+            aria-label="Cerrar"
             disabled={uploading}
           />
+        </div>
 
-          <h2 className="text-center mb-4">Agregar Producto</h2>
+        {/* Toast */}
+        {toast.show && (
+          <div
+            className={`toast-custom ${toast.type}`}
+            style={{
+              whiteSpace: "pre-line",
+              maxHeight: "200px",
+              overflowY: "auto",
+              fontSize: "0.9rem",
+              lineHeight: "1.6",
+              padding: "12px",
+              marginBottom: "1rem",
+            }}
+          >
+            {toast.text}
+          </div>
+        )}
 
-          <form className="row g-3" onSubmit={handleAddProduct}>
+        {/* Formulario */}
+        <form className="product-form-body" onSubmit={handleSubmit}>
+          <div className="row g-3">
             {/* Nombre */}
             <div className="col-md-6">
               <label htmlFor="nombre" className="form-label">
@@ -378,12 +402,40 @@ const AgregarProductos = () => {
             {/* Imagen */}
             <div className="col-12">
               <label className="form-label">
-                Imagen <span className="text-danger">*</span>
+                Imagen {!isEditing && <span className="text-danger">*</span>}
+                {isEditing && (
+                  <span className="text-muted" style={{ fontSize: "0.85rem" }}>
+                    {" "}
+                    (opcional - deja vacío para mantener la actual)
+                  </span>
+                )}
               </label>
+
+              {/* Mostrar imagen actual si estamos editando */}
+              {isEditing && producto?.imagen && !form.imagen?.file && (
+                <div className="current-image-preview mb-2">
+                  <img
+                    src={producto.imagenOptimizada || producto.imagen}
+                    alt="Imagen actual"
+                    style={{
+                      maxWidth: "150px",
+                      maxHeight: "150px",
+                      objectFit: "contain",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: "8px",
+                      padding: "4px",
+                    }}
+                  />
+                  <small className="d-block text-muted mt-1">
+                    📷 Imagen actual del producto
+                  </small>
+                </div>
+              )}
+
               <ImageUploadWithCompression
                 onChange={handleImageChange}
                 onError={handleImageError}
-                required
+                required={!isEditing}
                 disabled={uploading}
                 showPreview={true}
                 ref={imageUploadRef}
@@ -393,32 +445,46 @@ const AgregarProductos = () => {
               </small>
             </div>
 
-            {/* Botón submit */}
+            {/* Botones */}
             <div className="col-12">
-              <button
-                type="submit"
-                className="btn btn-primary w-100"
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                    Subiendo producto... (puede tardar un momento)
-                  </>
-                ) : (
-                  "Agregar Producto"
-                )}
-              </button>
+              <div className="d-flex gap-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary flex-fill"
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                      {isEditing ? "Actualizando..." : "Guardando..."}
+                    </>
+                  ) : (
+                    <>
+                      {isEditing
+                        ? "💾 Actualizar Producto"
+                        : "➕ Agregar Producto"}
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onClose}
+                  disabled={uploading}
+                >
+                  ✕ Cancelar
+                </button>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default AgregarProductos;
+export default ProductForm;
