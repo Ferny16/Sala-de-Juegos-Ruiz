@@ -21,7 +21,7 @@ const SalesHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVentas, setTotalVentas] = useState(0);
-  
+
   // Filtros
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
@@ -47,10 +47,10 @@ const SalesHistory = () => {
       setLoading(true);
       try {
         const axios = await getAxios();
-        
+
         // Construir URL con parámetros
         let url = `${API_URL}/api/sales?page=${page}&limit=${VENTAS_POR_PAGINA}`;
-        
+
         if (fechaInicio) {
           url += `&fechaInicio=${fechaInicio}`;
         }
@@ -59,9 +59,9 @@ const SalesHistory = () => {
         }
 
         const response = await axios.get(url, getAuthHeaders());
-        
+
         console.log("📊 Respuesta de ventas:", response.data);
-        
+
         // Ajustar según la respuesta de tu API
         const data = response.data;
         setVentas(data.ventas || []);
@@ -80,7 +80,7 @@ const SalesHistory = () => {
         setBuscando(false);
       }
     },
-    [fechaInicio, fechaFin, getAuthHeaders]
+    [fechaInicio, fechaFin, getAuthHeaders],
   );
 
   useEffect(() => {
@@ -119,14 +119,18 @@ const SalesHistory = () => {
   };
 
   const eliminarVenta = async (ventaId) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta venta? Esta acción no se puede deshacer.")) {
+    if (
+      !window.confirm(
+        "¿Estás seguro de eliminar esta venta? Esta acción no se puede deshacer.",
+      )
+    ) {
       return;
     }
 
     try {
       const axios = await getAxios();
       await axios.delete(`${API_URL}/api/sales/${ventaId}`, getAuthHeaders());
-      
+
       alert("✅ Venta eliminada exitosamente");
       fetchVentas(currentPage);
     } catch (error) {
@@ -253,14 +257,18 @@ const SalesHistory = () => {
                   {/* Tabla de ventas */}
                   {loading ? (
                     <div className="text-center py-5">
-                      <div className="spinner-border text-success" role="status">
+                      <div
+                        className="spinner-border text-success"
+                        role="status"
+                      >
                         <span className="visually-hidden">Cargando...</span>
                       </div>
                     </div>
                   ) : ventas.length === 0 ? (
                     <div className="alert alert-info text-center">
                       📦 No hay ventas registradas
-                      {(fechaInicio || fechaFin) && " en el rango de fechas seleccionado"}
+                      {(fechaInicio || fechaFin) &&
+                        " en el rango de fechas seleccionado"}
                     </div>
                   ) : (
                     <>
@@ -270,6 +278,7 @@ const SalesHistory = () => {
                             <tr>
                               <th>ID</th>
                               <th>Fecha</th>
+                              <th>Usuario</th>
                               <th>Productos</th>
                               <th>Total</th>
                               <th className="text-center">Acciones</th>
@@ -285,12 +294,21 @@ const SalesHistory = () => {
                                 </td>
                                 <td>{formatearFecha(venta.fecha)}</td>
                                 <td>
+                                  <small className="text-primary">
+                                    {venta.nombreUsuario ||
+                                      venta.usuario?.nombre ||
+                                      "N/A"}
+                                  </small>
+                                </td>
+                                <td>
                                   <div className="productos-list">
-                                    {venta.productos?.slice(0, 2).map((p, i) => (
-                                      <small key={i} className="d-block">
-                                        • {p.nombre} x{p.cantidad}
-                                      </small>
-                                    ))}
+                                    {venta.productos
+                                      ?.slice(0, 2)
+                                      .map((p, i) => (
+                                        <small key={i} className="d-block">
+                                          • {p.nombre} x{p.cantidad}
+                                        </small>
+                                      ))}
                                     {venta.productos?.length > 2 && (
                                       <small className="text-muted">
                                         +{venta.productos.length - 2} más
@@ -360,7 +378,9 @@ const SalesHistory = () => {
                                     >
                                       <button
                                         className="page-link"
-                                        onClick={() => cambiarPagina(pageNumber)}
+                                        onClick={() =>
+                                          cambiarPagina(pageNumber)
+                                        }
                                       >
                                         {pageNumber}
                                       </button>
@@ -371,7 +391,10 @@ const SalesHistory = () => {
                                   pageNumber === currentPage + 3
                                 ) {
                                   return (
-                                    <li key={pageNumber} className="page-item disabled">
+                                    <li
+                                      key={pageNumber}
+                                      className="page-item disabled"
+                                    >
                                       <span className="page-link">...</span>
                                     </li>
                                   );
@@ -416,19 +439,36 @@ const SalesHistory = () => {
             <div className="modal-body-detalles">
               <div className="detalle-row">
                 <span className="detalle-label">ID:</span>
-                <span className="detalle-value">#{ventaSeleccionada._id.slice(-12)}</span>
+                <span className="detalle-value">
+                  #{ventaSeleccionada._id.slice(-12)}
+                </span>
               </div>
               <div className="detalle-row">
                 <span className="detalle-label">Fecha:</span>
-                <span className="detalle-value">{formatearFecha(ventaSeleccionada.fecha)}</span>
+                <span className="detalle-value">
+                  {formatearFecha(ventaSeleccionada.fecha)}
+                </span>
+              </div>
+              {/* ✅ AGREGAR USUARIO */}
+              <div className="detalle-row">
+                <span className="detalle-label">Vendedor:</span>
+                <span className="detalle-value">
+                  {ventaSeleccionada.nombreUsuario ||
+                    ventaSeleccionada.usuario?.nombre ||
+                    "N/A"}
+                </span>
               </div>
               <div className="detalle-row">
                 <span className="detalle-label">Monto Pagado:</span>
-                <span className="detalle-value">{formatearMoneda(ventaSeleccionada.montoPagado)}</span>
+                <span className="detalle-value">
+                  {formatearMoneda(ventaSeleccionada.montoPagado)}
+                </span>
               </div>
               <div className="detalle-row">
                 <span className="detalle-label">Vuelto:</span>
-                <span className="detalle-value">{formatearMoneda(ventaSeleccionada.vuelto)}</span>
+                <span className="detalle-value">
+                  {formatearMoneda(ventaSeleccionada.vuelto)}
+                </span>
               </div>
 
               <div className="productos-detalle">
